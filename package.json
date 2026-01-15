@@ -1,0 +1,17 @@
+{
+  "name": "mortgage-diary",
+  "version": "1.0.0",
+  "description": "Minimal mortgage interest tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.22.1"
+  }
+}

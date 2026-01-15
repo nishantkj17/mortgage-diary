@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>MortgageDiary — Minimal Mortgage Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>MortgageDiary</h1>
+      <p class="muted">Minimal app to track monthly interest and remaining balance per loan</p>
+    </header>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Account Settings</h2>
+          <button id="closeModal" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <section class="account-create">
+            <h3>Manage Accounts</h3>
+            <input id="accountName" placeholder="New account name" />
+            <button id="createAccount">Create Account</button>
+            <div id="accountsList"></div>
+          </section>
+
+          <div class="backup-section">
+            <h3>Backup & Restore</h3>
+            <button id="exportCsv" class="backup-btn">Export CSV</button>
+            <button id="importCsv" class="backup-btn">Import CSV</button>
+            <input type="file" id="csvFileInput" accept=".csv" style="display:none" />
+          </div>
+
+          <div class="delete-section">
+            <h3>Delete Account</h3>
+            <button id="deleteAccount" class="delete-account-btn">Delete Selected Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <section class="content full-width">
+        <div class="top-section" id="topSection">
+          <div class="top-section-content">
+            <div class="account-selector-row">
+              <label>Selected account</label>
+              <select id="selectAccount"></select>
+              <button id="openSettings" class="settings-btn" title="Account settings & backup">⚙</button>
+              <button id="toggleTopSection" class="collapse-form-btn" title="Collapse form">−</button>
+            </div>
+
+            <form id="entryForm" class="entry-form">
+          <div class="form-field">
+            <label>Month & Year</label>
+            <input type="month" id="entryDate" required />
+          </div>
+
+          <div class="form-field">
+            <label>Interest paid</label>
+            <input type="number" id="interestPaid" step="0.01" min="0" placeholder="e.g. 123.45" required />
+          </div>
+
+          <div class="form-field">
+            <label>Principal amount (optional)</label>
+            <div class="input-with-checkbox">
+              <input type="number" id="principalAmount" step="0.01" min="0" placeholder="e.g. 5000" />
+              <label class="withdrawal-checkbox" title="Check if withdrawal">
+                <input type="checkbox" id="isWithdrawal" />
+                <span>W</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Notes (optional)</label>
+            <input id="notes" placeholder="e.g. Feb payment" />
+          </div>
+
+          <button type="submit">Add Entry</button>
+        </form>
+          </div>
+          <button id="expandTopSection" class="expand-form-btn" title="Expand form">+</button>
+        </div>
+
+        <div class="panels">
+          <div class="chart">
+            <h3>Chart</h3>
+            <canvas id="loanChart" width="600" height="300"></canvas>
+          </div>
+
+          <div class="entries" id="entriesSection">
+            <div class="section-header">
+              <h3>Entries</h3>
+              <button id="toggleEntries" class="section-toggle-btn" title="Collapse entries">−</button>
+            </div>
+            <div class="section-content">
+              <table id="entriesTable">
+                <thead><tr><th>Month</th><th>Interest</th><th>Principal</th><th>Type</th><th>Notes</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <small class="muted">Data stored in server file (data/mortgage_data.json). Track interest paid and principal payments.</small>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

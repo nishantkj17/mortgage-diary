@@ -1,0 +1,110 @@
+*{box-sizing:border-box;font-family:Segoe UI,Roboto,'Helvetica Neue',Arial,sans-serif}
+body{margin:0;background:#f6f7fb;color:#111}
+.container{max-width:1100px;margin:18px auto;padding:16px}
+header{display:flex;align-items:baseline;gap:12px}
+header h1{margin:0;font-size:20px}
+.muted{color:#6b6f77;font-size:13px}
+main{display:flex;margin-top:12px}
+.content{flex:1}
+.content.full-width{width:100%}
+.top-section{position:relative;transition:margin-bottom 0.3s}
+.top-section.collapsed .top-section-content{display:none}
+.collapse-form-btn{padding:8px 12px;border:1px solid #6b6f77;background:#fff;color:#6b6f77;border-radius:4px;font-size:16px;cursor:pointer;font-weight:bold}
+.collapse-form-btn:hover{background:#6b6f77;color:#fff}
+.expand-form-btn{display:none;margin:12px auto 0 auto;width:40px;height:40px;padding:0;font-size:24px;box-shadow:0 2px 6px rgba(0,0,0,0.1);border:1px solid #6b6f77;background:#fff;color:#6b6f77;border-radius:4px;cursor:pointer;font-weight:bold;align-items:center;justify-content:center}
+.expand-form-btn:hover{background:#6b6f77;color:#fff}
+.top-section.collapsed .expand-form-btn{display:flex !important}
+.top-section-content{transition:all 0.3s}
+.account-selector-row{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e6e8ee;border-radius:6px;margin-bottom:12px}
+.account-selector-row label{font-size:13px;color:#444;font-weight:500}
+.account-selector-row select{flex:1;padding:8px;border:1px solid #d6d7dc;border-radius:4px;font-size:14px}
+.settings-btn{padding:8px 12px;border:1px solid #6b6f77;background:#fff;color:#6b6f77;border-radius:4px;font-size:16px;cursor:pointer}
+.settings-btn:hover{background:#6b6f77;color:#fff}
+.entry-form{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end;padding:12px;background:#fff;border:1px solid #e6e8ee;border-radius:6px}
+.entry-form .form-field{display:flex;flex-direction:column;gap:4px}
+.entry-form label{font-size:12px;color:#444;font-weight:500}
+.entry-form input,.entry-form select{padding:8px;border:1px solid #d6d7dc;border-radius:4px;font-size:14px}
+.input-with-checkbox{position:relative}
+.input-with-checkbox input[type="number"]{padding-right:50px;width:100%}
+.withdrawal-checkbox{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:4px;font-size:11px;color:#e86060;cursor:pointer;font-weight:normal;margin:0;background:#fff;padding:2px 4px;border-radius:3px}
+.withdrawal-checkbox:hover{background:#fff5f5}
+.withdrawal-checkbox input[type="checkbox"]{width:14px;height:14px;cursor:pointer;accent-color:#e86060;margin:0}
+.withdrawal-checkbox span{font-weight:600;user-select:none}
+.entry-form button{padding:10px 16px;border:none;background:#2b6df6;color:#fff;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.entry-form button:hover{background:#2558c7}
+.panels{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.entries{flex:none;width:100%;background:#fff;padding:12px;border-radius:6px;border:1px solid #e6e8ee;transition:flex 0.3s}
+.entries.collapsed{flex:0 0 auto;min-width:150px}
+.entries.collapsed .section-content{display:none}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.section-header h3{margin:0}
+.section-toggle-btn{width:24px;height:24px;padding:0;border:1px solid #d6d7dc;background:#fff;border-radius:4px;font-size:16px;font-weight:bold;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.section-toggle-btn:hover{background:#f6f7fb}
+.entries.collapsed .section-toggle-btn::before{content:"+"}
+.entries.collapsed .section-toggle-btn{font-size:0}
+.chart{flex:none;width:100%;background:#fff;padding:12px;border-radius:6px;border:1px solid #e6e8ee}
+#loanChart{width:100% !important;height:300px !important;display:block}
+#entriesTable{width:100%;border-collapse:collapse}
+#entriesTable th,#entriesTable td{padding:6px;text-align:left;border-bottom:1px solid #f0f1f4}
+#entriesTable td:last-child{white-space:nowrap}
+#entriesTable .month-group-header{background:#f6f7fb;font-weight:500}
+#entriesTable .month-group-header:hover{background:#eef0f7}
+#entriesTable .month-detail-row{background:#fff}
+#entriesTable .month-detail-row:hover{background:#fafbfc}
+#entriesTable .expand-icon{display:inline-block;width:16px;font-size:12px;color:#666}
+.type-payment{color:#27ae60;font-weight:500}
+.type-withdrawal{color:#e67e22;font-weight:500}
+#entriesTable button{padding:4px 8px;margin-right:6px;border:1px solid #d6d7dc;background:#fff;border-radius:4px;font-size:14px;cursor:pointer;transition:all 0.2s;display:inline-block}
+#entriesTable .editEntry{color:#2b6df6;border-color:#2b6df6}
+#entriesTable .editEntry:hover{background:#2b6df6;color:#fff}
+#entriesTable .delEntry{color:#e86060;border-color:#e86060;margin-right:0}
+#entriesTable .delEntry:hover{background:#e86060;color:#fff}
+#accountsList{margin-top:12px}
+#accountsList .acc{padding:6px;border-radius:4px;margin-bottom:6px;background:#f2f4fb;display:flex;justify-content:space-between;align-items:center}
+.backup-section{margin-top:16px;padding-top:12px;border-top:1px solid #e6e8ee}
+.backup-section h3{font-size:14px;margin:0 0 8px 0}
+.backup-btn{width:100%;padding:8px;margin-bottom:6px;border:1px solid #d6d7dc;background:#fff;border-radius:4px;font-size:13px}
+.backup-btn:hover{background:#f6f7fb}
+.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5)}
+.modal.active{display:flex;align-items:center;justify-content:center}
+.modal-content{background:#fff;border-radius:8px;width:90%;max-width:500px;max-height:80vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e6e8ee}
+.modal-header h2{margin:0;font-size:18px}
+.close-btn{width:32px;height:32px;padding:0;border:none;background:transparent;font-size:28px;color:#6b6f77;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.close-btn:hover{background:#f6f7fb}
+.modal-body{padding:20px}
+.modal-body h3{font-size:14px;margin:0 0 12px 0;color:#444;font-weight:600}
+.modal-body .account-create input{width:100%;padding:8px;margin-bottom:8px;border:1px solid #d6d7dc;border-radius:4px;font-size:14px}
+.modal-body .account-create button{width:100%;padding:10px;border:none;background:#2b6df6;color:#fff;border-radius:4px;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:12px}
+.modal-body .account-create button:hover{background:#2558c7}
+.delete-section{margin-top:20px;padding-top:16px;border-top:1px solid #e6e8ee}
+.delete-account-btn{width:100%;padding:10px;border:1px solid #dc3545;background:#fff;color:#dc3545;border-radius:4px;font-size:14px;font-weight:500;cursor:pointer}
+.delete-account-btn:hover{background:#dc3545;color:#fff}
+button{cursor:pointer}
+footer{margin-top:12px;color:#7a7f87}
+@media(max-width:800px){
+  .container{padding:12px;margin:12px auto}
+  header{flex-direction:column;align-items:flex-start;gap:4px}
+  header h1{font-size:18px}
+  .account-selector-row{flex-wrap:wrap;gap:8px}
+  .account-selector-row label{width:100%;font-size:12px}
+  .account-selector-row select{width:calc(100% - 50px)}
+  .settings-btn{padding:8px 10px;font-size:14px}
+  .entry-form{grid-template-columns:1fr;gap:8px}
+  .entry-form label{font-size:11px}
+  .entry-form input,.entry-form select{padding:10px;font-size:16px}
+  .entry-form button{padding:12px;font-size:16px}
+  .panels{flex-direction:column;gap:12px}
+  .entries,.chart{flex:none;width:100%}
+  .entries.collapsed{min-width:auto}
+  #loanChart{height:250px !important}
+  #entriesTable{font-size:12px}
+  #entriesTable th,#entriesTable td{padding:6px 4px;font-size:11px}
+  #entriesTable button{padding:6px;margin-right:4px;font-size:12px}
+  .modal-content{width:95%;max-width:none;margin:10px}
+  .modal-body{padding:16px}
+  .modal-header{padding:12px 16px}
+  .modal-header h2{font-size:16px}
+  .withdrawal-checkbox{font-size:10px;right:6px}
+  .withdrawal-checkbox input[type="checkbox"]{width:12px;height:12px}
+}

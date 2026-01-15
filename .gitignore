@@ -1,0 +1,5 @@
+node_modules/
+data/mortgage_data.json
+*.log
+.DS_Store
+.env
