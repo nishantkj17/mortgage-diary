@@ -21,6 +21,14 @@ if (!fs.existsSync(DATA_FILE)) {
 app.use(cors());
 app.use(express.json());
 
+// Serve static frontend files (index.html, style.css, app.js, etc.)
+app.use(express.static(__dirname));
+
+// Explicit root handler to ensure GET / serves the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Get all data
 app.get('/api/data', (req, res) => {
   try {
