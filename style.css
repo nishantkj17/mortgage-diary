@@ -100,6 +100,22 @@ main{display:flex;margin-top:12px}
 button{cursor:pointer}
 footer{margin-top:12px;color:#7a7f87}
 
+/* ── Toast notifications ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#37474f;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;z-index:9999;transition:opacity 0.25s,transform 0.25s;box-shadow:0 4px 16px rgba(0,0,0,0.18)}
+.toast.toast-success{background:#6b9080}
+.toast.toast-error{background:#e07a5f}
+.toast.toast-show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Confirm modal ── */
+.confirm-modal-content{max-width:320px;padding:28px 24px;text-align:center;border-radius:12px}
+.confirm-icon{font-size:32px;margin-bottom:10px;line-height:1}
+.confirm-msg{font-size:14px;color:#455a64;margin:0 0 22px;line-height:1.5}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
+.confirm-btn-cancel{flex:1;padding:10px;border:1px solid #d6d7dc;background:#fff;border-radius:6px;font-size:14px;color:#607d8b;font-weight:500;cursor:pointer}
+.confirm-btn-cancel:hover{background:#f6f7fb}
+.confirm-btn-ok{flex:1;padding:10px;border:none;background:#e07a5f;border-radius:6px;font-size:14px;color:#fff;font-weight:600;cursor:pointer}
+.confirm-btn-ok:hover{background:#c8654d}
+
 /* ── Summary Stat Cards (WeddingExpenseTracker-inspired) ── */
 .summary-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .summary-cards-row{display:flex;gap:10px}

@@ -21,6 +21,21 @@
       <p class="muted">Minimal app to track monthly interest and remaining balance per loan</p>
     </header>
 
+    <!-- Toast notification -->
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <!-- Confirm dialog -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-content confirm-modal-content">
+        <div class="confirm-icon" id="confirmIcon"></div>
+        <p id="confirmMsg" class="confirm-msg"></p>
+        <div class="confirm-actions">
+          <button id="confirmCancel" class="confirm-btn-cancel">Cancel</button>
+          <button id="confirmOk" class="confirm-btn-ok">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal">
       <div class="modal-content">

@@ -3,6 +3,40 @@
 
   function uid(){return Date.now().toString(36) + Math.random().toString(36).slice(2,8)}
 
+  // ── Toast ────────────────────────────────────────────────────────────────────
+  let _toastTimer;
+  function showToast(msg, type = 'success', duration = 2800) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    clearTimeout(_toastTimer);
+    el.textContent = msg;
+    el.className = 'toast toast-' + type + ' toast-show';
+    _toastTimer = setTimeout(() => { el.classList.remove('toast-show'); }, duration);
+  }
+
+  // ── Confirm dialog ───────────────────────────────────────────────────────────
+  function showConfirm(msg, { icon = '🗑️', okLabel = 'Delete', okClass = '' } = {}) {
+    return new Promise(resolve => {
+      const modal   = document.getElementById('confirmModal');
+      const msgEl   = document.getElementById('confirmMsg');
+      const iconEl  = document.getElementById('confirmIcon');
+      const okBtn   = document.getElementById('confirmOk');
+      const cancelBtn = document.getElementById('confirmCancel');
+      msgEl.textContent  = msg;
+      iconEl.textContent = icon;
+      okBtn.textContent  = okLabel;
+      modal.classList.add('active');
+      const cleanup = (result) => {
+        modal.classList.remove('active');
+        okBtn.replaceWith(okBtn.cloneNode(true));
+        cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+        resolve(result);
+      };
+      document.getElementById('confirmOk').addEventListener('click', () => cleanup(true), { once: true });
+      document.getElementById('confirmCancel').addEventListener('click', () => cleanup(false), { once: true });
+    });
+  }
+
   async function load(){
     try{
       const response = await fetch(`${API_BASE}/data`);
@@ -24,7 +58,7 @@
       if (!response.ok) throw new Error('Failed to save data');
     }catch(e){
       console.error('Save error:', e);
-      alert('Failed to save data. Check if the server is running.');
+      showToast('Failed to save. Check server is running.', 'error');
     }
   }
 
@@ -91,16 +125,19 @@
     await save(data); 
     currentAccountId = acc.id; 
     renderAll();
+    showToast('Account "' + name + '" created ✓', 'success');
   }
 
   async function deleteAccount(id){
     if(!id) return;
     const idx = data.accounts.findIndex(a=>a.id===id); if(idx===-1) return;
-    if(!confirm('Delete account "'+data.accounts[idx].name+'" and its entries?')) return;
+    const accName = data.accounts[idx].name;
+    if(!await showConfirm('Delete account "'+accName+'" and all its entries? This cannot be undone.', { icon:'🗑️', okLabel:'Delete Account' })) return;
     data.accounts.splice(idx,1); 
     await save(data); 
     currentAccountId = data.accounts[0]?data.accounts[0].id:null; 
     renderAll();
+    showToast('Account "' + accName + '" deleted', 'success');
   }
 
   function getCurrentAccount(){return data.accounts.find(a=>a.id===currentAccountId)}
@@ -289,11 +326,12 @@
   }
 
   async function addEntry(obj){
-    const acc = getCurrentAccount(); if(!acc) return alert('No account selected');
+    const acc = getCurrentAccount(); if(!acc) return showToast('No account selected', 'error');
     acc.entries = acc.entries || [];
     acc.entries.push(Object.assign({id:uid()}, obj));
     await save(data); 
     renderAll();
+    showToast('Entry added ✓', 'success');
   }
 
   async function removeEntry(entryId){
@@ -302,6 +340,7 @@
     acc.entries.splice(idx,1); 
     await save(data); 
     renderAll();
+    showToast('Entry deleted', 'success');
   }
 
   async function updateEntry(entryId, updates){
@@ -748,7 +787,7 @@
 
     // wire up create account
     qs('#createAccount').addEventListener('click',()=>{
-      const name = qs('#accountName').value.trim(); if(!name) return alert('Enter account name'); createAccount(name); qs('#accountName').value='';
+      const name = qs('#accountName').value.trim(); if(!name) return showToast('Enter an account name', 'error'); createAccount(name); qs('#accountName').value='';
     });
 
     qs('#selectAccount').addEventListener('change',(e)=>{ 
@@ -791,7 +830,7 @@
       const btn = ev.target.querySelector('button[type="submit"]');
       const editId = btn.dataset.editId;
       
-      const date = qs('#entryDate').value.substring(0, 7); if(!date) return alert('Select month & year'); // Ensure YYYY-MM format
+      const date = qs('#entryDate').value.substring(0, 7); if(!date) return showToast('Select a month & year', 'error'); // Ensure YYYY-MM format
       const interest = parseFloat(qs('#interestPaid').value) || 0;
       const principalRaw = qs('#principalAmount').value; 
       const principal = principalRaw===''?null:parseFloat(principalRaw);
@@ -806,20 +845,21 @@
         if(principal !== null && principal !== undefined) {
           updateObj.principalType = principalType;
         }
-        updateEntry(editId, updateObj);
+        await updateEntry(editId, updateObj);
         btn.textContent = 'Add Entry';
         btn.style.background = '#607d8b';
         delete btn.dataset.editId;
         // Hide cancel button
         const cancelBtn = qs('#cancelEdit');
         if(cancelBtn) cancelBtn.style.display = 'none';
+        showToast('Entry updated ✓', 'success');
       } else {
         // ADD MODE
         // Rule: interest + balance live on ONE primary entry per month (principal === null).
         //       Principal payments are separate transaction entries (interest=0, balance=null).
         //       This prevents interest from being double-counted across multiple transactions.
         const acc = getCurrentAccount();
-        if(!acc) return alert('No account selected');
+        if(!acc) return showToast('No account selected', 'error');
         acc.entries = acc.entries || [];
 
         // Primary entry = the entry for this month that has no principal
@@ -852,9 +892,8 @@
 
         await save(data);
         renderAll();
-      }
-      
-      qs('#entryDate').value=''; 
+        showToast('Entry added ✓', 'success');
+      } 
       qs('#interestPaid').value=''; 
       qs('#principalAmount').value=''; 
       qs('#isWithdrawal').checked = false;
@@ -875,7 +914,7 @@
       if(e.target.matches('.delEntry')){
         const id = e.target.getAttribute('data-id'); 
         if(!id) return; 
-        if(confirm('Delete entry?')) removeEntry(id);
+        showConfirm('Delete this entry? This cannot be undone.', { icon:'🗑️', okLabel:'Delete Entry' }).then(ok => { if(ok) removeEntry(id); });
       }
       if(e.target.matches('.editEntry')){
         const id = e.target.getAttribute('data-id'); 
@@ -948,7 +987,7 @@
         a.click();
         window.URL.revokeObjectURL(url);
       } catch(e) {
-        alert('Failed to export CSV: ' + e.message);
+        showToast('Export failed: ' + e.message, 'error');
       }
     });
 
@@ -971,14 +1010,14 @@
         
         if (!response.ok) throw new Error('Import failed');
         const result = await response.json();
-        alert(result.message || 'Import successful!');
+        showToast(result.message || 'Import successful!', 'success');
         
         // Reload data
         data = await load();
         renderAll();
         e.target.value = '';
       } catch(err) {
-        alert('Failed to import CSV: ' + err.message);
+        showToast('Import failed: ' + err.message, 'error');
         e.target.value = '';
       }
     });
