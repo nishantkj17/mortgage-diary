@@ -78,6 +78,11 @@
           </div>
 
           <div class="form-field">
+            <label>Remaining Balance (optional)</label>
+            <input type="number" id="balance" step="0.01" min="0" placeholder="e.g. 2500000" />
+          </div>
+
+          <div class="form-field">
             <label>Notes (optional)</label>
             <input id="notes" placeholder="e.g. Feb payment" />
           </div>
@@ -101,7 +106,13 @@
             </div>
             <div class="section-content">
               <table id="entriesTable">
-                <thead><tr><th>Month</th><th>Interest</th><th>Principal</th><th>Type</th><th>Notes</th><th>Actions</th></tr></thead>
+                <thead><tr>
+                  <th data-sort="month"   data-label="Month">Month ▼</th>
+                  <th data-sort="interest" data-label="Interest">Interest ⇅</th>
+                  <th data-sort="balance"  data-label="Balance">Balance ⇅</th>
+                  <th data-sort="payment"  data-label="Payment">Payment ⇅</th>
+                  <th>Type</th><th>Notes</th><th>Actions</th>
+                </tr></thead>
                 <tbody></tbody>
               </table>
             </div>

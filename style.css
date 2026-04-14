@@ -20,7 +20,7 @@ main{display:flex;margin-top:12px}
 .account-selector-row select{flex:1;padding:8px;border:1px solid #d6d7dc;border-radius:4px;font-size:14px}
 .settings-btn{padding:8px 12px;border:1px solid #6b6f77;background:#fff;color:#6b6f77;border-radius:4px;font-size:16px;cursor:pointer}
 .settings-btn:hover{background:#6b6f77;color:#fff}
-.entry-form{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end;padding:12px;background:#fff;border:1px solid #e6e8ee;border-radius:6px}
+.entry-form{display:grid;grid-template-columns:repeat(6,1fr) auto;gap:12px;align-items:end;padding:12px;background:#fff;border:1px solid #e6e8ee;border-radius:6px}
 .entry-form .form-field{display:flex;flex-direction:column;gap:4px}
 .entry-form label{font-size:12px;color:#444;font-weight:500}
 .entry-form input,.entry-form select{padding:8px;border:1px solid #d6d7dc;border-radius:4px;font-size:14px}
@@ -45,6 +45,8 @@ main{display:flex;margin-top:12px}
 .chart{flex:none;width:100%;background:#fff;padding:12px;border-radius:6px;border:1px solid #e6e8ee}
 #loanChart{width:100% !important;height:300px !important;display:block}
 #entriesTable{width:100%;border-collapse:collapse}
+#entriesTable th[data-sort]{cursor:pointer;user-select:none;white-space:nowrap}
+#entriesTable th[data-sort]:hover{background:#eef0f7}
 #entriesTable th,#entriesTable td{padding:6px;text-align:left;border-bottom:1px solid #f0f1f4}
 #entriesTable td:last-child{white-space:nowrap}
 #entriesTable .month-group-header{background:#f6f7fb;font-weight:500}

@@ -55,7 +55,7 @@ app.post('/api/data', (req, res) => {
 app.get('/api/export/csv', (req, res) => {
   try {
     const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    let csv = 'Account,Date,Interest Paid,Principal Amount,Type,Notes\n';
+    let csv = 'Account,Date,Interest Paid,Principal Amount,Type,Notes,Balance\n';
     
     data.accounts.forEach(account => {
       (account.entries || []).forEach(entry => {
@@ -63,7 +63,8 @@ app.get('/api/export/csv', (req, res) => {
         const principal = entry.principal !== null && entry.principal !== undefined ? entry.principal : (entry.remaining !== null && entry.remaining !== undefined ? entry.remaining : '');
         const type = entry.principalType || 'payment';
         const notes = (entry.notes || '').replace(/"/g, '""');
-        csv += `"${accountName}","${entry.date}",${entry.interest},${principal},"${type}","${notes}"\n`;
+        const balanceExport = entry.balance !== null && entry.balance !== undefined ? entry.balance : '';
+        csv += `"${accountName}","${entry.date}",${entry.interest},${principal},"${type}","${notes}",${balanceExport}\n`;
       });
     });
     
@@ -122,7 +123,7 @@ app.post('/api/import/csv', (req, res) => {
       }
       fields.push(current.trim()); // Push last field
       
-      const [accountName, date, interest, principal, type, notes] = fields;
+      const [accountName, date, interest, principal, type, notes, balanceCsv] = fields;
       
       if (!accountName || !date || !interest) return;
       
@@ -148,6 +149,7 @@ app.post('/api/import/csv', (req, res) => {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
         date: date,
         interest: parseFloat(interest) || 0,
+        balance: balanceCsv !== undefined && balanceCsv !== '' ? parseFloat(balanceCsv) : null,
         principal: principal ? parseFloat(principal) : null,
         principalType: type || 'payment',
         notes: notes || ''
