@@ -36,6 +36,7 @@
   let chart = null;
   let sortCol = 'month';   // 'month' | 'interest' | 'balance' | 'payment'
   let sortDir = 'desc';    // 'asc' | 'desc'
+  let currentTab = 'analytics';
 
   function formatMonthYear(dateStr) {
     // dateStr is YYYY-MM or YYYY-MM-DD
@@ -47,6 +48,8 @@
   function renderAll() {
     renderAccountsList();
     renderEntries();
+    renderSummaryCards();
+    renderLoanProgress();
     updateChart();
   }
 
@@ -76,6 +79,9 @@
       currentAccountId = (preferred || data.accounts[0]).id;
     }
     sel.value = currentAccountId || '';
+    // Sync mobile account selector
+    const mobSel = qs('#mobileSelectAccount');
+    if(mobSel) { mobSel.innerHTML = sel.innerHTML; mobSel.value = currentAccountId || ''; }
   }
 
   async function createAccount(name){
@@ -98,6 +104,17 @@
   }
 
   function getCurrentAccount(){return data.accounts.find(a=>a.id===currentAccountId)}
+
+  function switchTab(tab) {
+    currentTab = tab;
+    qsa('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    const panels = { analytics: '#tabAnalytics', add: '#topSection', entries: '#entriesSection' };
+    Object.entries(panels).forEach(([key, sel]) => {
+      const el = qs(sel);
+      if(el) el.classList.toggle('tab-active', key === tab);
+    });
+    if(tab === 'analytics' && chart) setTimeout(() => chart.resize(), 100);
+  }
 
   function renderEntries(){
     const tbl = qs('#entriesTable tbody'); tbl.innerHTML='';
@@ -163,12 +180,12 @@
         const balanceVal = entry.balance !== null && entry.balance !== undefined ? entry.balance.toFixed(2) : '';
         tr.innerHTML = `
           <td><strong>${monthYear}</strong></td>
-          <td>${entry.interest.toFixed(2)}</td>
-          <td>${balanceVal}</td>
-          <td>${principalVal}</td>
-          <td>${typeCell}</td>
-          <td>${entry.notes||''}</td>
-          <td>
+          <td data-label="Interest">${entry.interest.toFixed(2)}</td>
+          <td data-label="Balance">${balanceVal}</td>
+          <td data-label="Payment">${principalVal}</td>
+          <td data-label="Type">${typeCell}</td>
+          <td data-label="Notes">${entry.notes||''}</td>
+          <td class="actions-cell">
             <button data-id="${entry.id}" class="editEntry" title="Edit entry">✎</button>
             <button data-id="${entry.id}" class="delEntry" title="Delete entry">✕</button>
           </td>`;
@@ -212,10 +229,11 @@
       
       headerRow.innerHTML = `
         <td><span class="expand-icon">${monthEntries.length > 1 ? '▶' : '\u00a0\u00a0'}</span> <strong>${monthYear}</strong></td>
-        <td><strong>${totalInterest.toFixed(2)}</strong></td>
-        <td>${groupBalanceDisplay}</td>
-        <td colspan="2">${netDisplay}</td>
-        <td><em>${monthEntries.length} transaction${monthEntries.length > 1 ? 's' : ''}</em></td>
+        <td data-label="Interest"><strong>${totalInterest.toFixed(2)}</strong></td>
+        <td data-label="Balance">${groupBalanceDisplay}</td>
+        <td data-label="Net">${netDisplay}</td>
+        <td data-label="Txns"><em>${monthEntries.length} txn${monthEntries.length > 1 ? 's' : ''}</em></td>
+        <td></td>
         <td></td>`;
       tbl.appendChild(headerRow);
       
@@ -255,13 +273,13 @@
         
         const detailBalanceVal = entry.balance !== null && entry.balance !== undefined ? entry.balance.toFixed(2) : '';
         tr.innerHTML = `
-          <td style="padding-left:30px">${entry.notes||'(transaction)'}</td>
-          <td>${entry.interest.toFixed(2)}</td>
-          <td>${detailBalanceVal}</td>
-          <td>${principalVal}</td>
-          <td>${typeCell}</td>
+          <td>${entry.notes||'(transaction)'}</td>
+          <td data-label="Interest">${entry.interest > 0 ? entry.interest.toFixed(2) : ''}</td>
+          <td data-label="Balance">${detailBalanceVal}</td>
+          <td data-label="Payment">${principalVal}</td>
+          <td data-label="Type">${typeCell}</td>
           <td></td>
-          <td>
+          <td class="actions-cell">
             <button data-id="${entry.id}" class="editEntry" title="Edit entry">✎</button>
             <button data-id="${entry.id}" class="delEntry" title="Delete entry">✕</button>
           </td>`;
@@ -293,6 +311,167 @@
     Object.assign(entry, updates);
     await save(data);
     renderAll();
+  }
+
+  // ── Loan Repayment Progress Bar ─────────────────────────────────────────────
+  const TOTAL_LOAN = 8000000; // ₹80L
+
+  function renderLoanProgress() {
+    const el = qs('#loanProgress');
+    if (!el) return;
+
+    const acc = getCurrentAccount();
+    if (!acc || !acc.entries || acc.entries.length === 0) { el.innerHTML = ''; return; }
+
+    // Get latest month's balance
+    const rows = acc.entries.filter(e => e.balance !== null && e.balance !== undefined);
+    if (rows.length === 0) { el.innerHTML = ''; return; }
+    const latest = rows.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+    const currentBalance = Number(latest.balance);
+    const repaid = Math.max(0, TOTAL_LOAN - currentBalance);
+    const pct = Math.min(100, (repaid / TOTAL_LOAN) * 100);
+
+    function fmtL(v) {
+      return '₹' + (v / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
+    }
+
+    el.innerHTML = `
+      <div class="loan-progress-header">
+        <div class="loan-progress-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Loan Repayment
+        </div>
+        <span class="loan-progress-pct">${pct.toFixed(1)}% repaid</span>
+      </div>
+      <div class="loan-progress-track">
+        <div class="loan-progress-fill" style="width:${pct.toFixed(2)}%"></div>
+      </div>
+      <div class="loan-progress-labels">
+        <span class="lp-repaid">↓ ${fmtL(repaid)} repaid</span>
+        <span style="color:#90a4ae;font-size:11px">of ${fmtL(TOTAL_LOAN)}</span>
+        <span class="lp-remaining">${fmtL(currentBalance)} remaining ↑</span>
+      </div>
+    `;
+  }
+
+  // ── Summary Stat Cards ──────────────────────────────────────────────────────
+  function renderSummaryCards() {
+    const container = qs('#summaryCards');
+    if (!container) return;
+
+    const acc = getCurrentAccount();
+    if (!acc || !acc.entries || acc.entries.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    // Group by month, sorted
+    const byMonth = {};
+    acc.entries.forEach(e => {
+      const k = e.date.substring(0, 7);
+      if (!byMonth[k]) byMonth[k] = [];
+      byMonth[k].push(e);
+    });
+    const monthKeys = Object.keys(byMonth).sort();
+    if (monthKeys.length === 0) { container.innerHTML = ''; return; }
+
+    // Get primary entry (interest+balance owner) for a given month key
+    function primary(k) {
+      const list = byMonth[k];
+      return list.find(e => e.principal === null || e.principal === undefined) || list[0];
+    }
+
+    const latestKey = monthKeys[monthKeys.length - 1];
+    const prevKey   = monthKeys.length > 1 ? monthKeys[monthKeys.length - 2] : null;
+    const latest    = primary(latestKey);
+    const prev      = prevKey ? primary(prevKey) : null;
+
+    const latestBalance  = latest ? latest.balance  : null;
+    const prevBalance    = prev   ? prev.balance    : null;
+    const latestInterest = latest ? latest.interest : null;
+    const prevInterest   = prev   ? prev.interest   : null;
+
+    function fmt(val) {
+      if (val === null || val === undefined) return '—';
+      const n = Number(val);
+      if (n >= 100000) return '₹' + (n / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
+      return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+    }
+
+    function trendHtml(cur, prv) {
+      if (cur === null || cur === undefined || prv === null || prv === undefined) {
+        return '<span class="trend-flat">— first entry</span>';
+      }
+      const diff = cur - prv;
+      if (Math.abs(diff) < 0.01) return '<span class="trend-flat">↔ No change</span>';
+      const up  = diff > 0;
+      const cls = up ? 'trend-up' : 'trend-down';
+      const arrow = up ? '↑' : '↓';
+      return `<span class="${cls}">${arrow} ${fmt(Math.abs(diff))} vs prev</span>`;
+    }
+
+    // ── Aggregate stats across all entries ──
+    const allPrimary = monthKeys.map(k => primary(k));
+    const totalInterest   = allPrimary.reduce((s, e) => s + (e && e.interest ? Number(e.interest) : 0), 0);
+    const avgInterest     = monthKeys.length > 0 ? totalInterest / monthKeys.length : 0;
+    const totalDeposited  = acc.entries.reduce((s, e) => {
+      return (e.principal && e.principalType !== 'withdrawal') ? s + Number(e.principal) : s;
+    }, 0);
+    const totalWithdrawn  = acc.entries.reduce((s, e) => {
+      return (e.principal && e.principalType === 'withdrawal') ? s + Number(e.principal) : s;
+    }, 0);
+
+    // WeddingExpenseTracker neutral palette icons
+    const balanceIcon    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9d8189" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`;
+    const interestIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#607d8b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`;
+    const sumIcon        = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5l8 7-8 7"/><line x1="13" y1="12" x2="20" y2="12"/></svg>`;
+    const depositIcon    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b9080" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
+    const withdrawIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c09a6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+
+    container.innerHTML = `
+      <div class="summary-cards-row">
+        <div class="summary-card">
+          <div class="summary-card-label">
+            ${balanceIcon} Balance
+            <span class="summary-card-month">${formatMonthYear(latestKey)}</span>
+          </div>
+          <div class="summary-card-value" style="color:#9d8189">${fmt(latestBalance)}</div>
+          <div class="summary-card-trend">${trendHtml(latestBalance, prevBalance)}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-label">
+            ${interestIcon} Interest
+            <span class="summary-card-month">${formatMonthYear(latestKey)}</span>
+          </div>
+          <div class="summary-card-value" style="color:#607d8b">${fmt(latestInterest)}</div>
+          <div class="summary-card-trend">${trendHtml(latestInterest, prevInterest)}</div>
+        </div>
+      </div>
+      <div class="summary-cards-row">
+        <div class="summary-card">
+          <div class="summary-card-label">${sumIcon} Total Interest</div>
+          <div class="summary-card-value" style="color:#78909c">${fmt(totalInterest)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">${monthKeys.length} months</span></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-label">${interestIcon} Avg / Month</div>
+          <div class="summary-card-value" style="color:#607d8b">${fmt(avgInterest)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">across all months</span></div>
+        </div>
+      </div>
+      <div class="summary-cards-row">
+        <div class="summary-card">
+          <div class="summary-card-label">${depositIcon} Deposited</div>
+          <div class="summary-card-value" style="color:#6b9080">${fmt(totalDeposited)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">total payments</span></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-label">${withdrawIcon} Withdrawn</div>
+          <div class="summary-card-value" style="color:#c09a6b">${fmt(totalWithdrawn)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">total disbursed</span></div>
+        </div>
+      </div>
+    `;
   }
 
   function updateChart(){
@@ -382,8 +561,8 @@
       {
         label:'Interest paid', 
         data:interestData, 
-        borderColor:'#2b6df6',
-        backgroundColor:'rgba(43,109,246,0.75)',
+        borderColor:'#607d8b',
+        backgroundColor:'rgba(96,125,139,0.72)',
         yAxisID:'y', 
         type:'bar',
         borderRadius:4,
@@ -404,7 +583,7 @@
         pointRotation:180,
         pointRadius:paymentBubbles.map(v => v === null ? 0 : 6),
         pointHoverRadius:paymentBubbles.map(v => v === null ? 0 : 8),
-        pointBackgroundColor:'#27ae60',
+        pointBackgroundColor:'#6b9080',
         pointBorderColor:'#fff',
         pointBorderWidth:1.5,
         yAxisID:'y',
@@ -424,7 +603,7 @@
         pointRotation:0,
         pointRadius:withdrawalBubbles.map(v => v === null ? 0 : 6),
         pointHoverRadius:withdrawalBubbles.map(v => v === null ? 0 : 8),
-        pointBackgroundColor:'#e67e22',
+        pointBackgroundColor:'#c09a6b',
         pointBorderColor:'#fff',
         pointBorderWidth:1.5,
         yAxisID:'y',
@@ -439,15 +618,15 @@
         label:'Balance',
         data:balanceData,
         type:'line',
-        borderColor:'#8e44ad',
-        backgroundColor:'rgba(142,68,173,0.07)',
+        borderColor:'#9d8189',
+        backgroundColor:'rgba(157,129,137,0.07)',
         yAxisID:'y1',
         fill:true,
         tension:0.35,
         borderWidth:2.5,
         pointRadius:2,
         pointHoverRadius:4,
-        pointBackgroundColor:'#8e44ad',
+        pointBackgroundColor:'#9d8189',
         pointBorderColor:'#fff',
         pointBorderWidth:1.5,
         spanGaps:true,
@@ -474,20 +653,35 @@
           },
           interaction:{mode:'index',intersect:false},
           scales:{
+            x:{
+              ticks:{
+                callback: function(val, idx) {
+                  return idx % 3 === 0 ? this.getLabelForValue(val) : '';
+                },
+                maxRotation: 45,
+                minRotation: 45
+              }
+            },
             y:{
               type:'linear',
               position:'left',
               title:{display:true,text:'Interest (₹)'},
               beginAtZero: true,
               max: 80000,
-              grid:{color:'rgba(0,0,0,0.05)'}
+              grid:{color:'rgba(0,0,0,0.05)'},
+              ticks:{
+                callback: v => v >= 1000 ? (v/1000) + 'K' : v
+              }
             },
             y1:{
               type:'linear',
               position:'right',
               title:{display:true,text:'Balance (₹)'},
               grid:{drawOnChartArea:false},
-              beginAtZero: false
+              beginAtZero: false,
+              ticks:{
+                callback: v => (v/100000).toLocaleString('en-IN',{maximumFractionDigits:1}) + 'L'
+              }
             }
           }
         }
@@ -557,7 +751,12 @@
       const name = qs('#accountName').value.trim(); if(!name) return alert('Enter account name'); createAccount(name); qs('#accountName').value='';
     });
 
-    qs('#selectAccount').addEventListener('change',(e)=>{ currentAccountId = e.target.value; renderEntries(); updateChart(); });
+    qs('#selectAccount').addEventListener('change',(e)=>{ 
+      currentAccountId = e.target.value;
+      const mobSel = qs('#mobileSelectAccount');
+      if(mobSel) mobSel.value = e.target.value;
+      renderEntries(); renderSummaryCards(); renderLoanProgress(); updateChart();
+    });
     
     // Auto-fill interest when month is selected (if entry exists for that month)
     qs('#entryDate').addEventListener('change',(e)=>{
@@ -609,7 +808,7 @@
         }
         updateEntry(editId, updateObj);
         btn.textContent = 'Add Entry';
-        btn.style.background = '#2b6df6';
+        btn.style.background = '#607d8b';
         delete btn.dataset.editId;
         // Hide cancel button
         const cancelBtn = qs('#cancelEdit');
@@ -704,7 +903,7 @@
         const form = qs('#entryForm');
         const btn = form.querySelector('button[type="submit"]');
         btn.textContent = 'Update Entry';
-        btn.style.background = '#e67e22';
+        btn.style.background = '#c09a6b';
         btn.dataset.editId = id;
         
         // Add cancel button if it doesn't exist
@@ -727,12 +926,12 @@
             delete btn.dataset.editId;
             cancelBtn.style.display = 'none';
           });
-          btn.parentNode.appendChild(cancelBtn);
+          btn.closest('.form-actions').appendChild(cancelBtn);
         }
         cancelBtn.style.display = 'inline-block';
         
-        // Scroll to form
-        form.scrollIntoView({behavior: 'smooth'});
+        // Switch to Add tab on mobile, scroll on desktop
+        if(window.innerWidth <= 800) { switchTab('add'); } else { form.scrollIntoView({behavior: 'smooth'}); }
       }
     });
 
@@ -786,5 +985,24 @@
 
     // initial render
     init();
+
+    // Mobile tab navigation
+    qsa('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    // Mobile settings button
+    const mobileSettingsBtn = qs('#mobileOpenSettings');
+    if(mobileSettingsBtn) mobileSettingsBtn.addEventListener('click', () => qs('#settingsModal').classList.add('active'));
+    // Mobile account select
+    const mobAccountSel = qs('#mobileSelectAccount');
+    if(mobAccountSel) {
+      mobAccountSel.addEventListener('change', (e) => {
+        currentAccountId = e.target.value;
+        qs('#selectAccount').value = e.target.value;
+        renderEntries(); renderSummaryCards(); renderLoanProgress(); updateChart();
+      });
+    }
+    // Set initial tab on mobile
+    if(window.innerWidth <= 800) switchTab('analytics');
   });
 })();
