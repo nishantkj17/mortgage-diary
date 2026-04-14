@@ -5,18 +5,58 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const DATA_FILE = path.join(__dirname, 'data', 'mortgage_data.json');
 
-// Ensure data directory exists
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir);
+// ── Storage abstraction ──────────────────────────────────────────────────────
+// When AZURE_STORAGE_CONNECTION_STRING is set → use Blob Storage (production)
+// Otherwise → fall back to local JSON file (local dev)
+const USE_BLOB = !!process.env.AZURE_STORAGE_CONNECTION_STRING;
+const CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER || 'mortgage-data';
+const BLOB_NAME      = 'mortgage_data.json';
+const DATA_FILE      = path.join(__dirname, 'data', 'mortgage_data.json');
+
+let blockBlobClient;
+
+if (USE_BLOB) {
+  const { BlobServiceClient } = require('@azure/storage-blob');
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    process.env.AZURE_STORAGE_CONNECTION_STRING
+  );
+  const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+  blockBlobClient = containerClient.getBlockBlobClient(BLOB_NAME);
+  // Ensure container exists on startup
+  containerClient.createIfNotExists()
+    .then(() => console.log(`Blob container "${CONTAINER_NAME}" ready`))
+    .catch(e => console.error('Blob container init error:', e));
+  console.log('Storage: Azure Blob Storage');
+} else {
+  // Local file fallback
+  const dataDir = path.join(__dirname, 'data');
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify({ accounts: [] }));
+  console.log(`Storage: local file (${DATA_FILE})`);
 }
 
-// Initialize data file if it doesn't exist
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({ accounts: [] }));
+async function readData() {
+  if (USE_BLOB) {
+    const buffer = await blockBlobClient.downloadToBuffer();
+    return JSON.parse(buffer.toString('utf8'));
+  }
+  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 }
+
+async function writeData(data) {
+  const json = JSON.stringify(data, null, 2);
+  if (USE_BLOB) {
+    const buf = Buffer.from(json, 'utf8');
+    await blockBlobClient.upload(buf, buf.length, {
+      blobHTTPHeaders: { blobContentType: 'application/json' },
+      overwrite: true
+    });
+  } else {
+    fs.writeFileSync(DATA_FILE, json);
+  }
+}
+// ────────────────────────────────────────────────────────────────────────────
 
 app.use(cors());
 app.use(express.json());
@@ -30,9 +70,9 @@ app.get('/', (req, res) => {
 });
 
 // Get all data
-app.get('/api/data', (req, res) => {
+app.get('/api/data', async (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const data = await readData();
     res.json(data);
   } catch (err) {
     console.error('Error reading data:', err);
@@ -41,9 +81,9 @@ app.get('/api/data', (req, res) => {
 });
 
 // Save all data
-app.post('/api/data', (req, res) => {
+app.post('/api/data', async (req, res) => {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(req.body, null, 2));
+    await writeData(req.body);
     res.json({ success: true });
   } catch (err) {
     console.error('Error saving data:', err);
@@ -52,9 +92,9 @@ app.post('/api/data', (req, res) => {
 });
 
 // Export CSV
-app.get('/api/export/csv', (req, res) => {
+app.get('/api/export/csv', async (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const data = await readData();
     let csv = 'Account,Date,Interest Paid,Principal Amount,Type,Notes,Balance\n';
     
     data.accounts.forEach(account => {
@@ -78,7 +118,7 @@ app.get('/api/export/csv', (req, res) => {
 });
 
 // Import CSV
-app.post('/api/import/csv', (req, res) => {
+app.post('/api/import/csv', async (req, res) => {
   try {
     const { csvData } = req.body;
     const lines = csvData.split('\n').filter(line => line.trim());
@@ -89,7 +129,7 @@ app.post('/api/import/csv', (req, res) => {
     
     // Skip header
     const dataLines = lines.slice(1);
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const data = await readData();
     const accountMap = new Map();
     
     // Find or create accounts
@@ -157,7 +197,7 @@ app.post('/api/import/csv', (req, res) => {
       added++;
     });
     
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    await writeData(data);
     const message = `Import complete: ${added} entries added, ${skipped} duplicates skipped`;
     res.json({ success: true, message: message });
   } catch (err) {
@@ -167,6 +207,6 @@ app.post('/api/import/csv', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Mortgage Diary API server running on http://localhost:${PORT}`);
-  console.log(`Data stored in: ${DATA_FILE}`);
+  console.log(`Mortgage Diary server running on http://localhost:${PORT}`);
+  console.log(`Mode: ${USE_BLOB ? 'Azure Blob Storage' : 'local file'}`);
 });
