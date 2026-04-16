@@ -736,60 +736,75 @@
     
     if(rows.length === 0) return;
     
-    // Group entries by month for aggregation
+    // Group entries by month first
     const groupedByMonth = {};
     rows.forEach(entry=>{
-      const monthKey = entry.date.substring(0, 7); // YYYY-MM
-      if(!groupedByMonth[monthKey]) {
-        groupedByMonth[monthKey] = [];
-      }
+      const monthKey = entry.date.substring(0, 7);
+      if(!groupedByMonth[monthKey]) groupedByMonth[monthKey] = [];
       groupedByMonth[monthKey].push(entry);
     });
-    
-    // Create arrays for chart with one point per month
+
+    const monthKeys = Object.keys(groupedByMonth).sort();
+    const numMonths = monthKeys.length;
+
+    // Auto-aggregate: monthly ≤24pts, quarterly ≤60pts, yearly beyond
+    const useQuarterly = numMonths > 24 && numMonths <= 60;
+    const useYearly    = numMonths > 60;
+
+    function bucketKey(monthKey) {
+      const [y, m] = monthKey.split('-').map(Number);
+      if (useYearly)    return `${y}`;
+      if (useQuarterly) return `${y}-Q${Math.ceil(m / 3)}`;
+      return monthKey;
+    }
+
+    function bucketLabel(key) {
+      if (useYearly)    return key;
+      if (useQuarterly) return key.replace('-', ' ');
+      const [y, m] = key.split('-');
+      const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${names[parseInt(m)-1]} ${y}`;
+    }
+
+    // Aggregate monthly data into buckets
+    const buckets = {};
+    monthKeys.forEach(mk => {
+      const bk = bucketKey(mk);
+      if (!buckets[bk]) buckets[bk] = { interest: 0, balance: null, payment: 0, withdrawal: 0, count: 0 };
+      const b = buckets[bk];
+      const monthEntries = groupedByMonth[mk];
+      const primary = monthEntries.find(e => e.principal === null || e.principal === undefined) || monthEntries[0];
+      b.interest += primary.interest || 0;
+      // For quarterly/yearly, use the last balance in the bucket
+      if (primary.balance !== null && primary.balance !== undefined) b.balance = primary.balance;
+      monthEntries.forEach(e => {
+        if (e.principal && e.principalType !== 'withdrawal') b.payment += e.principal;
+        if (e.principal && e.principalType === 'withdrawal') b.withdrawal += e.principal;
+      });
+      b.count++;
+    });
+
+    // For quarterly/yearly, interest should be averaged (avg monthly cost), not summed
+    if (useQuarterly || useYearly) {
+      Object.values(buckets).forEach(b => { b.interest = b.interest / b.count; });
+    }
+
+    // Build chart arrays
     const labels = [];
     const interestData = [];
     const balanceData = [];
     const paymentBubbles = [];
     const withdrawalBubbles = [];
-    
-    Object.keys(groupedByMonth).sort().forEach(monthKey => {
-      const monthEntries = groupedByMonth[monthKey];
-      
-      // Primary entry (principal === null) owns interest & balance.
-      // Transaction entries carry principal only and have interest=0.
-      const primaryForMonth = monthEntries.find(e => e.principal === null || e.principal === undefined) || monthEntries[0];
-      const monthInterest = primaryForMonth.interest;
-      
-      // Calculate net payment/withdrawal
-      const totalPayment = monthEntries.reduce((sum, e) => {
-        if(e.principal && e.principalType !== 'withdrawal') return sum + e.principal;
-        return sum;
-      }, 0);
-      const totalWithdrawal = monthEntries.reduce((sum, e) => {
-        if(e.principal && e.principalType === 'withdrawal') return sum + e.principal;
-        return sum;
-      }, 0);
-      const netPrincipal = totalPayment - totalWithdrawal;
-      
-      // Balance lives only on the primary entry
-      const monthBalance = (primaryForMonth.balance !== null && primaryForMonth.balance !== undefined) ? primaryForMonth.balance : null;
 
-      labels.push(formatMonthYear(monthKey));
-      interestData.push(monthInterest);
-      balanceData.push(monthBalance);
-      
-      // Show bubble based on net amount
-      if(netPrincipal > 0) {
-        paymentBubbles.push(monthInterest);
-        withdrawalBubbles.push(null);
-      } else if(netPrincipal < 0) {
-        paymentBubbles.push(null);
-        withdrawalBubbles.push(monthInterest);
-      } else {
-        paymentBubbles.push(null);
-        withdrawalBubbles.push(null);
-      }
+    Object.keys(buckets).sort().forEach(bk => {
+      const b = buckets[bk];
+      labels.push(bucketLabel(bk));
+      interestData.push(b.interest);
+      balanceData.push(b.balance);
+      const net = b.payment - b.withdrawal;
+      if (net > 0)      { paymentBubbles.push(b.interest); withdrawalBubbles.push(null); }
+      else if (net < 0) { paymentBubbles.push(null); withdrawalBubbles.push(b.interest); }
+      else              { paymentBubbles.push(null); withdrawalBubbles.push(null); }
     });
 
     const datasets = [
@@ -882,7 +897,20 @@
             legend: {
               display: true,
               labels: {
-                filter: item => item.text !== 'Payment' && item.text !== 'Withdrawal'
+                filter: item => item.text !== 'Payment' && item.text !== 'Withdrawal',
+                usePointStyle: true,
+                pointStyleWidth: 28,
+                generateLabels: function(chart) {
+                  return Chart.defaults.plugins.legend.labels.generateLabels(chart).map(item => {
+                    const ds = chart.data.datasets[item.datasetIndex];
+                    if (ds && ds.type === 'line') {
+                      item.pointStyle = 'line';
+                    } else {
+                      item.pointStyle = 'rect';
+                    }
+                    return item;
+                  }).filter(item => item.text !== 'Payment' && item.text !== 'Withdrawal');
+                }
               }
             }
           },
@@ -891,7 +919,10 @@
             x:{
               ticks:{
                 callback: function(val, idx) {
-                  return idx % 3 === 0 ? this.getLabelForValue(val) : '';
+                  // Monthly: show every 3rd to avoid crowding; quarterly/yearly: show all
+                  const total = this.chart.data.labels.length;
+                  const step = total > 36 ? 1 : total > 24 ? 1 : 3;
+                  return idx % step === 0 ? this.getLabelForValue(val) : '';
                 },
                 maxRotation: 45,
                 minRotation: 45
@@ -900,7 +931,7 @@
             y:{
               type:'linear',
               position:'left',
-              title:{display:true,text:'Interest (₹)'},
+              title:{display:true,text: useYearly ? 'Avg Monthly Interest (₹)' : useQuarterly ? 'Avg Monthly Interest (₹)' : 'Interest (₹)'},
               beginAtZero: true,
               max: 80000,
               grid:{color:'rgba(0,0,0,0.05)'},
