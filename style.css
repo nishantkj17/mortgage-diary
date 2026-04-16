@@ -280,3 +280,107 @@ footer{margin-top:12px;color:#7a7f87}
   .txn-save-btn,.txn-cancel-btn{padding:14px;font-size:16px}
   .tenant-modal-row{grid-template-columns:1fr}
 }
+
+/* ── Theme Toggle Button ── */
+.theme-toggle-btn{padding:7px 10px;border:1px solid #d6d7dc;background:#fff;color:#607d8b;border-radius:4px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s,color 0.15s}
+.theme-toggle-btn:hover{background:#f0f2f5;color:#455a64}
+.desktop-theme-btn{margin-left:auto}
+
+/* ── Dark Theme ── */
+html[data-theme="dark"]{color-scheme:dark}
+html[data-theme="dark"] body{background:#111827;color:#f3f4f6}
+html[data-theme="dark"] .muted{color:#9ca3af}
+html[data-theme="dark"] footer{color:#6b7280}
+
+/* Panels */
+html[data-theme="dark"] .chart,
+html[data-theme="dark"] .entries,
+html[data-theme="dark"] .tenant-tab,
+html[data-theme="dark"] .account-selector-row,
+html[data-theme="dark"] .entry-form,
+html[data-theme="dark"] .modal-content{background:#1f2937;border-color:#374151}
+
+/* Summary cards */
+html[data-theme="dark"] .summary-card{background:#1f2937;border-color:#374151}
+html[data-theme="dark"] .summary-card-label{color:#9ca3af}
+
+/* Inputs & selects */
+html[data-theme="dark"] input:not([type="checkbox"]),
+html[data-theme="dark"] select{background:#273344;border-color:#4b5563;color:#f3f4f6}
+html[data-theme="dark"] input::placeholder{color:#6b7280}
+html[data-theme="dark"] option{background:#273344;color:#f3f4f6}
+
+/* Buttons */
+html[data-theme="dark"] .settings-btn,
+html[data-theme="dark"] .theme-toggle-btn,
+html[data-theme="dark"] .collapse-form-btn,
+html[data-theme="dark"] .expand-form-btn,
+html[data-theme="dark"] .section-toggle-btn,
+html[data-theme="dark"] .backup-btn,
+html[data-theme="dark"] .txn-cancel-btn,
+html[data-theme="dark"] .confirm-btn-cancel,
+html[data-theme="dark"] .tenant-edit-btn{background:#1f2937;border-color:#4b5563;color:#9ca3af}
+html[data-theme="dark"] .settings-btn:hover,
+html[data-theme="dark"] .theme-toggle-btn:hover{background:#273344}
+
+/* Mobile header */
+html[data-theme="dark"] .mobile-header{background:#1f2937;border-bottom-color:#374151}
+html[data-theme="dark"] .mobile-title{color:#f3f4f6}
+html[data-theme="dark"] .mobile-account-select{background:#273344;border-color:#4b5563;color:#f3f4f6}
+
+/* Bottom nav */
+html[data-theme="dark"] .bottom-nav{background:#1f2937;border-top-color:#374151}
+
+/* Modal */
+html[data-theme="dark"] .modal-header{border-bottom-color:#374151}
+html[data-theme="dark"] .modal-header h2{color:#f3f4f6}
+html[data-theme="dark"] .modal-body h3{color:#9ca3af}
+html[data-theme="dark"] .close-btn{color:#9ca3af}
+html[data-theme="dark"] .close-btn:hover{background:#273344}
+html[data-theme="dark"] .confirm-msg{color:#d1d5db}
+
+/* Section dividers */
+html[data-theme="dark"] .chart-header,
+html[data-theme="dark"] .loan-progress,
+html[data-theme="dark"] .backup-section,
+html[data-theme="dark"] .delete-section,
+html[data-theme="dark"] .section-header{border-color:#374151}
+
+/* Table */
+html[data-theme="dark"] #entriesTable th,
+html[data-theme="dark"] #entriesTable td{border-bottom-color:#374151;color:#f3f4f6}
+html[data-theme="dark"] #entriesTable th[data-sort]:hover{background:#273344}
+html[data-theme="dark"] #entriesTable tr{background:#1f2937;border-color:#374151}
+html[data-theme="dark"] #entriesTable .month-group-header{background:#273344}
+html[data-theme="dark"] #entriesTable .month-group-header:hover{background:#2d3a50}
+html[data-theme="dark"] #entriesTable .month-detail-row{background:#1a2535;border-color:#374151}
+html[data-theme="dark"] #entriesTable .month-detail-row:hover{background:#1e2c42}
+html[data-theme="dark"] #entriesTable button{background:#1f2937;border-color:#4b5563;color:#9ca3af}
+html[data-theme="dark"] #entriesTable .editEntry{color:#7eaab8;border-color:#7eaab8}
+html[data-theme="dark"] #entriesTable .editEntry:hover{background:#7eaab8;color:#fff}
+
+/* Account list */
+html[data-theme="dark"] #accountsList .acc{background:#273344}
+
+/* Tenant */
+html[data-theme="dark"] .tenant-profile-card,
+html[data-theme="dark"] .txn-form{background:#273344;border-color:#374151}
+html[data-theme="dark"] .txn-row{background:#273344;border-color:#374151}
+html[data-theme="dark"] .tenant-empty{border-color:#374151;color:#6b7280}
+html[data-theme="dark"] .txn-date{color:#6b7280}
+html[data-theme="dark"] .txn-cat{color:#e2e8f0}
+html[data-theme="dark"] .tenant-section-title{color:#9ca3af}
+html[data-theme="dark"] .tenant-meta{color:#9ca3af}
+html[data-theme="dark"] .tenant-meta-row{color:#9ca3af}
+
+/* Loan progress */
+html[data-theme="dark"] .loan-progress-track{background:#374151}
+html[data-theme="dark"] .loan-progress-title{color:#9ca3af}
+
+/* Misc */
+html[data-theme="dark"] .entry-form label,
+html[data-theme="dark"] .txn-form-grid label,
+html[data-theme="dark"] .account-selector-row label{color:#d1d5db}
+html[data-theme="dark"] .withdrawal-checkbox{background:#273344;color:#e07a5f}
+html[data-theme="dark"] .type-payment{color:#86efac}
+html[data-theme="dark"] .type-withdrawal{color:#fca5a5}
