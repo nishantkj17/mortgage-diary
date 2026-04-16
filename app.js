@@ -886,9 +886,35 @@
 
     try {
       const ctx = canvas.getContext('2d', { willReadFrequently: false });
+      const lineDotsLegendPlugin = {
+        id: 'lineDotsLegend',
+        afterDraw(ch) {
+          const legend = ch.legend;
+          if (!legend || !legend.legendItems) return;
+          const c = ch.ctx;
+          legend.legendItems.forEach((item, i) => {
+            const ds = ch.data.datasets[item.datasetIndex];
+            if (!ds || ds.type !== 'line') return;
+            const hb = legend.legendHitBoxes[i];
+            if (!hb) return;
+            const cx = hb.left + hb.width / 2;
+            const cy = hb.top + hb.height / 2;
+            const color = typeof ds.borderColor === 'string' ? ds.borderColor : '#9d8189';
+            c.save();
+            c.fillStyle = color;
+            const r = 3;
+            // Draw one dot centred on the line indicator (first 40px of hitbox, not the text)
+            c.beginPath();
+            c.arc(hb.left + 20, cy, r, 0, Math.PI * 2);
+            c.fill();
+            c.restore();
+          });
+        }
+      };
       chart = new Chart(ctx, {
         type:'bar', 
         data:{labels:labels, datasets:datasets}, 
+        plugins:[lineDotsLegendPlugin],
         options:{
           responsive:false,
           maintainAspectRatio:false,
@@ -899,12 +925,14 @@
               labels: {
                 filter: item => item.text !== 'Payment' && item.text !== 'Withdrawal',
                 usePointStyle: true,
-                pointStyleWidth: 28,
+                pointStyleWidth: 40,
                 generateLabels: function(chart) {
                   return Chart.defaults.plugins.legend.labels.generateLabels(chart).map(item => {
                     const ds = chart.data.datasets[item.datasetIndex];
                     if (ds && ds.type === 'line') {
                       item.pointStyle = 'line';
+                      item.strokeStyle = ds.borderColor;
+                      item.lineWidth = 2.5;
                     } else {
                       item.pointStyle = 'rect';
                     }
