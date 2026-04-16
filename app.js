@@ -85,6 +85,7 @@
     renderSummaryCards();
     renderLoanProgress();
     updateChart();
+    renderTenants();
   }
 
   async function init(){
@@ -109,7 +110,7 @@
     });
 
     if(!currentAccountId && data.accounts.length) {
-      const preferred = data.accounts.find(a => a.name === 'Axis Overdraft');
+      const preferred = data.accounts.find(a => a.name === 'Lodha Bellavita');
       currentAccountId = (preferred || data.accounts[0]).id;
     }
     sel.value = currentAccountId || '';
@@ -120,7 +121,7 @@
 
   async function createAccount(name){
     if(!name) return;
-    const acc = {id:uid(), name:name, entries:[]};
+    const acc = {id:uid(), name:name, entries:[], tenant:{}, transactions:[]};
     data.accounts.push(acc); 
     await save(data); 
     currentAccountId = acc.id; 
@@ -145,12 +146,13 @@
   function switchTab(tab) {
     currentTab = tab;
     qsa('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-    const panels = { analytics: '#tabAnalytics', add: '#topSection', entries: '#entriesSection' };
+    const panels = { analytics: '#tabAnalytics', add: '#topSection', entries: '#entriesSection', tenants: '#tabTenants' };
     Object.entries(panels).forEach(([key, sel]) => {
       const el = qs(sel);
       if(el) el.classList.toggle('tab-active', key === tab);
     });
     if(tab === 'analytics' && chart) setTimeout(() => chart.resize(), 100);
+    if(tab === 'tenants') renderTenants();
   }
 
   function renderEntries(){
@@ -353,8 +355,6 @@
   }
 
   // ── Loan Repayment Progress Bar ─────────────────────────────────────────────
-  const TOTAL_LOAN = 8000000; // ₹80L
-
   function renderLoanProgress() {
     const el = qs('#loanProgress');
     if (!el) return;
@@ -367,6 +367,8 @@
     if (rows.length === 0) { el.innerHTML = ''; return; }
     const latest = rows.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
     const currentBalance = Number(latest.balance);
+    const balanceValues = rows.map(e => Number(e.balance)).filter(v => !isNaN(v) && v > 0);
+    const TOTAL_LOAN = balanceValues.length > 0 ? Math.max(...balanceValues) : currentBalance;
     const repaid = Math.max(0, TOTAL_LOAN - currentBalance);
     const pct = Math.min(100, (repaid / TOTAL_LOAN) * 100);
 
@@ -465,7 +467,10 @@
     const interestIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#607d8b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`;
     const sumIcon        = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5l8 7-8 7"/><line x1="13" y1="12" x2="20" y2="12"/></svg>`;
     const depositIcon    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b9080" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
-    const withdrawIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c09a6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+    const PROPERTY_VALUES  = { 'Kunal Iconia': 5700000, 'Lodha Bellavita': 12084000 };
+    const propertyValue    = PROPERTY_VALUES[acc.name] || 0;
+    const effectiveCost    = totalInterest + propertyValue;
+    const withdrawIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c09a6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
 
     container.innerHTML = `
       <div class="summary-cards-row">
@@ -505,12 +510,182 @@
           <div class="summary-card-trend"><span class="trend-flat">total payments</span></div>
         </div>
         <div class="summary-card">
-          <div class="summary-card-label">${withdrawIcon} Withdrawn</div>
-          <div class="summary-card-value" style="color:#c09a6b">${fmt(totalWithdrawn)}</div>
-          <div class="summary-card-trend"><span class="trend-flat">total disbursed</span></div>
+          <div class="summary-card-label">${withdrawIcon} Effective Cost</div>
+          <div class="summary-card-value" style="color:#c09a6b">${fmt(effectiveCost)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">interest + property value</span></div>
         </div>
       </div>
     `;
+  }
+
+  // ── Tenant Management ────────────────────────────────────────────────────────────────────
+  function categoryLabel(cat) {
+    const map = { rent:'Rent', maintenance:'Maintenance', electricity:'Electricity', water:'Water', society:'Society Charges', repairs:'Repairs', other:'Other' };
+    return map[cat] || cat;
+  }
+
+  function updateTxnCategories() {
+    const catSel = qs('#txnCategory');
+    if (!catSel) return;
+    const type = qs('#txnType').value;
+    catSel.innerHTML = type === 'income'
+      ? '<option value="rent">Rent</option><option value="other">Other Income</option>'
+      : '<option value="maintenance">Maintenance</option><option value="electricity">Electricity</option><option value="water">Water</option><option value="society">Society Charges</option><option value="repairs">Repairs</option><option value="other">Other Expense</option>';
+  }
+
+  function renderTenants() {
+    const profileEl  = qs('#tenantProfile');
+    const cashflowEl = qs('#tenantCashflow');
+    const logEl      = qs('#tenantLog');
+    if (!profileEl) return;
+    const acc = getCurrentAccount();
+    if (!acc) {
+      profileEl.innerHTML = '';
+      if (cashflowEl) cashflowEl.innerHTML = '';
+      if (logEl) logEl.innerHTML = '';
+      return;
+    }
+    const tenant      = acc.tenant || {};
+    const transactions = acc.transactions || [];
+    const isOccupied  = !!(tenant.name && tenant.name.trim());
+
+    let leaseWarning = '';
+    if (tenant.leaseEnd) {
+      const daysLeft = Math.floor((new Date(tenant.leaseEnd + '-01') - new Date()) / 86400000);
+      if (daysLeft >= 0 && daysLeft <= 60) leaseWarning = `<span class="lease-warning">⚠ ${daysLeft}d left</span>`;
+      else if (daysLeft < 0) leaseWarning = `<span class="lease-expired">Expired</span>`;
+    }
+
+    profileEl.innerHTML = `
+      <div class="tenant-profile-card">
+        <div class="tenant-profile-main">
+          <span class="tenant-status-badge tenant-status-${isOccupied ? 'occupied' : 'vacant'}">${isOccupied ? '● Occupied' : '○ Vacant'}</span>
+          ${isOccupied ? `
+            <div class="tenant-name">${tenant.name}</div>
+            ${tenant.phone ? `<div class="tenant-meta">${tenant.phone}</div>` : ''}
+            <div class="tenant-meta-row">
+              ${tenant.moveIn ? `<span>Since ${formatMonthYear(tenant.moveIn)}</span>` : ''}
+              ${tenant.leaseEnd ? `<span>Lease end: ${formatMonthYear(tenant.leaseEnd)} ${leaseWarning}</span>` : ''}
+            </div>
+            ${tenant.rentAmount ? `<div class="tenant-rent">₹${Number(tenant.rentAmount).toLocaleString('en-IN')}<span class="tenant-rent-period">/month</span></div>` : ''}
+            ${tenant.deposit ? `<div class="tenant-meta">Deposit: ₹${Number(tenant.deposit).toLocaleString('en-IN')}</div>` : ''}
+          ` : '<div class="tenant-vacant-hint">No tenant — tap Edit to add details</div>'}
+        </div>
+        <button class="tenant-edit-btn" id="editTenantBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </button>
+      </div>
+    `;
+    qs('#editTenantBtn').addEventListener('click', () => openTenantModal());
+
+    function fmtT(v) {
+      const n = Math.abs(Number(v));
+      if (n >= 100000) return '₹' + (n / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
+      return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+    }
+    const totalIncome   = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+    const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+    const net = totalIncome - totalExpenses;
+
+    cashflowEl.innerHTML = `
+      <div class="summary-cards-row">
+        <div class="summary-card">
+          <div class="summary-card-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b9080" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Rent Received
+          </div>
+          <div class="summary-card-value" style="color:#6b9080">${fmtT(totalIncome)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">all time</span></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e07a5f" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Expenses
+          </div>
+          <div class="summary-card-value" style="color:#e07a5f">${fmtT(totalExpenses)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">all time</span></div>
+        </div>
+      </div>
+      <div class="summary-cards-row">
+        <div class="summary-card">
+          <div class="summary-card-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${net >= 0 ? '#6b9080' : '#e07a5f'}" stroke-width="2.2" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            Net Cash Flow
+          </div>
+          <div class="summary-card-value" style="color:${net >= 0 ? '#6b9080' : '#e07a5f'}">${net < 0 ? '−' : ''}${fmtT(net)}</div>
+          <div class="summary-card-trend"><span class="trend-flat">income − expenses</span></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#607d8b" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="#607d8b" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="#607d8b" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="#607d8b" stroke="none"/></svg>
+            Transactions
+          </div>
+          <div class="summary-card-value" style="color:#607d8b">${transactions.length}</div>
+          <div class="summary-card-trend"><span class="trend-flat">total logged</span></div>
+        </div>
+      </div>
+    `;
+
+    const sorted = transactions.slice().sort((a, b) => b.date > a.date ? 1 : b.date < a.date ? -1 : 0);
+    if (sorted.length === 0) {
+      logEl.innerHTML = `<div class="tenant-empty">No transactions yet — tap <strong>+ Add</strong> to log rent or expenses.</div>`;
+    } else {
+      logEl.innerHTML = sorted.map(t => `
+        <div class="txn-row">
+          <div class="txn-left">
+            <div class="txn-date">${formatMonthYear(t.date)}</div>
+            <div class="txn-cat">${categoryLabel(t.category)}</div>
+            ${t.notes ? `<div class="txn-notes-label">${t.notes}</div>` : ''}
+          </div>
+          <div class="txn-right">
+            <div class="txn-amount txn-${t.type}">${t.type === 'income' ? '+' : '−'}${fmtT(Number(t.amount))}</div>
+            <button class="txn-del" data-id="${t.id}" title="Delete">✕</button>
+          </div>
+        </div>
+      `).join('');
+      logEl.querySelectorAll('.txn-del').forEach(btn => {
+        btn.addEventListener('click', () => removeTransaction(btn.dataset.id));
+      });
+    }
+  }
+
+  function openTenantModal() {
+    const acc = getCurrentAccount(); if (!acc) return;
+    const t = acc.tenant || {};
+    qs('#tName').value    = t.name       || '';
+    qs('#tPhone').value   = t.phone      || '';
+    qs('#tMoveIn').value  = t.moveIn     || '';
+    qs('#tLeaseEnd').value = t.leaseEnd  || '';
+    qs('#tRent').value    = t.rentAmount || '';
+    qs('#tDeposit').value = t.deposit    || '';
+    qs('#tenantModal').classList.add('active');
+  }
+
+  async function addTransaction(obj) {
+    const acc = getCurrentAccount(); if (!acc) return showToast('No account selected', 'error');
+    if (!acc.transactions) acc.transactions = [];
+    acc.transactions.push(Object.assign({ id: uid() }, obj));
+    await save(data);
+    renderTenants();
+    showToast('Transaction saved ✓', 'success');
+  }
+
+  async function removeTransaction(txnId) {
+    const acc = getCurrentAccount(); if (!acc) return;
+    if (!await showConfirm('Delete this transaction?', { icon: '🗑️', okLabel: 'Delete' })) return;
+    acc.transactions = (acc.transactions || []).filter(t => t.id !== txnId);
+    await save(data);
+    renderTenants();
+    showToast('Transaction deleted', 'success');
+  }
+
+  async function saveTenantProfile(profile) {
+    const acc = getCurrentAccount(); if (!acc) return;
+    acc.tenant = Object.assign(acc.tenant || {}, profile);
+    await save(data);
+    renderTenants();
+    showToast('Tenant profile saved ✓', 'success');
   }
 
   function updateChart(){
@@ -1022,6 +1197,53 @@
       }
     });
 
+    // Tenant tab wiring
+    qs('#toggleTxnForm').addEventListener('click', () => {
+      const form = qs('#txnForm');
+      const isVisible = form.style.display !== 'none';
+      form.style.display = isVisible ? 'none' : 'block';
+      qs('#toggleTxnForm').textContent = isVisible ? '+ Add' : '− Close';
+      if (!isVisible) {
+        const now = new Date();
+        qs('#txnDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+        updateTxnCategories();
+        qs('#txnAmount').value = '';
+        qs('#txnNotes').value  = '';
+      }
+    });
+    qs('#cancelTxn').addEventListener('click', () => {
+      qs('#txnForm').style.display = 'none';
+      qs('#toggleTxnForm').textContent = '+ Add';
+    });
+    qs('#txnType').addEventListener('change', updateTxnCategories);
+    qs('#txnForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const date     = qs('#txnDate').value.substring(0, 7);
+      const type     = qs('#txnType').value;
+      const category = qs('#txnCategory').value;
+      const amount   = parseFloat(qs('#txnAmount').value);
+      const notes    = qs('#txnNotes').value.trim();
+      if (!date || !amount || amount <= 0) return showToast('Enter a valid month and amount', 'error');
+      await addTransaction({ date, type, category, amount, notes });
+      qs('#txnAmount').value = '';
+      qs('#txnNotes').value  = '';
+      qs('#txnForm').style.display = 'none';
+      qs('#toggleTxnForm').textContent = '+ Add';
+    });
+    qs('#closeTenantModal').addEventListener('click', () => qs('#tenantModal').classList.remove('active'));
+    qs('#tenantModal').addEventListener('click', e => { if (e.target === qs('#tenantModal')) qs('#tenantModal').classList.remove('active'); });
+    qs('#saveTenantProfile').addEventListener('click', async () => {
+      await saveTenantProfile({
+        name:       qs('#tName').value.trim(),
+        phone:      qs('#tPhone').value.trim(),
+        moveIn:     qs('#tMoveIn').value,
+        leaseEnd:   qs('#tLeaseEnd').value,
+        rentAmount: parseFloat(qs('#tRent').value)    || 0,
+        deposit:    parseFloat(qs('#tDeposit').value) || 0
+      });
+      qs('#tenantModal').classList.remove('active');
+    });
+
     // initial render
     init();
 
@@ -1038,7 +1260,7 @@
       mobAccountSel.addEventListener('change', (e) => {
         currentAccountId = e.target.value;
         qs('#selectAccount').value = e.target.value;
-        renderEntries(); renderSummaryCards(); renderLoanProgress(); updateChart();
+        renderEntries(); renderSummaryCards(); renderLoanProgress(); updateChart(); renderTenants();
       });
     }
     // Set initial tab on mobile

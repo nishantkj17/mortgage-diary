@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MortgageDiary — Minimal Mortgage Tracker</title>
+  <title>PropFolio — Your Personal Property Portfolio</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="style.css">
   <script src="/chart.min.js"></script>
@@ -12,14 +12,14 @@
   <div class="container">
     <!-- Mobile app header (hidden on desktop) -->
     <div class="mobile-header" id="mobileHeader">
-      <span class="mobile-title">MortgageDiary</span>
+      <span class="mobile-title">PropFolio</span>
       <select id="mobileSelectAccount" class="mobile-account-select"></select>
       <button id="mobileOpenSettings" class="settings-btn" title="Settings">⚙</button>
     </div>
 
     <header>
-      <h1>MortgageDiary</h1>
-      <p class="muted">Minimal app to track monthly interest and remaining balance per loan</p>
+      <h1>PropFolio</h1>
+      <p class="muted">Your personal property portfolio — mortgages, rent & more</p>
     </header>
 
     <!-- Toast notification -->
@@ -63,6 +63,47 @@
             <h3>Delete Account</h3>
             <button id="deleteAccount" class="delete-account-btn">Delete Selected Account</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tenant Profile Modal -->
+    <div id="tenantModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Tenant Profile</h2>
+          <button id="closeTenantModal" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-field tenant-modal-field">
+            <label>Tenant Name</label>
+            <input id="tName" placeholder="e.g. Rahul Sharma" />
+          </div>
+          <div class="form-field tenant-modal-field">
+            <label>Phone Number</label>
+            <input id="tPhone" placeholder="e.g. 9876543210" />
+          </div>
+          <div class="tenant-modal-row">
+            <div class="form-field">
+              <label>Move-in Month</label>
+              <input type="month" id="tMoveIn" />
+            </div>
+            <div class="form-field">
+              <label>Lease End Month</label>
+              <input type="month" id="tLeaseEnd" />
+            </div>
+          </div>
+          <div class="tenant-modal-row">
+            <div class="form-field">
+              <label>Monthly Rent (₹)</label>
+              <input type="number" id="tRent" placeholder="e.g. 35000" min="0" />
+            </div>
+            <div class="form-field">
+              <label>Security Deposit (₹)</label>
+              <input type="number" id="tDeposit" placeholder="e.g. 70000" min="0" />
+            </div>
+          </div>
+          <button id="saveTenantProfile" class="tenant-save-profile-btn">Save Profile</button>
         </div>
       </div>
     </div>
@@ -146,6 +187,56 @@
               </table>
             </div>
           </div>
+
+          <!-- Tenant Management Tab -->
+          <div id="tabTenants" class="tenant-tab">
+            <div id="tenantProfile"></div>
+            <div class="tenant-txn-section">
+              <div class="tenant-txn-header">
+                <span class="tenant-section-title">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                  Transactions
+                </span>
+                <button id="toggleTxnForm" class="tenant-add-btn">+ Add</button>
+              </div>
+              <form id="txnForm" class="txn-form" style="display:none">
+                <div class="txn-form-grid">
+                  <div class="form-field">
+                    <label>Month</label>
+                    <input type="month" id="txnDate" required />
+                  </div>
+                  <div class="form-field">
+                    <label>Type</label>
+                    <select id="txnType">
+                      <option value="income">Income</option>
+                      <option value="expense">Expense</option>
+                    </select>
+                  </div>
+                  <div class="form-field">
+                    <label>Category</label>
+                    <select id="txnCategory">
+                      <option value="rent">Rent</option>
+                      <option value="other">Other Income</option>
+                    </select>
+                  </div>
+                  <div class="form-field">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="txnAmount" step="0.01" min="0" placeholder="e.g. 35000" required />
+                  </div>
+                  <div class="form-field txn-notes-field">
+                    <label>Notes (optional)</label>
+                    <input id="txnNotes" placeholder="e.g. April rent" />
+                  </div>
+                  <div class="txn-form-actions">
+                    <button type="button" id="cancelTxn" class="txn-cancel-btn">Cancel</button>
+                    <button type="submit" class="txn-save-btn">Save</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div id="tenantCashflow" class="tenant-cashflow"></div>
+            <div id="tenantLog" class="tenant-log"></div>
+          </div>
         </div>
       </section>
     </main>
@@ -172,6 +263,14 @@
           <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
           <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
           <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+      <button class="tab-btn" data-tab="tenants" aria-label="Tenants">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
       </button>
     </nav>

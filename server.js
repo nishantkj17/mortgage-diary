@@ -207,6 +207,6 @@ app.post('/api/import/csv', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Mortgage Diary server running on http://localhost:${PORT}`);
+  console.log(`PropFolio server running on http://localhost:${PORT}`);
   console.log(`Mode: ${USE_BLOB ? 'Azure Blob Storage' : 'local file'}`);
 });
