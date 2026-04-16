@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="style.css">
   <script src="/chart.min.js"></script>
-  <script>(function(){var t=localStorage.getItem('propfolio-theme')||'system';if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');})()</script>
+  <script>(function(){if(localStorage.getItem('propfolio-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
 </head>
 <body>
   <div class="container">
