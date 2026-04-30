@@ -417,7 +417,7 @@
     toast(editingBudgetId ? 'Budget entry updated' : 'Budget entry added');
   }
 
-  // ── Category tag rendering for expense modal ────────────────────────────────
+  // ── Category tag rendering for expense modal e ────────────────────────────────
   let selectedExpenseCat = '';
 
   function renderExpenseCatTags(preselect) {
