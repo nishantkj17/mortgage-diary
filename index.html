@@ -3,287 +3,647 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>PropFolio — Your Personal Property Portfolio</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PropFolio" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>PropFolio</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="stylesheet" href="style.css">
   <script src="/chart.min.js"></script>
   <script>(function(){if(localStorage.getItem('propfolio-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
 </head>
 <body>
-  <div class="container">
-    <!-- Mobile app header (hidden on desktop) -->
-    <div class="mobile-header" id="mobileHeader">
-      <a href="/landing.html" class="mobile-back-link" title="Back to Home">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </a>
-      <span class="mobile-title">PropFolio</span>
-      <select id="mobileSelectAccount" class="mobile-account-select"></select>
-      <button id="themeToggle" class="theme-toggle-btn" title="Toggle theme"></button>
-      <button id="mobileOpenSettings" class="settings-btn" title="Settings">⚙</button>
-    </div>
 
-    <header>
-      <a href="/landing.html" class="landing-back-link" title="Back to Home">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        Home
-      </a>
-      <h1>PropFolio</h1>
-      <p class="muted">Your personal property portfolio — mortgages, rent & more</p>      <button id="desktopThemeToggle" class="theme-toggle-btn desktop-theme-btn" title="Toggle theme"></button>    </header>
+  <!-- ════════════════════════════════════════════════════════════════════════
+       HOME PAGE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section id="page-home" class="app-page app-page--active">
+    <header class="landing-header">
+      <div class="landing-brand">
+        <h1>PropFolio</h1>
+        <p class="muted">Your personal finance hub</p>
+      </div>
+      <button class="theme-toggle-btn" title="Toggle theme"></button>
+    </header>
 
-    <!-- Toast notification -->
-    <div id="toast" class="toast" aria-live="polite"></div>
+    <main class="landing-main">
+      <p class="landing-subtitle muted">What would you like to manage today?</p>
+      <div class="landing-cards">
 
-    <!-- Confirm dialog -->
-    <div id="confirmModal" class="modal">
-      <div class="modal-content confirm-modal-content">
-        <div class="confirm-icon" id="confirmIcon"></div>
-        <p id="confirmMsg" class="confirm-msg"></p>
-        <div class="confirm-actions">
-          <button id="confirmCancel" class="confirm-btn-cancel">Cancel</button>
-          <button id="confirmOk" class="confirm-btn-ok">Delete</button>
+        <div class="landing-card" id="gotoProperty" role="button" tabindex="0">
+          <div class="landing-card-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9.75L12 3l9 6.75V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.75z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="landing-card-body">
+            <h2 class="landing-card-title">Property Management</h2>
+            <p class="landing-card-desc muted">Track mortgages, rent, tenants &amp; more across all your properties.</p>
+          </div>
+          <div class="landing-card-arrow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="landing-card" id="gotoBudget" role="button" tabindex="0">
+          <div class="landing-card-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2"/>
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              <line x1="12" y1="12" x2="12" y2="16"/>
+              <line x1="10" y1="14" x2="14" y2="14"/>
+            </svg>
+          </div>
+          <div class="landing-card-body">
+            <h2 class="landing-card-title">Budget Tracker</h2>
+            <p class="landing-card-desc muted">Plan income, expenses &amp; savings goals — all in one place.</p>
+          </div>
+          <div class="landing-card-arrow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick-add expense FAB (switches to Budget tab and opens expense modal) -->
+      <div class="b-fab-row" style="margin-top:28px">
+        <button id="landingFabExpense" class="b-fab" title="Add Expense">+</button>
+      </div>
+    </main>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PROPERTY MANAGEMENT PAGE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section id="page-property" class="app-page">
+    <div class="container">
+      <!-- Mobile top header -->
+      <div class="mobile-header" id="mobileHeader">
+        <span class="mobile-title">PropFolio</span>
+        <select id="mobileSelectAccount" class="mobile-account-select"></select>
+        <button id="mobileOpenSettings" class="settings-btn" title="Settings">⚙</button>
+      </div>
+
+      <header>
+        <h1>PropFolio</h1>
+        <p class="muted">Your personal property portfolio — mortgages, rent &amp; more</p>
+      </header>
+
+      <!-- Toast notification -->
+      <div id="toast" class="toast" aria-live="polite"></div>
+
+      <!-- Confirm dialog -->
+      <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-modal-content">
+          <div class="confirm-icon" id="confirmIcon"></div>
+          <p id="confirmMsg" class="confirm-msg"></p>
+          <div class="confirm-actions">
+            <button id="confirmCancel" class="confirm-btn-cancel">Cancel</button>
+            <button id="confirmOk" class="confirm-btn-ok">Delete</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Account Settings</h2>
-          <button id="closeModal" class="close-btn">×</button>
-        </div>
-        <div class="modal-body">
-          <section class="account-create">
-            <h3>Manage Accounts</h3>
-            <input id="accountName" placeholder="New account name" />
-            <button id="createAccount">Create Account</button>
-            <div id="accountsList"></div>
-          </section>
-
-          <div class="backup-section">
-            <h3>Backup & Restore</h3>
-            <button id="exportCsv" class="backup-btn">Export CSV</button>
-            <button id="importCsv" class="backup-btn">Import CSV</button>
-            <input type="file" id="csvFileInput" accept=".csv" style="display:none" />
+      <!-- Settings Modal -->
+      <div id="settingsModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Account Settings</h2>
+            <button id="closeModal" class="close-btn">×</button>
           </div>
-
-          <div class="delete-section">
-            <h3>Delete Account</h3>
-            <button id="deleteAccount" class="delete-account-btn">Delete Selected Account</button>
+          <div class="modal-body">
+            <section class="account-create">
+              <h3>Manage Accounts</h3>
+              <input id="accountName" placeholder="New account name" />
+              <button id="createAccount">Create Account</button>
+              <div id="accountsList"></div>
+            </section>
+            <div class="backup-section">
+              <h3>Backup &amp; Restore</h3>
+              <button id="exportCsv" class="backup-btn">Export CSV</button>
+              <button id="importCsv" class="backup-btn">Import CSV</button>
+              <input type="file" id="csvFileInput" accept=".csv" style="display:none" />
+            </div>
+            <div class="delete-section">
+              <h3>Delete Account</h3>
+              <button id="deleteAccount" class="delete-account-btn">Delete Selected Account</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Tenant Profile Modal -->
-    <div id="tenantModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Tenant Profile</h2>
-          <button id="closeTenantModal" class="close-btn">×</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-field tenant-modal-field">
-            <label>Tenant Name</label>
-            <input id="tName" placeholder="e.g. Rahul Sharma" />
+      <!-- Tenant Profile Modal -->
+      <div id="tenantModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Tenant Profile</h2>
+            <button id="closeTenantModal" class="close-btn">×</button>
           </div>
-          <div class="form-field tenant-modal-field">
-            <label>Phone Number</label>
-            <input id="tPhone" placeholder="e.g. 9876543210" />
-          </div>
-          <div class="tenant-modal-row">
-            <div class="form-field">
-              <label>Move-in Month</label>
-              <input type="month" id="tMoveIn" />
+          <div class="modal-body">
+            <div class="form-field tenant-modal-field">
+              <label>Tenant Name</label>
+              <input id="tName" placeholder="e.g. Rahul Sharma" />
             </div>
-            <div class="form-field">
-              <label>Lease End Month</label>
-              <input type="month" id="tLeaseEnd" />
+            <div class="form-field tenant-modal-field">
+              <label>Phone Number</label>
+              <input id="tPhone" placeholder="e.g. 9876543210" />
             </div>
-          </div>
-          <div class="tenant-modal-row">
-            <div class="form-field">
-              <label>Monthly Rent (₹)</label>
-              <input type="number" id="tRent" placeholder="e.g. 35000" min="0" />
-            </div>
-            <div class="form-field">
-              <label>Security Deposit (₹)</label>
-              <input type="number" id="tDeposit" placeholder="e.g. 70000" min="0" />
-            </div>
-          </div>
-          <button id="saveTenantProfile" class="tenant-save-profile-btn">Save Profile</button>
-        </div>
-      </div>
-    </div>
-
-    <main>
-      <section class="content full-width">
-        <div class="top-section" id="topSection">
-          <div class="top-section-content">
-            <div class="account-selector-row">
-              <label>Selected account</label>
-              <select id="selectAccount"></select>
-              <button id="openSettings" class="settings-btn" title="Account settings & backup">⚙</button>
-              <button id="toggleTopSection" class="collapse-form-btn" title="Collapse form">−</button>
-            </div>
-
-            <form id="entryForm" class="entry-form">
-          <div class="form-field">
-            <label>Month & Year</label>
-            <input type="month" id="entryDate" required />
-          </div>
-
-          <div class="form-field">
-            <label>Interest paid</label>
-            <input type="number" id="interestPaid" step="0.01" min="0" placeholder="e.g. 123.45" required />
-          </div>
-
-          <div class="form-field">
-            <label>Principal amount (optional)</label>
-            <div class="input-with-checkbox">
-              <input type="number" id="principalAmount" step="0.01" min="0" placeholder="e.g. 5000" />
-              <label class="withdrawal-checkbox" title="Check if withdrawal">
-                <input type="checkbox" id="isWithdrawal" />
-                <span>W</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label>Remaining Balance (optional)</label>
-            <input type="number" id="balance" step="0.01" min="0" placeholder="e.g. 2500000" />
-          </div>
-
-          <div class="form-field">
-            <label>Notes (optional)</label>
-            <input id="notes" placeholder="e.g. Feb payment" />
-          </div>
-
-          <div class="form-actions">
-            <button type="submit">Add Entry</button>
-          </div>
-        </form>
-          </div>
-          <button id="expandTopSection" class="expand-form-btn" title="Expand form">+</button>
-        </div>
-
-        <div class="panels">
-          <div class="chart" id="tabAnalytics">
-            <div id="summaryCards" class="summary-cards"></div>
-            <div class="chart-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            </div>
-            <canvas id="loanChart" width="600" height="300"></canvas>
-            <div id="loanProgress" class="loan-progress"></div>
-          </div>
-
-          <div class="entries" id="entriesSection">
-            <div class="section-header">
-              <h3>Entries</h3>
-              <button id="toggleEntries" class="section-toggle-btn" title="Collapse entries">−</button>
-            </div>
-            <div class="section-content">
-              <table id="entriesTable">
-                <thead><tr>
-                  <th data-sort="month"   data-label="Month">Month ▼</th>
-                  <th data-sort="interest" data-label="Interest">Interest ⇅</th>
-                  <th data-sort="balance"  data-label="Balance">Balance ⇅</th>
-                  <th data-sort="payment"  data-label="Payment">Payment ⇅</th>
-                  <th>Type</th><th>Notes</th><th>Actions</th>
-                </tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Tenant Management Tab -->
-          <div id="tabTenants" class="tenant-tab">
-            <div id="tenantProfile"></div>
-            <div class="tenant-txn-section">
-              <div class="tenant-txn-header">
-                <span class="tenant-section-title">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                  Transactions
-                </span>
-                <button id="toggleTxnForm" class="tenant-add-btn">+ Add</button>
+            <div class="tenant-modal-row">
+              <div class="form-field">
+                <label>Move-in Month</label>
+                <input type="month" id="tMoveIn" />
               </div>
-              <form id="txnForm" class="txn-form" style="display:none">
-                <div class="txn-form-grid">
-                  <div class="form-field">
-                    <label>Month</label>
-                    <input type="month" id="txnDate" required />
+              <div class="form-field">
+                <label>Lease End Month</label>
+                <input type="month" id="tLeaseEnd" />
+              </div>
+            </div>
+            <div class="tenant-modal-row">
+              <div class="form-field">
+                <label>Monthly Rent (&#8377;)</label>
+                <input type="number" id="tRent" placeholder="e.g. 35000" min="0" />
+              </div>
+              <div class="form-field">
+                <label>Security Deposit (&#8377;)</label>
+                <input type="number" id="tDeposit" placeholder="e.g. 70000" min="0" />
+              </div>
+            </div>
+            <button id="saveTenantProfile" class="tenant-save-profile-btn">Save Profile</button>
+          </div>
+        </div>
+      </div>
+
+      <main>
+        <section class="content full-width">
+          <div class="top-section" id="topSection">
+            <div class="top-section-content">
+              <div class="account-selector-row">
+                <label>Selected account</label>
+                <select id="selectAccount"></select>
+                <button id="openSettings" class="settings-btn" title="Account settings &amp; backup">⚙</button>
+                <button id="toggleTopSection" class="collapse-form-btn" title="Collapse form">−</button>
+              </div>
+
+              <form id="entryForm" class="entry-form">
+                <div class="form-field">
+                  <label>Month &amp; Year</label>
+                  <input type="month" id="entryDate" required />
+                </div>
+                <div class="form-field">
+                  <label>Interest paid</label>
+                  <input type="number" id="interestPaid" step="0.01" min="0" placeholder="e.g. 123.45" required />
+                </div>
+                <div class="form-field">
+                  <label>Principal amount (optional)</label>
+                  <div class="input-with-checkbox">
+                    <input type="number" id="principalAmount" step="0.01" min="0" placeholder="e.g. 5000" />
+                    <label class="withdrawal-checkbox" title="Check if withdrawal">
+                      <input type="checkbox" id="isWithdrawal" />
+                      <span>W</span>
+                    </label>
                   </div>
-                  <div class="form-field">
-                    <label>Type</label>
-                    <select id="txnType">
-                      <option value="income">Income</option>
-                      <option value="expense">Expense</option>
-                    </select>
-                  </div>
-                  <div class="form-field">
-                    <label>Category</label>
-                    <select id="txnCategory">
-                      <option value="rent">Rent</option>
-                      <option value="other">Other Income</option>
-                    </select>
-                  </div>
-                  <div class="form-field">
-                    <label>Amount (₹)</label>
-                    <input type="number" id="txnAmount" step="0.01" min="0" placeholder="e.g. 35000" required />
-                  </div>
-                  <div class="form-field txn-notes-field">
-                    <label>Notes (optional)</label>
-                    <input id="txnNotes" placeholder="e.g. April rent" />
-                  </div>
-                  <div class="txn-form-actions">
-                    <button type="button" id="cancelTxn" class="txn-cancel-btn">Cancel</button>
-                    <button type="submit" class="txn-save-btn">Save</button>
-                  </div>
+                </div>
+                <div class="form-field">
+                  <label>Remaining Balance (optional)</label>
+                  <input type="number" id="balance" step="0.01" min="0" placeholder="e.g. 2500000" />
+                </div>
+                <div class="form-field">
+                  <label>Notes (optional)</label>
+                  <input id="notes" placeholder="e.g. Feb payment" />
+                </div>
+                <div class="form-actions">
+                  <button type="submit">Add Entry</button>
                 </div>
               </form>
             </div>
-            <div id="tenantCashflow" class="tenant-cashflow"></div>
-            <div id="tenantLog" class="tenant-log"></div>
+            <button id="expandTopSection" class="expand-form-btn" title="Expand form">+</button>
           </div>
-        </div>
-      </section>
-    </main>
 
-    <footer>
-      <small class="muted">Data stored in server file (data/mortgage_data.json). Track interest paid and principal payments.</small>
-    </footer>
+          <div class="panels">
+            <div class="chart" id="tabAnalytics">
+              <div id="summaryCards" class="summary-cards"></div>
+              <div class="chart-header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <canvas id="loanChart" width="600" height="300"></canvas>
+              <div id="loanProgress" class="loan-progress"></div>
+            </div>
 
-    <!-- Bottom tab navigation (mobile only) -->
-    <nav class="bottom-nav" id="bottomNav">
-      <button class="tab-btn active" data-tab="analytics" aria-label="Analytics">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-        </svg>
-      </button>
-      <button class="tab-btn tab-btn-add" data-tab="add" aria-label="Add Entry">
+            <div class="entries" id="entriesSection">
+              <div class="section-header">
+                <h3>Entries</h3>
+                <button id="toggleEntries" class="section-toggle-btn" title="Collapse entries">−</button>
+              </div>
+              <div class="section-content">
+                <table id="entriesTable">
+                  <thead><tr>
+                    <th data-sort="month"    data-label="Month">Month ▼</th>
+                    <th data-sort="interest" data-label="Interest">Interest ⇅</th>
+                    <th data-sort="balance"  data-label="Balance">Balance ⇅</th>
+                    <th data-sort="payment"  data-label="Payment">Payment ⇅</th>
+                    <th>Type</th><th>Notes</th><th>Actions</th>
+                  </tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Tenant Management Tab -->
+            <div id="tabTenants" class="tenant-tab">
+              <div id="tenantProfile"></div>
+              <div class="tenant-txn-section">
+                <div class="tenant-txn-header">
+                  <span class="tenant-section-title">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                    Transactions
+                  </span>
+                  <button id="toggleTxnForm" class="tenant-add-btn">+ Add</button>
+                </div>
+                <form id="txnForm" class="txn-form" style="display:none">
+                  <div class="txn-form-grid">
+                    <div class="form-field">
+                      <label>Month</label>
+                      <input type="month" id="txnDate" required />
+                    </div>
+                    <div class="form-field">
+                      <label>Type</label>
+                      <select id="txnType">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label>Category</label>
+                      <select id="txnCategory">
+                        <option value="rent">Rent</option>
+                        <option value="other">Other Income</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label>Amount (&#8377;)</label>
+                      <input type="number" id="txnAmount" step="0.01" min="0" placeholder="e.g. 35000" required />
+                    </div>
+                    <div class="form-field txn-notes-field">
+                      <label>Notes (optional)</label>
+                      <input id="txnNotes" placeholder="e.g. April rent" />
+                    </div>
+                    <div class="txn-form-actions">
+                      <button type="button" id="cancelTxn" class="txn-cancel-btn">Cancel</button>
+                      <button type="submit" class="txn-save-btn">Save</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div id="tenantCashflow" class="tenant-cashflow"></div>
+              <div id="tenantLog" class="tenant-log"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <small class="muted">Data stored securely in Azure Blob Storage.</small>
+      </footer>
+
+      <!-- Inner property tab bar (analytics / add entry / entries / tenants) -->
+      <nav class="bottom-nav" id="bottomNav">
+        <button class="tab-btn active" data-tab="analytics" aria-label="Analytics">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </button>
+        <button class="tab-btn tab-btn-add" data-tab="add" aria-label="Add Entry">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-      </button>
-      <button class="tab-btn" data-tab="entries" aria-label="Entries">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/>
-          <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
-          <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-          <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
-        </svg>
-      </button>
-      <button class="tab-btn" data-tab="tenants" aria-label="Tenants">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-      </button>
-    </nav>
-  </div>
+        </button>
+        <button class="tab-btn" data-tab="entries" aria-label="Entries">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/>
+            <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+        <button class="tab-btn" data-tab="tenants" aria-label="Tenants">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       BUDGET TRACKER PAGE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section id="page-budget" class="app-page">
+    <div class="b-page">
+
+      <header class="landing-header">
+        <div class="landing-brand">
+          <h1>Budget Tracker</h1>
+        </div>
+        <button id="budgetSettingsBtn" class="settings-btn" title="Settings">⚙</button>
+      </header>
+
+      <div id="bToast" class="b-toast" aria-live="polite"></div>
+
+      <!-- Budget Settings Modal -->
+      <div id="budgetSettingsModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Budget Settings</h2>
+            <button id="closeBudgetSettings" class="close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="backup-section">
+              <h3>Backup &amp; Restore</h3>
+              <p style="font-size:13px;color:#78909c;margin:0 0 12px">Export or import all budget data as JSON.</p>
+              <button id="budgetExportJson" class="backup-btn">Export JSON</button>
+              <button id="budgetImportJson" class="backup-btn">Import JSON</button>
+              <input type="file" id="budgetJsonFileInput" accept=".json" style="display:none" />
+            </div>
+            <div class="delete-section">
+              <h3>Delete Data</h3>
+              <button id="budgetDeleteAll" class="delete-account-btn">Delete All Budget Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget Confirm Modal -->
+      <div id="bConfirmModal" class="modal">
+        <div class="modal-content confirm-modal-content">
+          <p id="bConfirmMsg" class="confirm-msg"></p>
+          <div class="confirm-actions">
+            <button id="bConfirmCancel" class="confirm-btn-cancel">Cancel</button>
+            <button id="bConfirmOk" class="confirm-btn-ok">Confirm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick-Add Expense Modal -->
+      <div id="quickExpenseModal" class="modal">
+        <div class="modal-content b-quick-modal-content">
+          <div class="modal-header">
+            <h2>Add Expense</h2>
+            <button id="closeQuickExpenseModal" class="close-btn">×</button>
+          </div>
+          <div class="modal-body b-quick-modal-body">
+            <!-- Category tags -->
+            <div class="b-form-field">
+              <label>Category</label>
+              <div id="expenseCatTags" class="b-cat-tags"></div>
+              <input id="expenseCatText" class="b-input b-cat-new-input" placeholder="+ new category…" autocomplete="off" />
+            </div>
+            <!-- Description + Amount on same row -->
+            <div class="b-qe-row">
+              <div class="b-form-field b-qe-desc">
+                <label>Description <span class="b-optional">(optional)</span></label>
+                <input id="expenseDesc" class="b-input" placeholder="e.g. Swiggy…" />
+              </div>
+              <div class="b-form-field b-qe-amt">
+                <label>Amount ($)</label>
+                <input id="expenseAmt" type="number" class="b-input" min="0" step="0.01" placeholder="0.00" />
+              </div>
+            </div>
+            <div class="b-form-actions" style="margin-top:16px">
+              <button id="saveQuickExpense" class="b-save-btn">Save</button>
+              <button id="cancelQuickExpense" class="b-cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget List Modal -->
+      <div id="budgetListModal" class="modal">
+        <div class="modal-content b-list-modal-content">
+          <div class="modal-header">
+            <h2>&#128203; Estimated Budget</h2>
+            <button id="closeBudgetListModal" class="close-btn">×</button>
+          </div>
+          <div class="b-list-modal-body">
+            <table id="budgetListTable" class="b-table">
+              <thead><tr><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense List Modal -->
+      <div id="expenseListModal" class="modal">
+        <div class="modal-content b-list-modal-content">
+          <div class="modal-header">
+            <h2>&#128184; Actual Expenses</h2>
+            <button id="closeExpenseListModal" class="close-btn">×</button>
+          </div>
+          <div class="b-list-modal-body">
+            <table id="expenseListTable" class="b-table">
+              <thead><tr><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <main class="b-main">
+
+        <!-- Month nav row -->
+        <div class="b-month-row">
+          <button id="prevMonthBtn" class="b-month-nav-btn" title="Previous month">&#8249;</button>
+          <input type="month" id="monthPicker" class="b-month-picker" />
+          <button id="nextMonthBtn" class="b-month-nav-btn" title="Next month">&#8250;</button>
+          <button id="carryForwardBtn" class="b-carry-btn" title="Copy last month's budget entries">&#10227; Carry forward</button>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="b-summary-row">
+          <div class="b-summary-card" id="cardBudget" title="Tap to view budget entries">
+            <div class="b-summary-icon">&#128203;</div>
+            <div class="b-summary-body">
+              <div class="b-summary-label">Estimated Budget</div>
+              <div class="b-summary-amount" id="cardBudgetAmt">$0</div>
+            </div>
+            <div class="b-summary-chevron">&#8250;</div>
+          </div>
+
+          <div class="b-summary-card" id="cardExpense" title="Tap to view expenses">
+            <div class="b-summary-icon">&#128184;</div>
+            <div class="b-summary-body">
+              <div class="b-summary-label">Current Expenses</div>
+              <div class="b-summary-amount" id="cardExpenseAmt">$0</div>
+            </div>
+            <div class="b-summary-chevron">&#8250;</div>
+          </div>
+
+          <div class="b-diff-card">
+            <span id="cardArrow" class="b-arrow under">&#8595;</span>
+            <span id="cardDiff" class="b-summary-diff under">$0</span>
+          </div>
+        </div>
+
+        <!-- Budget panel -->
+        <div class="b-panel" id="budgetPanelWrap">
+          <div class="b-panel-header">
+            <span class="b-panel-title">&#128203; Estimated Budget</span>
+            <div class="b-panel-actions">
+              <button id="viewBudgetListBtn" class="b-list-icon-btn" title="View all entries">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </button>
+              <button id="addBudgetBtn" class="b-add-btn">+ Add</button>
+            </div>
+          </div>
+
+          <div id="budgetForm" class="b-inline-form b-hidden">
+            <div class="b-form-title" id="budgetFormTitle">Add Budget Entry</div>
+            <div class="b-form-grid">
+              <div class="b-form-field">
+                <label>Category</label>
+                <div id="budgetCatTags" class="b-cat-tags"></div>
+                <input id="budgetCatText" class="b-cat-new-input" placeholder="+ new category…" />
+              </div>
+              <div class="b-qe-row">
+                <div class="b-form-field b-qe-desc">
+                  <label>Description <span class="b-optional">(optional)</span></label>
+                  <input id="budgetDesc" class="b-input" placeholder="e.g. EMI, rent…" />
+                </div>
+                <div class="b-form-field b-qe-amt">
+                  <label>Amount ($)</label>
+                  <input id="budgetAmt" type="number" class="b-input" min="0" step="0.01" placeholder="e.g. 15000" />
+                </div>
+              </div>
+            </div>
+            <label class="b-fixed-checkbox-row">
+              <input type="checkbox" id="budgetFixed" />
+              <span>Fixed expense — auto-log as actual expense each month</span>
+            </label>
+            <div class="b-form-actions">
+              <button id="saveBudgetForm" class="b-save-btn">Save</button>
+              <button id="cancelBudgetForm" class="b-cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expense panel: list only -->
+        <div class="b-panel" id="expensePanelWrap">
+          <div class="b-panel-header">
+            <span class="b-panel-title">&#128184; Actual Expenses</span>
+            <div class="b-panel-actions">
+              <button id="viewExpenseListBtn" class="b-list-icon-btn" title="View all expenses">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart carousel -->
+        <div class="b-chart-carousel" id="chartCarousel" style="display:none">
+          <div class="b-carousel-slides">
+            <div class="b-carousel-slide active" id="slideDonut">
+              <div class="b-chart-title">Spend Breakdown</div>
+              <div class="b-donut-wrap"><canvas id="donutChart"></canvas></div>
+            </div>
+            <div class="b-carousel-slide" id="slideBar">
+              <div class="b-chart-title">Budget vs Actual</div>
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+          <div class="b-carousel-dots">
+            <button class="b-dot active" data-slide="0"></button>
+            <button class="b-dot" data-slide="1"></button>
+          </div>
+        </div>
+
+        <!-- Nearing limit progress bars (>= 90% spent) -->
+        <div class="b-progress-section" id="catProgressSection" style="display:none">
+          <div class="b-section-header">&#9888;&#65039; Nearing Limit</div>
+          <div id="catProgressList"></div>
+        </div>
+
+      </main>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       OUTER APP TAB BAR
+  ════════════════════════════════════════════════════════════════════════ -->
+  <nav id="appTabBar">
+    <button class="app-tab active" data-page="home" aria-label="Home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9.75L12 3l9 6.75V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.75z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>Home</span>
+    </button>
+    <button class="app-tab" data-page="property" aria-label="Property">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+      <span>Property</span>
+    </button>
+    <button class="app-tab" data-page="budget" aria-label="Budget">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2"/>
+        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        <line x1="12" y1="12" x2="12" y2="16"/>
+        <line x1="10" y1="14" x2="14" y2="14"/>
+      </svg>
+      <span>Budget</span>
+    </button>
+  </nav>
+
+  <!-- SPA tab switching -->
+  <script>
+  (function () {
+    function switchPage(page) {
+      document.querySelectorAll('.app-page').forEach(function (s) {
+        s.classList.remove('app-page--active');
+      });
+      document.querySelectorAll('#appTabBar .app-tab').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.page === page);
+      });
+      document.getElementById('page-' + page).classList.add('app-page--active');
+    }
+
+    document.querySelectorAll('#appTabBar .app-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchPage(btn.dataset.page); });
+    });
+
+    document.getElementById('gotoProperty').addEventListener('click', function () { switchPage('property'); });
+    document.getElementById('gotoBudget').addEventListener('click', function () { switchPage('budget'); });
+
+    // FAB: switch to budget tab then open expense modal
+    document.getElementById('landingFabExpense').addEventListener('click', function () {
+      switchPage('budget');
+      requestAnimationFrame(function () {
+        if (window.budgetOpenExpense) {
+          window.budgetOpenExpense(null);
+        } else {
+          var m = document.getElementById('quickExpenseModal');
+          if (m) m.classList.add('active');
+        }
+      });
+    });
+
+    window.switchAppPage = switchPage;
+  })();
+  </script>
 
   <script src="app.js"></script>
+  <script src="budget.js?v=7"></script>
 </body>
 </html>

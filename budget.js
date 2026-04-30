@@ -105,13 +105,11 @@
     const expenseAmtEl = document.getElementById('cardExpenseAmt');
     const diffEl = document.getElementById('cardDiff');
     const arrowEl = document.getElementById('cardArrow');
-    const diffLabelEl = document.getElementById('cardDiffLabel');
 
     if (budgetAmtEl) budgetAmtEl.textContent = fmt(budget);
     if (expenseAmtEl) expenseAmtEl.textContent = fmt(spent);
     if (diffEl) { diffEl.textContent = fmt(Math.abs(diff)); diffEl.className = 'b-summary-diff ' + (over ? 'over' : 'under'); }
     if (arrowEl) { arrowEl.textContent = over ? '↑' : '↓'; arrowEl.className = 'b-arrow ' + (over ? 'over' : 'under'); }
-    if (diffLabelEl) diffLabelEl.textContent = over ? 'Over budget' : 'Under budget';
   }
 
   // ── Nearing-limit progress bars (≥ 90% spent) ───────────────────────────────
@@ -315,8 +313,8 @@
     renderSummaryCards();
     renderCharts();
     renderCategoryProgress();
-    populateCatDropdown('budgetCatSel', '');
-    populateCatDropdown('expenseCatSel', '');
+    renderBudgetCatTags();
+    renderExpenseCatTags();
   }
 
   // ── Carry forward from previous month ───────────────────────────────────────
@@ -356,20 +354,41 @@
 
   // ── Budget form ──────────────────────────────────────────────────────────────
   let editingBudgetId = null;
+  let selectedBudgetCat = '';
+
+  function renderBudgetCatTags(preselect) {
+    if (preselect !== undefined) selectedBudgetCat = preselect || '';
+    const container = document.getElementById('budgetCatTags');
+    if (!container) return;
+    container.innerHTML = '';
+    db.categories.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(c => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'b-cat-tag' + (c.name === selectedBudgetCat ? ' selected' : '');
+      btn.textContent = c.name;
+      btn.addEventListener('click', () => {
+        selectedBudgetCat = selectedBudgetCat === c.name ? '' : c.name;
+        document.getElementById('budgetCatText').value = '';
+        renderBudgetCatTags();
+      });
+      container.appendChild(btn);
+    });
+  }
 
   function openBudgetForm(entry) {
     editingBudgetId = entry ? entry.id : null;
     document.getElementById('budgetFormTitle').textContent = entry ? 'Edit Budget Entry' : 'Add Budget Entry';
-    document.getElementById('budgetCatSel').value = entry ? entry.category : '';
+    renderBudgetCatTags(entry ? entry.category : '');
     document.getElementById('budgetCatText').value = '';
     document.getElementById('budgetDesc').value = entry ? (entry.description || '') : '';
     document.getElementById('budgetAmt').value = entry ? entry.amount : '';
     document.getElementById('budgetFixed').checked = entry ? !!entry.fixed : false;
     document.getElementById('budgetForm').classList.remove('b-hidden');
-    document.getElementById('budgetCatSel').focus();
+    document.getElementById('budgetAmt').focus();
   }
   function closeBudgetForm() {
     editingBudgetId = null;
+    selectedBudgetCat = '';
     document.getElementById('budgetForm').classList.add('b-hidden');
     document.getElementById('budgetCatText').value = '';
     document.getElementById('budgetAmt').value = '';
@@ -377,7 +396,8 @@
     document.getElementById('budgetFixed').checked = false;
   }
   async function saveBudgetEntry() {
-    const cat = readCatField('budgetCatSel', 'budgetCatText');
+    const textCat = document.getElementById('budgetCatText').value.trim();
+    const cat = textCat || selectedBudgetCat;
     const desc = document.getElementById('budgetDesc').value.trim();
     const amt = parseFloat(document.getElementById('budgetAmt').value);
     const fixed = document.getElementById('budgetFixed').checked;
@@ -397,27 +417,51 @@
     toast(editingBudgetId ? 'Budget entry updated' : 'Budget entry added');
   }
 
+  // ── Category tag rendering for expense modal ────────────────────────────────
+  let selectedExpenseCat = '';
+
+  function renderExpenseCatTags(preselect) {
+    if (preselect !== undefined) selectedExpenseCat = preselect || '';
+    const container = document.getElementById('expenseCatTags');
+    if (!container) return;
+    container.innerHTML = '';
+    db.categories.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(c => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'b-cat-tag' + (c.name === selectedExpenseCat ? ' selected' : '');
+      btn.textContent = c.name;
+      btn.addEventListener('click', () => {
+        selectedExpenseCat = selectedExpenseCat === c.name ? '' : c.name;
+        document.getElementById('expenseCatText').value = '';
+        renderExpenseCatTags();
+      });
+      container.appendChild(btn);
+    });
+  }
+
   // ── Quick-add Expense Modal ───────────────────────────────────────────────────
   let editingExpenseId = null;
 
   function openQuickExpenseModal(entry) {
     editingExpenseId = entry ? entry.id : null;
-    populateCatDropdown('expenseCatSel', entry ? entry.category : '');
+    renderExpenseCatTags(entry ? entry.category : '');
     document.getElementById('expenseCatText').value = '';
     document.getElementById('expenseDesc').value = entry ? (entry.description || '') : '';
     document.getElementById('expenseAmt').value = entry ? entry.amount : '';
     document.getElementById('quickExpenseModal').classList.add('active');
-    document.getElementById('expenseCatSel').focus();
+    document.getElementById('expenseAmt').focus();
   }
   function closeQuickExpenseModal() {
     editingExpenseId = null;
+    selectedExpenseCat = '';
     document.getElementById('quickExpenseModal').classList.remove('active');
     document.getElementById('expenseCatText').value = '';
     document.getElementById('expenseAmt').value = '';
     document.getElementById('expenseDesc').value = '';
   }
   async function saveQuickExpense() {
-    const cat = readCatField('expenseCatSel', 'expenseCatText');
+    const textCat = document.getElementById('expenseCatText').value.trim();
+    const cat = textCat || selectedExpenseCat;
     const desc = document.getElementById('expenseDesc').value.trim();
     const amt = parseFloat(document.getElementById('expenseAmt').value);
     if (!cat) { toast('Category is required', 'error'); return; }
@@ -492,6 +536,17 @@
     document.getElementById('cancelQuickExpense').addEventListener('click', closeQuickExpenseModal);
     document.getElementById('saveQuickExpense').addEventListener('click', saveQuickExpense);
     document.getElementById('quickExpenseModal').addEventListener('click', e => { if (e.target === document.getElementById('quickExpenseModal')) closeQuickExpenseModal(); });
+    // Typing a new category in text box clears the tag selection
+    document.getElementById('expenseCatText').addEventListener('input', () => {
+      if (document.getElementById('expenseCatText').value.trim()) {
+        selectedExpenseCat = '';
+        renderExpenseCatTags();
+      }
+    });
+    // Also re-render tags when modal opens for the first time (categories might not exist yet)
+    document.getElementById('expenseCatText').addEventListener('focus', renderExpenseCatTags);
+    // Save on Enter in amount field
+    document.getElementById('expenseAmt').addEventListener('keydown', e => { if (e.key === 'Enter') saveQuickExpense(); });
 
     // Expense panel list view
     document.getElementById('viewExpenseListBtn').addEventListener('click', openExpenseListPopup);
@@ -515,8 +570,22 @@
       }
     });
 
-    // When expense dropdown changes, clear text box
-    document.getElementById('expenseCatSel').addEventListener('change', () => { document.getElementById('expenseCatText').value = ''; });
+    // Typing a new budget category clears tag selection
+    document.getElementById('budgetCatText').addEventListener('input', () => {
+      if (document.getElementById('budgetCatText').value.trim()) {
+        selectedBudgetCat = '';
+        renderBudgetCatTags();
+      }
+    });
+    // Typing a new category clears tag selection
+    document.getElementById('expenseCatText').addEventListener('input', () => {
+      if (document.getElementById('expenseCatText').value.trim()) {
+        selectedExpenseCat = '';
+        renderExpenseCatTags();
+      }
+    });
+    // Save on Enter in amount field
+    document.getElementById('expenseAmt').addEventListener('keydown', e => { if (e.key === 'Enter') saveQuickExpense(); });
 
     // Carousel dot navigation
     document.querySelectorAll('.b-dot').forEach(dot => {
@@ -527,9 +596,6 @@
         setTimeout(() => { if (idx === 0 && donutInst) donutInst.resize(); if (idx === 1 && barInst) barInst.resize(); }, 30);
       });
     });
-
-    // When budget dropdown changes, clear the text box
-    document.getElementById('budgetCatSel').addEventListener('change', () => { document.getElementById('budgetCatText').value = ''; });
 
     // Settings modal
     document.getElementById('budgetSettingsBtn').addEventListener('click', () => document.getElementById('budgetSettingsModal').classList.add('active'));
@@ -581,17 +647,22 @@
       this.value = '';
     });
 
-    // Theme toggle
+    // Re-render charts whenever the theme is toggled (works in both SPA and standalone mode)
+    new MutationObserver(renderCharts).observe(
+      document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }
+    );
+    // Standalone mode only: wire up the budgetThemeToggle button if it exists
     const themeBtn = document.getElementById('budgetThemeToggle');
-    themeBtn.textContent = localStorage.getItem('propfolio-theme') === 'dark' ? '☀️' : '🌙';
-    themeBtn.addEventListener('click', () => {
-      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (dark) document.documentElement.removeAttribute('data-theme');
-      else document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('propfolio-theme', dark ? 'light' : 'dark');
-      themeBtn.textContent = dark ? '🌙' : '☀️';
-      renderCharts(); // re-render with updated tick/grid colors
-    });
+    if (themeBtn) {
+      themeBtn.textContent = localStorage.getItem('propfolio-theme') === 'dark' ? '☀️' : '🌙';
+      themeBtn.addEventListener('click', () => {
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (dark) document.documentElement.removeAttribute('data-theme');
+        else document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('propfolio-theme', dark ? 'light' : 'dark');
+        themeBtn.textContent = dark ? '🌙' : '☀️';
+      });
+    }
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
@@ -601,4 +672,7 @@
     wireEvents();
     render();
   });
+
+  // Expose for SPA: home FAB opens the quick-add expense modal in the budget tab
+  window.budgetOpenExpense = openQuickExpenseModal;
 })();

@@ -51,6 +51,10 @@
     {
       "id": "mokxhee28fr4i",
       "name": "coles"
+    },
+    {
+      "id": "mokzb04vqcu6fr",
+      "name": "asdasd"
     }
   ],
   "months": {
@@ -160,13 +164,26 @@
           "description": "",
           "amount": 150,
           "fixed": false
+        },
+        {
+          "id": "mokzb04v98iwhr",
+          "category": "asdasd",
+          "description": "sad",
+          "amount": 555,
+          "fixed": true
         }
       ],
       "expenses": [
         {
-          "id": "mokwvcdh6aolz",
+          "id": "mokzp6gwuw9rfz",
           "category": "Liquor",
-          "description": "Beer",
+          "description": "",
+          "amount": 10
+        },
+        {
+          "id": "mokzpk5p888vmq",
+          "category": "Liquor",
+          "description": "bwwe",
           "amount": 20
         }
       ]

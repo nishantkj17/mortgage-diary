@@ -108,9 +108,9 @@ app.use(express.json());
 // Serve static frontend files (index.html, style.css, app.js, etc.)
 app.use(express.static(__dirname));
 
-// Root serves the landing page; Property Management is at /index.html
+// Root serves the SPA (single-page app combining home, property, and budget)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'landing.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Get all data
