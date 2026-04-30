@@ -531,6 +531,56 @@
     // When budget dropdown changes, clear the text box
     document.getElementById('budgetCatSel').addEventListener('change', () => { document.getElementById('budgetCatText').value = ''; });
 
+    // Settings modal
+    document.getElementById('budgetSettingsBtn').addEventListener('click', () => document.getElementById('budgetSettingsModal').classList.add('active'));
+    document.getElementById('closeBudgetSettings').addEventListener('click', () => document.getElementById('budgetSettingsModal').classList.remove('active'));
+    document.getElementById('budgetSettingsModal').addEventListener('click', e => { if (e.target === document.getElementById('budgetSettingsModal')) document.getElementById('budgetSettingsModal').classList.remove('active'); });
+
+    // Delete all budget data
+    document.getElementById('budgetDeleteAll').addEventListener('click', async () => {
+      const ok = await confirm('Delete ALL budget data? This cannot be undone.');
+      if (!ok) return;
+      db = { categories: [], months: {} };
+      await save();
+      render();
+      document.getElementById('budgetSettingsModal').classList.remove('active');
+      toast('All budget data deleted');
+    });
+
+    // Export JSON
+    document.getElementById('budgetExportJson').addEventListener('click', () => {
+      const json = JSON.stringify(db, null, 2);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+      a.download = `budget_data_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Import JSON
+    document.getElementById('budgetImportJson').addEventListener('click', () => document.getElementById('budgetJsonFileInput').click());
+    document.getElementById('budgetJsonFileInput').addEventListener('change', async function () {
+      const file = this.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Invalid format');
+        const ok = await confirm('Replace all current budget data with the imported file? This cannot be undone.');
+        if (!ok) { this.value = ''; return; }
+        db = parsed;
+        if (!db.categories) db.categories = [];
+        if (!db.months) db.months = {};
+        await save();
+        render();
+        document.getElementById('budgetSettingsModal').classList.remove('active');
+        toast('Budget data imported successfully');
+      } catch (e) {
+        toast('Import failed: ' + e.message, 'error');
+      }
+      this.value = '';
+    });
+
     // Theme toggle
     const themeBtn = document.getElementById('budgetThemeToggle');
     themeBtn.textContent = localStorage.getItem('propfolio-theme') === 'dark' ? '☀️' : '🌙';

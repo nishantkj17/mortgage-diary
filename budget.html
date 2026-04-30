@@ -22,10 +22,34 @@
         <h1>Budget Tracker</h1>
       </div>
       <button id="budgetThemeToggle" class="theme-toggle-btn" title="Toggle theme"></button>
+      <button id="budgetSettingsBtn" class="settings-btn" title="Settings">⚙</button>
     </header>
 
     <!-- Toast -->
     <div id="bToast" class="b-toast" aria-live="polite"></div>
+
+    <!-- Settings Modal -->
+    <div id="budgetSettingsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Budget Settings</h2>
+          <button id="closeBudgetSettings" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="backup-section">
+            <h3>Backup &amp; Restore</h3>
+            <p style="font-size:13px;color:#78909c;margin:0 0 12px">Export or import all budget data as JSON.</p>
+            <button id="budgetExportJson" class="backup-btn">Export JSON</button>
+            <button id="budgetImportJson" class="backup-btn">Import JSON</button>
+            <input type="file" id="budgetJsonFileInput" accept=".json" style="display:none" />
+          </div>
+          <div class="delete-section">
+            <h3>Delete Data</h3>
+            <button id="budgetDeleteAll" class="delete-account-btn">Delete All Budget Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Confirm modal -->
     <div id="bConfirmModal" class="modal">
