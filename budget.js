@@ -245,7 +245,7 @@
       tbody.innerHTML = '<tr><td colspan="4" class="b-empty-row">No expenses recorded yet.</td></tr>';
       return;
     }
-    // Auto-rows from fixed budget entries (read-only)
+    // Auto-rows from fixed budget entries (editable)
     fixedEntries.forEach(entry => {
       const tr = document.createElement('tr');
       tr.className = 'b-fixed-row';
@@ -253,7 +253,10 @@
         <td><span class="b-cat-chip">${esc(entry.category)}</span> <span class="b-fixed-badge">Fixed</span></td>
         <td class="b-muted-cell">${esc(entry.description || '')}</td>
         <td class="b-amount-cell">${fmt(entry.amount)}</td>
-        <td class="b-actions-cell b-muted-cell" style="font-size:11px">auto</td>`;
+        <td class="b-actions-cell">
+          <button class="b-btn-icon b-edit-fixed" data-id="${entry.id}" title="Edit">✎</button>
+          <button class="b-btn-icon b-del-fixed" data-id="${entry.id}" title="Delete">✕</button>
+        </td>`;
       tbody.appendChild(tr);
     });
     // Manually entered expenses
@@ -564,6 +567,19 @@
     document.getElementById('expenseListTable').addEventListener('click', async e => {
       const editBtn = e.target.closest('.b-edit-expense');
       const delBtn = e.target.closest('.b-del-expense');
+      const editFixed = e.target.closest('.b-edit-fixed');
+      const delFixed = e.target.closest('.b-del-fixed');
+      if (editFixed) {
+        const entry = getMonth(activeMonth).budget.find(x => x.id === editFixed.dataset.id);
+        if (entry) { document.getElementById('expenseListModal').classList.remove('active'); openBudgetForm(entry); }
+      }
+      if (delFixed) {
+        const ok = await confirm('Delete this fixed expense? It will also be removed from your estimated budget.');
+        if (!ok) return;
+        const month = getMonth(activeMonth);
+        month.budget = month.budget.filter(x => x.id !== delFixed.dataset.id);
+        await save(); render(); renderExpenseListPopup(); toast('Deleted');
+      }
       if (editBtn) {
         const entry = getMonth(activeMonth).expenses.find(x => x.id === editBtn.dataset.id);
         if (entry) { document.getElementById('expenseListModal').classList.remove('active'); openQuickExpenseModal(entry); }
