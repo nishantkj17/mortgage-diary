@@ -253,14 +253,14 @@ app.post('/api/import/csv', async (req, res) => {
 // ── Budget API ───────────────────────────────────────────────────────────────
 
 // Get all budget data
-app.get('/api/budget', (req, res) => {
-  try { res.json(readBudget()); }
+app.get('/api/budget', async (req, res) => {
+  try { res.json(await readBudget()); }
   catch (e) { res.status(500).json({ error: 'Failed to read budget data' }); }
 });
 
 // Save all budget data
-app.post('/api/budget', (req, res) => {
-  try { writeBudget(req.body); res.json({ success: true }); }
+app.post('/api/budget', async (req, res) => {
+  try { await writeBudget(req.body); res.json({ success: true }); }
   catch (e) { res.status(500).json({ error: 'Failed to save budget data' }); }
 });
 
