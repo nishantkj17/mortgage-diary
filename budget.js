@@ -5,11 +5,11 @@
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
-  function fmt(n) { return '₹' + (Number(n) || 0).toLocaleString('en-IN'); }
+  function fmt(n) { return '$' + (Number(n) || 0).toLocaleString('en-US'); }
   function monthLabel(ym) {
     if (!ym) return '';
     const [y, m] = ym.split('-');
-    return new Date(+y, +m - 1, 1).toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+    return new Date(+y, +m - 1, 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
   }
   function currentMonth() {
     const d = new Date();
@@ -197,7 +197,7 @@
         responsive: true,
         scales: {
           x: { ticks: { color: tickColor, font: { size: 11 } }, grid: { display: false } },
-          y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => '₹' + v.toLocaleString('en-IN') }, grid: { color: gridColor } }
+          y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => '$' + v.toLocaleString('en-US') }, grid: { color: gridColor } }
         },
         plugins: {
           legend: { labels: { color: tickColor, boxWidth: 12, font: { size: 12 } } },
