@@ -55,6 +55,10 @@
     {
       "id": "mokzb04vqcu6fr",
       "name": "asdasd"
+    },
+    {
+      "id": "mokzxl0g1ag3ga",
+      "name": "Test"
     }
   ],
   "months": {
@@ -185,6 +189,12 @@
           "category": "Liquor",
           "description": "bwwe",
           "amount": 20
+        },
+        {
+          "id": "mokzxl0h0oxogo",
+          "category": "Test",
+          "description": "as",
+          "amount": 3
         }
       ]
     },

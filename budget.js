@@ -425,7 +425,14 @@
     const container = document.getElementById('expenseCatTags');
     if (!container) return;
     container.innerHTML = '';
-    db.categories.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(c => {
+    const month = getMonth(activeMonth);
+    const fixedOnlyCats = new Set(
+      db.categories.map(c => c.name).filter(name => {
+        const entries = month.budget.filter(e => e.category === name);
+        return entries.length > 0 && entries.every(e => e.fixed);
+      })
+    );
+    db.categories.slice().sort((a, b) => a.name.localeCompare(b.name)).filter(c => !fixedOnlyCats.has(c.name)).forEach(c => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'b-cat-tag' + (c.name === selectedExpenseCat ? ' selected' : '');
