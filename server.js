@@ -10,12 +10,13 @@ const PORT = process.env.PORT || 5001;
 // When AZURE_STORAGE_CONNECTION_STRING is set → use Blob Storage (production)
 // Otherwise → fall back to local JSON file (local dev)
 const USE_BLOB = !!process.env.AZURE_STORAGE_CONNECTION_STRING;
-const CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER || 'mortgage-data';
+const CONTAINER_NAME        = process.env.AZURE_STORAGE_CONTAINER        || 'mortgage-data';
+const BUDGET_CONTAINER_NAME = process.env.AZURE_BUDGET_STORAGE_CONTAINER || 'budget-data';
 const BLOB_NAME      = 'mortgage_data.json';
 const DATA_FILE      = path.join(__dirname, 'data', 'mortgage_data.json');
 
 // ── Budget data ────────────────────────────────────────────────────────────
-// Same storage abstraction as mortgage: Blob when USE_BLOB is set, local JSON otherwise
+// Uses a separate container (AZURE_BUDGET_STORAGE_CONTAINER, default: budget-data)
 const BUDGET_FILE       = path.join(__dirname, 'data', 'budget_data.json');
 const BUDGET_BLOB_NAME  = 'budget_data.json';
 const BUDGET_EMPTY      = { categories: [], months: {} };
@@ -28,13 +29,21 @@ if (USE_BLOB) {
   const blobServiceClient = BlobServiceClient.fromConnectionString(
     process.env.AZURE_STORAGE_CONNECTION_STRING
   );
+
+  // Mortgage container
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
   blockBlobClient = containerClient.getBlockBlobClient(BLOB_NAME);
-  budgetBlobClient = containerClient.getBlockBlobClient(BUDGET_BLOB_NAME);
-  // Ensure container exists on startup
   containerClient.createIfNotExists()
     .then(() => console.log(`Blob container "${CONTAINER_NAME}" ready`))
     .catch(e => console.error('Blob container init error:', e));
+
+  // Budget container (separate)
+  const budgetContainerClient = blobServiceClient.getContainerClient(BUDGET_CONTAINER_NAME);
+  budgetBlobClient = budgetContainerClient.getBlockBlobClient(BUDGET_BLOB_NAME);
+  budgetContainerClient.createIfNotExists()
+    .then(() => console.log(`Blob container "${BUDGET_CONTAINER_NAME}" ready`))
+    .catch(e => console.error('Budget blob container init error:', e));
+
   console.log('Storage: Azure Blob Storage');
 } else {
   // Local file fallback
