@@ -1,0 +1,179 @@
+{
+  "categories": [
+    {
+      "id": "moktgh35l24ms4",
+      "name": "Rent"
+    },
+    {
+      "id": "mokth8nczk509s",
+      "name": "Car loan"
+    },
+    {
+      "id": "mokvxw1b9v8ex9",
+      "name": "Internet"
+    },
+    {
+      "id": "mokvy7ex66ccts",
+      "name": "Mobile"
+    },
+    {
+      "id": "mokvz5bv9s2qd1",
+      "name": "India"
+    },
+    {
+      "id": "mokw0yyrg1eech",
+      "name": "Gym"
+    },
+    {
+      "id": "mokw2uigq77lvd",
+      "name": "Grocery"
+    },
+    {
+      "id": "mokw3uc7c3a8d0",
+      "name": "Transport"
+    },
+    {
+      "id": "mokw7flq4ihf0a",
+      "name": "Eat out"
+    },
+    {
+      "id": "mokw9e92ha1xqv",
+      "name": "Beauty Parlor/Salon"
+    },
+    {
+      "id": "mokwanuub8h3lc",
+      "name": "Liquor"
+    },
+    {
+      "id": "mokwc1n5y0cf5o",
+      "name": "Coffee"
+    },
+    {
+      "id": "mokxhee28fr4i",
+      "name": "coles"
+    }
+  ],
+  "months": {
+    "2026-04": {
+      "budget": [
+        {
+          "id": "moktogjllpjb8o",
+          "category": "Rent",
+          "description": "Home rent",
+          "amount": 3800,
+          "fixed": true
+        },
+        {
+          "id": "moktowt6xys4l2",
+          "category": "Car loan",
+          "description": "BMW car rent",
+          "amount": 1128,
+          "fixed": true
+        },
+        {
+          "id": "mokvxw1bix4qjp",
+          "category": "Internet",
+          "description": "Internet",
+          "amount": 79,
+          "fixed": true
+        },
+        {
+          "id": "mokvy7ex8530to",
+          "category": "Mobile",
+          "description": "Optus",
+          "amount": 35,
+          "fixed": true
+        },
+        {
+          "id": "mokvyk36yhd027",
+          "category": "Mobile",
+          "description": "Telstra",
+          "amount": 39,
+          "fixed": true
+        },
+        {
+          "id": "mokvz5bvfwes6m",
+          "category": "India",
+          "description": "Home loan",
+          "amount": 1500,
+          "fixed": true
+        },
+        {
+          "id": "mokw0yyrxsrw6g",
+          "category": "Gym",
+          "description": "Jetts",
+          "amount": 74,
+          "fixed": true
+        },
+        {
+          "id": "mokw2uiggotzff",
+          "category": "Grocery",
+          "description": "",
+          "amount": 1000,
+          "fixed": false
+        },
+        {
+          "id": "mokw3uc7jolyj5",
+          "category": "Transport",
+          "description": "Petrol",
+          "amount": 100,
+          "fixed": false
+        },
+        {
+          "id": "mokw4l2qwfmf7j",
+          "category": "Transport",
+          "description": "NSW-Nishant",
+          "amount": 144,
+          "fixed": true
+        },
+        {
+          "id": "mokw5gf9j3rnk4",
+          "category": "Transport",
+          "description": "NSW-Ranjana",
+          "amount": 100,
+          "fixed": true
+        },
+        {
+          "id": "mokw7flqyv0ak1",
+          "category": "Eat out",
+          "description": "Restaurant",
+          "amount": 1000,
+          "fixed": false
+        },
+        {
+          "id": "mokw9e92lko81u",
+          "category": "Beauty Parlor/Salon",
+          "description": "Hair/Nails/Beard",
+          "amount": 250,
+          "fixed": false
+        },
+        {
+          "id": "mokwanuuqvv1yx",
+          "category": "Liquor",
+          "description": "Drinks",
+          "amount": 250,
+          "fixed": false
+        },
+        {
+          "id": "mokwc1n552m5be",
+          "category": "Coffee",
+          "description": "",
+          "amount": 150,
+          "fixed": false
+        }
+      ],
+      "expenses": [
+        {
+          "id": "mokwvcdh6aolz",
+          "category": "Liquor",
+          "description": "Beer",
+          "amount": 20
+        }
+      ]
+    },
+    "2026-05": {
+      "budget": [],
+      "expenses": []
+    }
+  }
+}

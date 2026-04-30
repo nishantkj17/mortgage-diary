@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>PropFolio — Budget Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="/chart.min.js"></script>
+  <script>(function(){if(localStorage.getItem('propfolio-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+</head>
+<body>
+  <div class="b-page">
+
+    <!-- Header -->
+    <header class="landing-header">
+      <div class="landing-brand">
+        <a href="/landing.html" class="landing-back-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Home
+        </a>
+        <h1>Budget Tracker</h1>
+      </div>
+      <button id="budgetThemeToggle" class="theme-toggle-btn" title="Toggle theme"></button>
+    </header>
+
+    <!-- Toast -->
+    <div id="bToast" class="b-toast" aria-live="polite"></div>
+
+    <!-- Confirm modal -->
+    <div id="bConfirmModal" class="modal">
+      <div class="modal-content confirm-modal-content">
+        <p id="bConfirmMsg" class="confirm-msg"></p>
+        <div class="confirm-actions">
+          <button id="bConfirmCancel" class="confirm-btn-cancel">Cancel</button>
+          <button id="bConfirmOk" class="confirm-btn-ok">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick-Add Expense Modal -->
+    <div id="quickExpenseModal" class="modal">
+      <div class="modal-content b-quick-modal-content">
+        <div class="modal-header">
+          <h2>Add Expense</h2>
+          <button id="closeQuickExpenseModal" class="close-btn">×</button>
+        </div>
+        <div class="modal-body b-quick-modal-body">
+          <div class="b-form-field">
+            <label>Category</label>
+            <select id="expenseCatSel" class="b-select"></select>
+            <input id="expenseCatText" class="b-input" placeholder="Or type new category…" style="margin-top:6px" />
+          </div>
+          <div class="b-form-field" style="margin-top:12px">
+            <label>Description <span class="b-optional">(optional)</span></label>
+            <input id="expenseDesc" class="b-input" placeholder="e.g. grocery, Swiggy…" />
+          </div>
+          <div class="b-form-field" style="margin-top:12px">
+            <label>Amount (₹)</label>
+            <input id="expenseAmt" type="number" class="b-input" min="0" step="0.01" placeholder="e.g. 3500" />
+          </div>
+          <div class="b-form-actions" style="margin-top:16px">
+            <button id="saveQuickExpense" class="b-save-btn">Save</button>
+            <button id="cancelQuickExpense" class="b-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget List Modal -->
+    <div id="budgetListModal" class="modal">
+      <div class="modal-content b-list-modal-content">
+        <div class="modal-header">
+          <h2>📋 Estimated Budget</h2>
+          <button id="closeBudgetListModal" class="close-btn">×</button>
+        </div>
+        <div class="b-list-modal-body">
+          <table id="budgetListTable" class="b-table">
+            <thead><tr><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense List Modal -->
+    <div id="expenseListModal" class="modal">
+      <div class="modal-content b-list-modal-content">
+        <div class="modal-header">
+          <h2>💸 Actual Expenses</h2>
+          <button id="closeExpenseListModal" class="close-btn">×</button>
+        </div>
+        <div class="b-list-modal-body">
+          <table id="expenseListTable" class="b-table">
+            <thead><tr><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <main class="b-main">
+
+      <!-- Month nav row -->
+      <div class="b-month-row">
+        <button id="prevMonthBtn" class="b-month-nav-btn" title="Previous month">‹</button>
+        <input type="month" id="monthPicker" class="b-month-picker" />
+        <button id="nextMonthBtn" class="b-month-nav-btn" title="Next month">›</button>
+        <button id="carryForwardBtn" class="b-carry-btn" title="Copy last month's budget entries">⟳ Carry forward</button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="b-summary-row">
+        <div class="b-summary-card" id="cardBudget" title="Tap to view budget entries">
+          <div class="b-summary-icon">📋</div>
+          <div class="b-summary-body">
+            <div class="b-summary-label">Estimated Budget</div>
+            <div class="b-summary-amount" id="cardBudgetAmt">₹0</div>
+          </div>
+          <div class="b-summary-chevron">›</div>
+        </div>
+
+        <div class="b-summary-card" id="cardExpense" title="Tap to view expenses">
+          <div class="b-summary-icon">💸</div>
+          <div class="b-summary-body">
+            <div class="b-summary-label">Current Expenses</div>
+            <div class="b-summary-amount" id="cardExpenseAmt">₹0</div>
+          </div>
+          <div class="b-summary-chevron">›</div>
+        </div>
+
+        <div class="b-diff-card">
+          <span id="cardArrow" class="b-arrow under">↓</span>
+          <span id="cardDiff" class="b-summary-diff under">₹0</span>
+          <span id="cardDiffLabel" class="b-diff-label">Under budget</span>
+        </div>
+      </div>
+
+      <!-- Budget panel -->
+      <div class="b-panel" id="budgetPanelWrap">
+        <div class="b-panel-header">
+          <span class="b-panel-title">📋 Estimated Budget</span>
+          <div class="b-panel-actions">
+            <button id="viewBudgetListBtn" class="b-list-icon-btn" title="View all entries">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button id="addBudgetBtn" class="b-add-btn">+ Add</button>
+          </div>
+        </div>
+
+        <!-- Budget inline form -->
+        <div id="budgetForm" class="b-inline-form b-hidden">
+          <div class="b-form-title" id="budgetFormTitle">Add Budget Entry</div>
+          <div class="b-form-grid">
+            <div class="b-form-field">
+              <label>Category</label>
+              <select id="budgetCatSel" class="b-select"></select>
+              <input id="budgetCatText" class="b-input" placeholder="Or type new category…" />
+            </div>
+            <div class="b-form-field">
+              <label>Description <span class="b-optional">(optional)</span></label>
+              <input id="budgetDesc" class="b-input" placeholder="e.g. EMI, rent…" />
+            </div>
+            <div class="b-form-field">
+              <label>Amount (₹)</label>
+              <input id="budgetAmt" type="number" class="b-input" min="0" step="0.01" placeholder="e.g. 15000" />
+            </div>
+          </div>
+          <label class="b-fixed-checkbox-row">
+            <input type="checkbox" id="budgetFixed" />
+            <span>Fixed expense — auto-log as actual expense each month</span>
+          </label>
+          <div class="b-form-actions">
+            <button id="saveBudgetForm" class="b-save-btn">Save</button>
+            <button id="cancelBudgetForm" class="b-cancel-btn">Cancel</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Expense panel: list only, no inline form -->
+      <div class="b-panel" id="expensePanelWrap">
+        <div class="b-panel-header">
+          <span class="b-panel-title">💸 Actual Expenses</span>
+          <div class="b-panel-actions">
+            <button id="viewExpenseListBtn" class="b-list-icon-btn" title="View all expenses">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart carousel -->
+      <div class="b-chart-carousel" id="chartCarousel" style="display:none">
+        <div class="b-carousel-slides">
+          <div class="b-carousel-slide active" id="slideDonut">
+            <div class="b-chart-title">Spend Breakdown</div>
+            <div class="b-donut-wrap"><canvas id="donutChart"></canvas></div>
+          </div>
+          <div class="b-carousel-slide" id="slideBar">
+            <div class="b-chart-title">Budget vs Actual</div>
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+        <div class="b-carousel-dots">
+          <button class="b-dot active" data-slide="0"></button>
+          <button class="b-dot" data-slide="1"></button>
+        </div>
+      </div>
+
+      <!-- Nearing limit progress bars (>= 90% spent) -->
+      <div class="b-progress-section" id="catProgressSection" style="display:none">
+        <div class="b-section-header">⚠️ Nearing Limit</div>
+        <div id="catProgressList"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="budget.js?v=6"></script>
+</body>
+</html>

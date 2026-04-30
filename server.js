@@ -14,6 +14,13 @@ const CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER || 'mortgage-data';
 const BLOB_NAME      = 'mortgage_data.json';
 const DATA_FILE      = path.join(__dirname, 'data', 'mortgage_data.json');
 
+// ── Budget data ────────────────────────────────────────────────────────────
+// Same storage abstraction as mortgage: Blob when USE_BLOB is set, local JSON otherwise
+const BUDGET_FILE       = path.join(__dirname, 'data', 'budget_data.json');
+const BUDGET_BLOB_NAME  = 'budget_data.json';
+const BUDGET_EMPTY      = { categories: [], months: {} };
+let budgetBlobClient;
+
 let blockBlobClient;
 
 if (USE_BLOB) {
@@ -23,6 +30,7 @@ if (USE_BLOB) {
   );
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
   blockBlobClient = containerClient.getBlockBlobClient(BLOB_NAME);
+  budgetBlobClient = containerClient.getBlockBlobClient(BUDGET_BLOB_NAME);
   // Ensure container exists on startup
   containerClient.createIfNotExists()
     .then(() => console.log(`Blob container "${CONTAINER_NAME}" ready`))
@@ -33,7 +41,34 @@ if (USE_BLOB) {
   const dataDir = path.join(__dirname, 'data');
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify({ accounts: [] }));
+  if (!fs.existsSync(BUDGET_FILE)) fs.writeFileSync(BUDGET_FILE, JSON.stringify(BUDGET_EMPTY, null, 2));
   console.log(`Storage: local file (${DATA_FILE})`);
+}
+
+async function readBudget() {
+  if (USE_BLOB) {
+    try {
+      const buffer = await budgetBlobClient.downloadToBuffer();
+      return JSON.parse(buffer.toString('utf8'));
+    } catch (e) {
+      if (e.statusCode === 404) return { ...BUDGET_EMPTY };
+      throw e;
+    }
+  }
+  if (!fs.existsSync(BUDGET_FILE)) return { ...BUDGET_EMPTY };
+  return JSON.parse(fs.readFileSync(BUDGET_FILE, 'utf8'));
+}
+async function writeBudget(data) {
+  const json = JSON.stringify(data, null, 2);
+  if (USE_BLOB) {
+    const buf = Buffer.from(json, 'utf8');
+    await budgetBlobClient.upload(buf, buf.length, {
+      blobHTTPHeaders: { blobContentType: 'application/json' },
+      overwrite: true
+    });
+  } else {
+    fs.writeFileSync(BUDGET_FILE, json);
+  }
 }
 
 async function readData() {
@@ -64,9 +99,9 @@ app.use(express.json());
 // Serve static frontend files (index.html, style.css, app.js, etc.)
 app.use(express.static(__dirname));
 
-// Explicit root handler to ensure GET / serves the main page
+// Root serves the landing page; Property Management is at /index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'landing.html'));
 });
 
 // Get all data
@@ -205,6 +240,22 @@ app.post('/api/import/csv', async (req, res) => {
     res.status(500).json({ error: 'Failed to import CSV' });
   }
 });
+
+// ── Budget API ───────────────────────────────────────────────────────────────
+
+// Get all budget data
+app.get('/api/budget', (req, res) => {
+  try { res.json(readBudget()); }
+  catch (e) { res.status(500).json({ error: 'Failed to read budget data' }); }
+});
+
+// Save all budget data
+app.post('/api/budget', (req, res) => {
+  try { writeBudget(req.body); res.json({ success: true }); }
+  catch (e) { res.status(500).json({ error: 'Failed to save budget data' }); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
   console.log(`PropFolio server running on http://localhost:${PORT}`);
