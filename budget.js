@@ -127,7 +127,7 @@
     );
     // Only non-fixed categories with a budget set AND actual >= 90%
     const alerts = Object.entries(breakdown)
-      .filter(([cat, { budgeted, actual }]) => budgeted > 0 && !fixedOnlyCats.has(cat) && actual / budgeted >= 0.9)
+      .filter(([cat, { budgeted, actual }]) => budgeted > 0 && !fixedOnlyCats.has(cat) && actual / budgeted >= 0.6)
       .sort((a, b) => (b[1].actual / b[1].budgeted) - (a[1].actual / a[1].budgeted));
     if (!alerts.length) { section.style.display = 'none'; return; }
     section.style.display = 'block';
