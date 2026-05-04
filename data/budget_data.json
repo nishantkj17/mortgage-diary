@@ -47,18 +47,6 @@
     {
       "id": "mokwc1n5y0cf5o",
       "name": "Coffee"
-    },
-    {
-      "id": "mokxhee28fr4i",
-      "name": "coles"
-    },
-    {
-      "id": "mokzb04vqcu6fr",
-      "name": "asdasd"
-    },
-    {
-      "id": "mokzxl0g1ag3ga",
-      "name": "Test"
     }
   ],
   "months": {
@@ -168,35 +156,9 @@
           "description": "",
           "amount": 150,
           "fixed": false
-        },
-        {
-          "id": "mokzb04v98iwhr",
-          "category": "asdasd",
-          "description": "sad",
-          "amount": 555,
-          "fixed": true
         }
       ],
-      "expenses": [
-        {
-          "id": "mokzp6gwuw9rfz",
-          "category": "Liquor",
-          "description": "",
-          "amount": 10
-        },
-        {
-          "id": "mokzpk5p888vmq",
-          "category": "Liquor",
-          "description": "bwwe",
-          "amount": 20
-        },
-        {
-          "id": "mokzxl0h0oxogo",
-          "category": "Test",
-          "description": "as",
-          "amount": 3
-        }
-      ]
+      "expenses": []
     },
     "2026-05": {
       "budget": [],

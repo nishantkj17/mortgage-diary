@@ -486,7 +486,7 @@
     }
     closeQuickExpenseModal();
     await save();
-    renderSummaryCards();
+    render();
     toast(editingExpenseId ? 'Expense updated' : 'Expense added');
   }
 
@@ -560,6 +560,8 @@
 
     // Expense panel list view
     document.getElementById('viewExpenseListBtn').addEventListener('click', openExpenseListPopup);
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    if (addExpenseBtn) addExpenseBtn.addEventListener('click', () => openQuickExpenseModal(null));
 
     // Expense list modal
     document.getElementById('closeExpenseListModal').addEventListener('click', () => document.getElementById('expenseListModal').classList.remove('active'));
