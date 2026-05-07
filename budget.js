@@ -768,10 +768,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: {
-                position: 'bottom',
-                labels: { color: tickColor, boxWidth: 8, padding: 6, font: { size: 10 } }
-              },
+              legend: { display: false },
               tooltip: {
                 callbacks: {
                   label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw.y)}`
@@ -783,15 +780,10 @@
                 min: 0,
                 max: donutCats.length + 1,
                 grid: { display: false },
-                ticks: {
-                  color: tickColor,
-                  font: { size: 10 },
-                  stepSize: 1,
-                  callback: v => donutCats[v - 1] || ''
-                }
+                ticks: { display: false }
               },
               y: {
-                title: { display: true, text: 'Amount Spent', color: tickColor, font: { size: 10 } },
+                title: { display: false },
                 ticks: { color: tickColor, font: { size: 10 }, callback: v => v >= 1000 ? '$'+(v/1000).toFixed(1)+'k' : '$'+v },
                 grid: { color: gridColor },
                 min: 0
