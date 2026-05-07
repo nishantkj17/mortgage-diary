@@ -39,7 +39,10 @@
 
         <!-- Spend Breakdown donut (mini) -->
         <div class="home-dash-card">
-          <div class="home-dash-card-title">Spend Breakdown</div>
+          <div class="home-donut-card-header">
+            <div class="home-dash-card-title" style="margin-bottom:0">Spend Breakdown</div>
+            <button id="landingFabExpense" class="home-donut-fab">Add Expense +</button>
+          </div>
           <div class="home-donut-wrap"><canvas id="homeDonutChart"></canvas></div>
           <div class="home-donut-filters-row">
             <label class="b-rent-toggle">
@@ -73,14 +76,6 @@
         <div class="home-dash-card" id="homeLoanSection">
           <p class="home-dash-empty">Loading…</p>
         </div>
-      </div>
-
-      <!-- Quick Add Expense -->      
-      <div class="home-dash-section">
-        <button id="landingFabExpense" class="home-add-expense-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Quick Expense
-        </button>
       </div>
     </main>
   </section>
