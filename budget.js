@@ -151,7 +151,6 @@
 
   // ── Charts ───────────────────────────────────────────────────────────────────
   let donutInst = null;
-  let barInst = null;
   const CHART_COLORS = ['#607d8b','#4db6ac','#ff8a65','#ba68c8','#4fc3f7','#aed581','#f06292','#ffd54f','#80cbc4','#ffb74d'];
 
   function renderCharts() {
@@ -194,28 +193,6 @@
       }
     });
 
-    if (barInst) barInst.destroy();
-    barInst = new Chart(document.getElementById('barChart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: cats,
-        datasets: [
-          { label: 'Budget', data: budgets, backgroundColor: isDark ? '#4b5563' : '#cfd8dc', borderRadius: 4 },
-          { label: 'Actual', data: actuals, backgroundColor: colors, borderRadius: 4 }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: { ticks: { color: tickColor, font: { size: 11 } }, grid: { display: false } },
-          y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => '$' + v.toLocaleString('en-US') }, grid: { color: gridColor } }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } }
-        }
-      }
-    });
   }
 
   // ── Budget List Popup ────────────────────────────────────────────────────────
@@ -633,16 +610,6 @@
     if (includeCarLoanChk) includeCarLoanChk.addEventListener('change', renderCharts);
     const includeIndiaChk = document.getElementById('includeIndiaChk');
     if (includeIndiaChk) includeIndiaChk.addEventListener('change', renderCharts);
-
-    // Carousel dot navigation
-    document.querySelectorAll('.b-dot').forEach(dot => {
-      dot.addEventListener('click', function () {
-        const idx = parseInt(this.dataset.slide);
-        document.querySelectorAll('.b-carousel-slide').forEach((s, i) => s.classList.toggle('active', i === idx));
-        document.querySelectorAll('.b-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
-        setTimeout(() => { if (idx === 0 && donutInst) donutInst.resize(); if (idx === 1 && barInst) barInst.resize(); }, 30);
-      });
-    });
 
     // Settings modal
     document.getElementById('budgetSettingsBtn').addEventListener('click', () => document.getElementById('budgetSettingsModal').classList.add('active'));
