@@ -474,7 +474,7 @@ html[data-theme="dark"] .coming-soon-back-btn:hover{background:#7eaab8;color:#1f
 
 /* ── Budget Tracker ── */
 .b-page{min-height:100vh;display:flex;flex-direction:column;background:#f6f7fb}
-.b-main{max-width:900px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px;width:100%}
+.b-main{max-width:900px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:8px;width:100%}
 /* Month nav */
 .b-month-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
 .b-month-picker{padding:7px 10px;border:1px solid #d6d7dc;border-radius:6px;font-size:14px;background:#fff;color:#111;cursor:pointer}
@@ -548,7 +548,7 @@ html[data-theme="dark"] .b-cat-tag.selected{background:#607d8b;border-color:#607
 html[data-theme="dark"] .b-fab{background:#607d8b}
 html[data-theme="dark"] .b-fab:hover{background:#546e7a}
 /* ── Category progress bars ──────────────────────────────────────────── */
-.b-progress-section{background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.b-progress-section{background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .b-section-header{font-size:11px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
 .b-progress-row{margin-bottom:12px}
 .b-progress-row:last-child{margin-bottom:0}
@@ -564,17 +564,17 @@ html[data-theme="dark"] .b-progress-amounts{color:#9ca3af}
 .b-progress-amounts.over{color:#e74c3c;font-weight:600}
 html[data-theme="dark"] .b-progress-amounts.over{color:#f87171}
 /* ── Chart carousel ──────────────────────────────────────────────────── */
-.b-chart-carousel{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.b-chart-carousel{background:#fff;border-radius:10px;padding:16px 16px 8px;margin-bottom:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .b-carousel-slides{position:relative}
 .b-carousel-slide{display:none}
 .b-carousel-slide.active{display:block}
-.b-chart-title{font-size:11px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.b-chart-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.b-chart-title{font-size:11px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.b-chart-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
 .b-chart-title-row .b-chart-title{margin-bottom:0}
-.b-donut-filters{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.b-donut-filters{display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 18px;margin-top:6px}
 .b-rent-toggle{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#78909c;cursor:pointer;user-select:none}
 .b-rent-toggle input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#607d8b;flex-shrink:0}
-.b-donut-wrap{max-width:240px;margin:0 auto}
+.b-donut-wrap{max-width:190px;margin:0 auto}
 .b-carousel-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
 .b-dot{width:8px;height:8px;border-radius:50%;border:none;background:#d6d7dc;cursor:pointer;padding:0;transition:background 0.2s}
 .b-dot.active{background:#607d8b}

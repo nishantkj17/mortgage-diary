@@ -474,7 +474,7 @@
           <div class="b-summary-card" id="cardBudget" title="Tap to view budget entries">
             <div class="b-summary-icon">&#128203;</div>
             <div class="b-summary-body">
-              <div class="b-summary-label">Estimated Budget</div>
+              <div class="b-summary-label">Budget</div>
               <div class="b-summary-amount" id="cardBudgetAmt">$0</div>
             </div>
             <div class="b-summary-chevron">&#8250;</div>
@@ -483,7 +483,7 @@
           <div class="b-summary-card" id="cardExpense" title="Tap to view expenses">
             <div class="b-summary-icon">&#128184;</div>
             <div class="b-summary-body">
-              <div class="b-summary-label">Current Expenses</div>
+              <div class="b-summary-label">Actual</div>
               <div class="b-summary-amount" id="cardExpenseAmt">$0</div>
             </div>
             <div class="b-summary-chevron">&#8250;</div>
@@ -556,22 +556,22 @@
             <div class="b-carousel-slide active" id="slideDonut">
               <div class="b-chart-title-row">
                 <div class="b-chart-title">Spend Breakdown</div>
-                <div class="b-donut-filters">
-                  <label class="b-rent-toggle">
-                    <input type="checkbox" id="includeRentChk" />
-                    <span>Include Rent</span>
-                  </label>
-                  <label class="b-rent-toggle">
-                    <input type="checkbox" id="includeCarLoanChk" />
-                    <span>Include Car Loan</span>
-                  </label>
-                  <label class="b-rent-toggle">
-                    <input type="checkbox" id="includeIndiaChk" />
-                    <span>Include India</span>
-                  </label>
-                </div>
               </div>
               <div class="b-donut-wrap"><canvas id="donutChart"></canvas></div>
+              <div class="b-donut-filters">
+                <label class="b-rent-toggle">
+                  <input type="checkbox" id="includeRentChk" />
+                  <span>Include Rent</span>
+                </label>
+                <label class="b-rent-toggle">
+                  <input type="checkbox" id="includeCarLoanChk" />
+                  <span>Include Car Loan</span>
+                </label>
+                <label class="b-rent-toggle">
+                  <input type="checkbox" id="includeIndiaChk" />
+                  <span>Include India</span>
+                </label>
+              </div>
             </div>
             <div class="b-carousel-slide" id="slideBar">
               <div class="b-chart-title">Budget vs Actual</div>

@@ -188,7 +188,7 @@
       options: {
         responsive: true, cutout: '62%',
         plugins: {
-          legend: { position: 'bottom', labels: { color: tickColor, boxWidth: 12, padding: 12, font: { size: 12 } } },
+          legend: { display: false },
           tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.parsed)}` } }
         }
       }
@@ -211,7 +211,7 @@
           y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => '$' + v.toLocaleString('en-US') }, grid: { color: gridColor } }
         },
         plugins: {
-          legend: { labels: { color: tickColor, boxWidth: 12, font: { size: 12 } } },
+          legend: { display: false },
           tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } }
         }
       }
