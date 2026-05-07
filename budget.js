@@ -73,7 +73,8 @@
   function totalBudget(ym) { return getMonth(ym).budget.reduce((s, e) => s + (Number(e.amount) || 0), 0); }
   function totalExpenses(ym) {
     const month = getMonth(ym);
-    const fixedSum = month.budget.filter(e => e.fixed).reduce((s, e) => s + (Number(e.amount) || 0), 0);
+    const overrideIds = new Set(month.expenses.filter(e => e.fixedId).map(e => e.fixedId));
+    const fixedSum = month.budget.filter(e => e.fixed && !overrideIds.has(e.id)).reduce((s, e) => s + (Number(e.amount) || 0), 0);
     const manualSum = month.expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
     return fixedSum + manualSum;
   }
@@ -81,11 +82,12 @@
   // ── Per-category breakdown (budgeted + actual) ──────────────────────────────────────
   function catBreakdown(ym) {
     const month = getMonth(ym);
+    const overrideIds = new Set(month.expenses.filter(e => e.fixedId).map(e => e.fixedId));
     const map = {};
     month.budget.forEach(e => {
       if (!map[e.category]) map[e.category] = { budgeted: 0, actual: 0 };
       map[e.category].budgeted += Number(e.amount) || 0;
-      if (e.fixed) map[e.category].actual += Number(e.amount) || 0;
+      if (e.fixed && !overrideIds.has(e.id)) map[e.category].actual += Number(e.amount) || 0;
     });
     month.expenses.forEach(e => {
       if (!map[e.category]) map[e.category] = { budgeted: 0, actual: 0 };
@@ -230,27 +232,31 @@
     const tbody = document.querySelector('#expenseListTable tbody');
     tbody.innerHTML = '';
     const fixedEntries = month.budget.filter(e => e.fixed);
-    const hasAny = fixedEntries.length || month.expenses.length;
+    const manualExpenses = month.expenses.filter(e => !e.fixedId);
+    const hasAny = fixedEntries.length || manualExpenses.length;
     if (!hasAny) {
       tbody.innerHTML = '<tr><td colspan="4" class="b-empty-row">No expenses recorded yet.</td></tr>';
       return;
     }
     // Auto-rows from fixed budget entries (editable)
     fixedEntries.forEach(entry => {
+      const override = month.expenses.find(e => e.fixedId === entry.id);
+      const displayAmt = override ? override.amount : entry.amount;
+      const displayDesc = override ? (override.description || '') : (entry.description || '');
       const tr = document.createElement('tr');
       tr.className = 'b-fixed-row';
       tr.innerHTML = `
-        <td><span class="b-cat-chip">${esc(entry.category)}</span> <span class="b-fixed-badge">Fixed</span></td>
-        <td class="b-muted-cell">${esc(entry.description || '')}</td>
-        <td class="b-amount-cell">${fmt(entry.amount)}</td>
+        <td><span class="b-cat-chip">${esc(entry.category)}</span> <span class="b-fixed-badge">Fixed</span>${override ? ' <span class="b-override-badge" title="Amount overridden">Edited</span>' : ''}</td>
+        <td class="b-muted-cell">${esc(displayDesc)}</td>
+        <td class="b-amount-cell">${fmt(displayAmt)}</td>
         <td class="b-actions-cell">
-          <button class="b-btn-icon b-edit-fixed" data-id="${entry.id}" title="Edit">✎</button>
-          <button class="b-btn-icon b-del-fixed" data-id="${entry.id}" title="Delete">✕</button>
+          <button class="b-btn-icon b-edit-fixed" data-id="${entry.id}" title="Edit actual amount">✎</button>
+          <button class="b-btn-icon b-del-fixed" data-id="${entry.id}" title="${override ? 'Reset to budget amount' : 'Delete'}">✕</button>
         </td>`;
       tbody.appendChild(tr);
     });
     // Manually entered expenses
-    month.expenses.forEach(entry => {
+    manualExpenses.forEach(entry => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><span class="b-cat-chip">${esc(entry.category)}</span></td>
@@ -442,9 +448,11 @@
 
   // ── Quick-add Expense Modal ───────────────────────────────────────────────────
   let editingExpenseId = null;
+  let editingFixedSourceId = null;
 
-  function openQuickExpenseModal(entry) {
+  function openQuickExpenseModal(entry, fixedSourceId) {
     editingExpenseId = entry ? entry.id : null;
+    editingFixedSourceId = fixedSourceId || null;
     renderExpenseCatTags(entry ? entry.category : '');
     document.getElementById('expenseCatText').value = '';
     document.getElementById('expenseDesc').value = entry ? (entry.description || '') : '';
@@ -454,6 +462,7 @@
   }
   function closeQuickExpenseModal() {
     editingExpenseId = null;
+    editingFixedSourceId = null;
     selectedExpenseCat = '';
     document.getElementById('quickExpenseModal').classList.remove('active');
     document.getElementById('expenseCatText').value = '';
@@ -472,13 +481,16 @@
     if (editingExpenseId) {
       const entry = month.expenses.find(e => e.id === editingExpenseId);
       if (entry) { entry.category = cat; entry.description = desc; entry.amount = amt; }
+    } else if (editingFixedSourceId) {
+      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, fixedId: editingFixedSourceId });
     } else {
       month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt });
     }
+    const wasEditing = editingExpenseId;
     closeQuickExpenseModal();
     await save();
     render();
-    toast(editingExpenseId ? 'Expense updated' : 'Expense added');
+    toast(wasEditing ? 'Expense updated' : 'Expense added');
   }
 
   // ── Wire up events ───────────────────────────────────────────────────────────
@@ -563,15 +575,33 @@
       const editFixed = e.target.closest('.b-edit-fixed');
       const delFixed = e.target.closest('.b-del-fixed');
       if (editFixed) {
-        const entry = getMonth(activeMonth).budget.find(x => x.id === editFixed.dataset.id);
-        if (entry) { document.getElementById('expenseListModal').classList.remove('active'); openBudgetForm(entry); }
+        const budgetEntry = getMonth(activeMonth).budget.find(x => x.id === editFixed.dataset.id);
+        if (budgetEntry) {
+          document.getElementById('expenseListModal').classList.remove('active');
+          const override = getMonth(activeMonth).expenses.find(e => e.fixedId === budgetEntry.id);
+          if (override) {
+            openQuickExpenseModal(override); // edit the existing override
+          } else {
+            openQuickExpenseModal({ ...budgetEntry, id: null }, budgetEntry.id); // pre-fill from budget, create override on save
+          }
+        }
       }
       if (delFixed) {
-        const ok = await confirm('Delete this fixed expense? It will also be removed from your estimated budget.');
-        if (!ok) return;
-        const month = getMonth(activeMonth);
-        month.budget = month.budget.filter(x => x.id !== delFixed.dataset.id);
-        await save(); render(); renderExpenseListPopup(); toast('Deleted');
+        const budgetEntry = getMonth(activeMonth).budget.find(x => x.id === delFixed.dataset.id);
+        const override = budgetEntry && getMonth(activeMonth).expenses.find(e => e.fixedId === budgetEntry.id);
+        if (override) {
+          const ok = await confirm('Reset to budget amount? The override will be removed.');
+          if (!ok) return;
+          const month = getMonth(activeMonth);
+          month.expenses = month.expenses.filter(x => x.id !== override.id);
+          await save(); render(); renderExpenseListPopup(); toast('Reset to budget amount');
+        } else {
+          const ok = await confirm('Delete this fixed expense? It will also be removed from your estimated budget.');
+          if (!ok) return;
+          const month = getMonth(activeMonth);
+          month.budget = month.budget.filter(x => x.id !== delFixed.dataset.id);
+          await save(); render(); renderExpenseListPopup(); toast('Deleted');
+        }
       }
       if (editBtn) {
         const entry = getMonth(activeMonth).expenses.find(x => x.id === editBtn.dataset.id);

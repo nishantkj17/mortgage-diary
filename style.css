@@ -527,6 +527,7 @@ html[data-theme="dark"] .coming-soon-back-btn:hover{background:#7eaab8;color:#1f
 .b-cancel-btn:hover{background:#f6f7fb}
 .b-hidden{display:none!important}
 .b-fixed-badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:600;background:#e8f4f0;color:#6b9080;border:1px solid #c1ddd6;vertical-align:middle;margin-left:2px}
+.b-override-badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:600;background:#fef3c7;color:#b45309;border:1px solid #fde68a;vertical-align:middle;margin-left:2px}
 .b-fab-row{display:flex;justify-content:center;margin:16px 0 4px}
 .b-fab{width:52px;height:52px;border-radius:50%;border:none;background:#607d8b;color:#fff;font-size:30px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(96,125,139,0.4);transition:background 0.15s,box-shadow 0.15s,transform 0.1s;display:flex;align-items:center;justify-content:center;padding:0}
 .b-fab:hover{background:#546e7a;box-shadow:0 6px 18px rgba(96,125,139,0.5);transform:scale(1.08)}
