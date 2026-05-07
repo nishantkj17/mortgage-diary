@@ -742,20 +742,60 @@
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const tickColor = isDark ? '#9ca3af' : '#78909c';
 
-    // Mini donut
+    // Bubble chart — one bubble per category, Y=actual spend, R=proportional to actual
     if (donutCanvas) {
       if (homeDonutInst) homeDonutInst.destroy();
       if (donutCats.length) {
-        const actuals = donutCats.map(c => breakdown[c].actual);
-        const colors  = donutCats.map((c) => CHART_COLORS[allCats.indexOf(c) % CHART_COLORS.length]);
+        const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)';
+        const maxActual = Math.max(...donutCats.map(c => breakdown[c].actual), 1);
+        const hex2rgba = (hex, a) => `rgba(${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)},${a})`;
+        const datasets = donutCats.map((cat, i) => {
+          const actual = breakdown[cat].actual;
+          const color  = CHART_COLORS[allCats.indexOf(cat) % CHART_COLORS.length];
+          const r = Math.max(6, Math.round(Math.sqrt(actual / maxActual) * 30));
+          return {
+            label: cat,
+            data: [{ x: i + 1, y: actual, r }],
+            backgroundColor: hex2rgba(color, 0.65),
+            borderColor: color,
+            borderWidth: 1.5
+          };
+        });
         homeDonutInst = new Chart(donutCanvas.getContext('2d'), {
-          type: 'doughnut',
-          data: { labels: donutCats, datasets: [{ data: actuals, backgroundColor: colors, borderWidth: 0 }] },
+          type: 'bubble',
+          data: { datasets },
           options: {
-            responsive: true, cutout: '60%',
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-              legend: { position: 'bottom', labels: { color: tickColor, boxWidth: 8, padding: 8, font: { size: 10 } } },
-              tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.parsed)}` } }
+              legend: {
+                position: 'bottom',
+                labels: { color: tickColor, boxWidth: 8, padding: 6, font: { size: 10 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw.y)}`
+                }
+              }
+            },
+            scales: {
+              x: {
+                min: 0,
+                max: donutCats.length + 1,
+                grid: { display: false },
+                ticks: {
+                  color: tickColor,
+                  font: { size: 10 },
+                  stepSize: 1,
+                  callback: v => donutCats[v - 1] || ''
+                }
+              },
+              y: {
+                title: { display: true, text: 'Amount Spent', color: tickColor, font: { size: 10 } },
+                ticks: { color: tickColor, font: { size: 10 }, callback: v => v >= 1000 ? '$'+(v/1000).toFixed(1)+'k' : '$'+v },
+                grid: { color: gridColor },
+                min: 0
+              }
             }
           }
         });
