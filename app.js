@@ -105,6 +105,7 @@
     renderEntries();
     renderSummaryCards();
     renderLoanProgress();
+    renderHomeDashboard();
     updateChart();
     renderTenants();
   }
@@ -373,6 +374,46 @@
     Object.assign(entry, updates);
     await save(data);
     renderAll();
+  }
+
+  // ── Home Dashboard — Loan Repayment (all accounts) ──────────────────────────
+  function renderHomeDashboard() {
+    const el = document.getElementById('homeLoanSection');
+    if (!el) return;
+    if (!data.accounts || !data.accounts.length) { el.innerHTML = '<p class="home-dash-empty">No property data yet.</p>'; return; }
+
+    function fmtL(v) {
+      return '₹' + (v / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
+    }
+
+    el.innerHTML = data.accounts.map(acc => {
+      const rows = (acc.entries || []).filter(e => e.balance !== null && e.balance !== undefined);
+      if (!rows.length) return '';
+      const latest = rows.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+      const currentBalance = Number(latest.balance);
+      const balanceValues = rows.map(e => Number(e.balance)).filter(v => !isNaN(v) && v > 0);
+      const TOTAL_LOAN = balanceValues.length ? Math.max(...balanceValues) : currentBalance;
+      const repaid = Math.max(0, TOTAL_LOAN - currentBalance);
+      const pct = Math.min(100, (repaid / TOTAL_LOAN) * 100);
+      return `
+        <div class="home-loan-block">
+          <div class="loan-progress-header">
+            <div class="loan-progress-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              ${acc.name} — Loan Repayment
+            </div>
+            <span class="loan-progress-pct">${pct.toFixed(1)}% repaid</span>
+          </div>
+          <div class="loan-progress-track">
+            <div class="loan-progress-fill" style="width:${pct.toFixed(2)}%"></div>
+          </div>
+          <div class="loan-progress-labels">
+            <span class="lp-repaid">↓ ${fmtL(repaid)} repaid</span>
+            <span style="color:#90a4ae;font-size:11px">of ${fmtL(TOTAL_LOAN)}</span>
+            <span class="lp-remaining">${fmtL(currentBalance)} remaining ↑</span>
+          </div>
+        </div>`;
+    }).join('');
   }
 
   // ── Loan Repayment Progress Bar ─────────────────────────────────────────────
@@ -1352,4 +1393,8 @@
     // Set initial tab on mobile
     if(window.innerWidth <= 800) switchTab('analytics');
   });
+
+  // Expose for home dashboard
+  window.propfolioGetData = () => data;
+  window.propfolioRenderHome = renderHomeDashboard;
 })();

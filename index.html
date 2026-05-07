@@ -23,58 +23,64 @@
     <header class="landing-header">
       <div class="landing-brand">
         <h1>PropFolio</h1>
-        <p class="muted">Your personal finance hub</p>
+      </div>
+      <div class="home-month-nav">
+        <button id="homePrevMonthBtn" class="b-month-nav-btn" title="Previous month">‹</button>
+        <span id="homeMonthLabel" class="home-month-label"></span>
+        <button id="homeNextMonthBtn" class="b-month-nav-btn" title="Next month">›</button>
       </div>
       <button class="theme-toggle-btn" title="Toggle theme"></button>
     </header>
 
     <main class="landing-main">
-      <p class="landing-subtitle muted">What would you like to manage today?</p>
-      <div class="landing-cards">
+      <!-- Monthly Expenses section (from Budget) -->
+      <div class="home-dash-section">
+        <div class="home-dash-section-title">Monthly Expenses</div>
 
-        <div class="landing-card" id="gotoProperty" role="button" tabindex="0">
-          <div class="landing-card-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9.75L12 3l9 6.75V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.75z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-          </div>
-          <div class="landing-card-body">
-            <h2 class="landing-card-title">Property Management</h2>
-            <p class="landing-card-desc muted">Track mortgages, rent, tenants &amp; more across all your properties.</p>
-          </div>
-          <div class="landing-card-arrow">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
+        <!-- Spend Breakdown donut (mini) -->
+        <div class="home-dash-card">
+          <div class="home-dash-card-title">Spend Breakdown</div>
+          <div class="home-donut-wrap"><canvas id="homeDonutChart"></canvas></div>
+          <div class="home-donut-filters-row">
+            <label class="b-rent-toggle">
+              <input type="checkbox" id="homeIncludeRentChk" />
+              <span>Rent</span>
+            </label>
+            <label class="b-rent-toggle">
+              <input type="checkbox" id="homeIncludeCarLoanChk" />
+              <span>Car Loan</span>
+            </label>
+            <label class="b-rent-toggle">
+              <input type="checkbox" id="homeIncludeIndiaChk" />
+              <span>India</span>
+            </label>
           </div>
         </div>
 
-        <div class="landing-card" id="gotoBudget" role="button" tabindex="0">
-          <div class="landing-card-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="7" width="20" height="14" rx="2"/>
-              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-              <line x1="12" y1="12" x2="12" y2="16"/>
-              <line x1="10" y1="14" x2="14" y2="14"/>
-            </svg>
-          </div>
-          <div class="landing-card-body">
-            <h2 class="landing-card-title">Budget Tracker</h2>
-            <p class="landing-card-desc muted">Plan income, expenses &amp; savings goals — all in one place.</p>
-          </div>
-          <div class="landing-card-arrow">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
-          </div>
-        </div>
+        <!-- Month-on-month comparison -->
+        <div class="home-dash-card home-mom-card" id="homeMomCard"></div>
 
+        <!-- Budget vs Actual progress bar -->
+        <div class="home-dash-card" id="homeBudgetBar">
+          <div class="home-dash-card-title">Budget vs Actual</div>
+          <div id="homeBudgetProgress"></div>
+        </div>
       </div>
 
-      <!-- Quick-add expense FAB (switches to Budget tab and opens expense modal) -->
-      <div class="b-fab-row" style="margin-top:28px">
-        <button id="landingFabExpense" class="b-fab" title="Add Expense">+</button>
+      <!-- Loan Repayment section (from Property) -->
+      <div class="home-dash-section">
+        <div class="home-dash-section-title">Loan Repayment</div>
+        <div class="home-dash-card" id="homeLoanSection">
+          <p class="home-dash-empty">Loading…</p>
+        </div>
+      </div>
+
+      <!-- Quick Add Expense -->      
+      <div class="home-dash-section">
+        <button id="landingFabExpense" class="home-add-expense-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Quick Expense
+        </button>
       </div>
     </main>
   </section>
@@ -553,7 +559,23 @@
         <div class="b-chart-carousel" id="chartCarousel" style="display:none">
           <div class="b-carousel-slides">
             <div class="b-carousel-slide active" id="slideDonut">
-              <div class="b-chart-title">Spend Breakdown</div>
+              <div class="b-chart-title-row">
+                <div class="b-chart-title">Spend Breakdown</div>
+                <div class="b-donut-filters">
+                  <label class="b-rent-toggle">
+                    <input type="checkbox" id="includeRentChk" />
+                    <span>Include Rent</span>
+                  </label>
+                  <label class="b-rent-toggle">
+                    <input type="checkbox" id="includeCarLoanChk" />
+                    <span>Include Car Loan</span>
+                  </label>
+                  <label class="b-rent-toggle">
+                    <input type="checkbox" id="includeIndiaChk" />
+                    <span>Include India</span>
+                  </label>
+                </div>
+              </div>
               <div class="b-donut-wrap"><canvas id="donutChart"></canvas></div>
             </div>
             <div class="b-carousel-slide" id="slideBar">
@@ -618,14 +640,16 @@
         b.classList.toggle('active', b.dataset.page === page);
       });
       document.getElementById('page-' + page).classList.add('app-page--active');
+      // Refresh home dashboard widgets when switching to home
+      if (page === 'home') {
+        if (window.propfolioRenderHome) window.propfolioRenderHome();
+        if (window.budgetRenderHomeWidgets) window.budgetRenderHomeWidgets();
+      }
     }
 
     document.querySelectorAll('#appTabBar .app-tab').forEach(function (btn) {
       btn.addEventListener('click', function () { switchPage(btn.dataset.page); });
     });
-
-    document.getElementById('gotoProperty').addEventListener('click', function () { switchPage('property'); });
-    document.getElementById('gotoBudget').addEventListener('click', function () { switchPage('budget'); });
 
     // FAB: switch to budget tab then open expense modal
     document.getElementById('landingFabExpense').addEventListener('click', function () {

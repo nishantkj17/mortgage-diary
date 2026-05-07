@@ -161,9 +161,22 @@
     if (!cats.length) { carousel.style.display = 'none'; return; }
     carousel.style.display = 'block';
 
+    const includeRent    = document.getElementById('includeRentChk')    ? document.getElementById('includeRentChk').checked    : true;
+    const includeCarLoan = document.getElementById('includeCarLoanChk') ? document.getElementById('includeCarLoanChk').checked : true;
+    const includeIndia   = document.getElementById('includeIndiaChk')   ? document.getElementById('includeIndiaChk').checked   : true;
+    const donutCats = cats.filter(c => {
+      const cl = c.toLowerCase();
+      if (!includeRent    && cl === 'rent')     return false;
+      if (!includeCarLoan && cl === 'car loan') return false;
+      if (!includeIndia   && cl === 'india')    return false;
+      return true;
+    });
+
     const actuals = cats.map(c => breakdown[c].actual);
     const budgets = cats.map(c => breakdown[c].budgeted);
     const colors  = cats.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
+    const donutActuals = donutCats.map(c => breakdown[c].actual);
+    const donutColors  = donutCats.map(c => CHART_COLORS[cats.indexOf(c) % CHART_COLORS.length]);
     const isDark   = document.documentElement.getAttribute('data-theme') === 'dark';
     const tickColor = isDark ? '#9ca3af' : '#78909c';
     const gridColor = isDark ? '#374151' : '#f0f1f4';
@@ -171,7 +184,7 @@
     if (donutInst) donutInst.destroy();
     donutInst = new Chart(document.getElementById('donutChart').getContext('2d'), {
       type: 'doughnut',
-      data: { labels: cats, datasets: [{ data: actuals, backgroundColor: colors, borderWidth: 0 }] },
+      data: { labels: donutCats, datasets: [{ data: donutActuals, backgroundColor: donutColors, borderWidth: 0 }] },
       options: {
         responsive: true, cutout: '62%',
         plugins: {
@@ -318,6 +331,7 @@
     renderCategoryProgress();
     renderBudgetCatTags();
     renderExpenseCatTags();
+    renderHomeWidgets();
   }
 
   // ── Carry forward from previous month ───────────────────────────────────────
@@ -612,6 +626,14 @@
     // Save on Enter in amount field
     document.getElementById('expenseAmt').addEventListener('keydown', e => { if (e.key === 'Enter') saveQuickExpense(); });
 
+    // Include Rent / Car Loan / India checkboxes re-render donut
+    const includeRentChk = document.getElementById('includeRentChk');
+    if (includeRentChk) includeRentChk.addEventListener('change', renderCharts);
+    const includeCarLoanChk = document.getElementById('includeCarLoanChk');
+    if (includeCarLoanChk) includeCarLoanChk.addEventListener('change', renderCharts);
+    const includeIndiaChk = document.getElementById('includeIndiaChk');
+    if (includeIndiaChk) includeIndiaChk.addEventListener('change', renderCharts);
+
     // Carousel dot navigation
     document.querySelectorAll('.b-dot').forEach(dot => {
       dot.addEventListener('click', function () {
@@ -690,14 +712,138 @@
     }
   }
 
+  // ── Home Dashboard — Budget Widgets ──────────────────────────────────────────
+  let homeDonutInst = null;
+  let homeActiveMonth = currentMonth();
+
+  function renderHomeWidgets() {
+    const donutCanvas = document.getElementById('homeDonutChart');
+    const budgetProgressEl = document.getElementById('homeBudgetProgress');
+    const momCard = document.getElementById('homeMomCard');
+    const monthLabelEl = document.getElementById('homeMonthLabel');
+    if (!donutCanvas && !budgetProgressEl) return;
+
+    // Update month label
+    if (monthLabelEl) monthLabelEl.textContent = monthLabel(homeActiveMonth);
+
+    const breakdown = catBreakdown(homeActiveMonth);
+    const includeRent    = document.getElementById('homeIncludeRentChk')    ? document.getElementById('homeIncludeRentChk').checked    : true;
+    const includeCarLoan = document.getElementById('homeIncludeCarLoanChk') ? document.getElementById('homeIncludeCarLoanChk').checked : true;
+    const includeIndia   = document.getElementById('homeIncludeIndiaChk')   ? document.getElementById('homeIncludeIndiaChk').checked   : true;
+    const allCats = Object.keys(breakdown).sort();
+    const donutCats = allCats.filter(c => {
+      const cl = c.toLowerCase();
+      if (!includeRent    && cl === 'rent')     return false;
+      if (!includeCarLoan && cl === 'car loan') return false;
+      if (!includeIndia   && cl === 'india')    return false;
+      return true;
+    });
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const tickColor = isDark ? '#9ca3af' : '#78909c';
+
+    // Mini donut
+    if (donutCanvas) {
+      if (homeDonutInst) homeDonutInst.destroy();
+      if (donutCats.length) {
+        const actuals = donutCats.map(c => breakdown[c].actual);
+        const colors  = donutCats.map((c) => CHART_COLORS[allCats.indexOf(c) % CHART_COLORS.length]);
+        homeDonutInst = new Chart(donutCanvas.getContext('2d'), {
+          type: 'doughnut',
+          data: { labels: donutCats, datasets: [{ data: actuals, backgroundColor: colors, borderWidth: 0 }] },
+          options: {
+            responsive: true, cutout: '60%',
+            plugins: {
+              legend: { position: 'bottom', labels: { color: tickColor, boxWidth: 8, padding: 8, font: { size: 10 } } },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.parsed)}` } }
+            }
+          }
+        });
+      }
+    }
+
+    // Month-on-month comparison card
+    if (momCard) {
+      const thisSpent = totalExpenses(homeActiveMonth);
+      const prev = prevMonth(homeActiveMonth);
+      const prevSpent = totalExpenses(prev);
+      if (thisSpent > 0 || prevSpent > 0) {
+        const diff = thisSpent - prevSpent;
+        const diffPct = prevSpent > 0 ? ((diff / prevSpent) * 100) : null;
+        const up = diff > 0;
+        const arrow = diff === 0 ? '→' : (up ? '↑' : '↓');
+        const color = diff === 0 ? '#78909c' : (up ? '#e57373' : '#6b9080');
+        const pctLabel = diffPct !== null ? ` (${up ? '+' : ''}${diffPct.toFixed(1)}%)` : '';
+        momCard.innerHTML = `
+          <div class="home-mom-row">
+            <div class="home-mom-col">
+              <div class="home-mom-label">${monthLabel(prev)}</div>
+              <div class="home-mom-amt">${fmt(prevSpent)}</div>
+            </div>
+            <div class="home-mom-arrow" style="color:${color}">${arrow}<span class="home-mom-diff">${fmt(Math.abs(diff))}${pctLabel}</span></div>
+            <div class="home-mom-col">
+              <div class="home-mom-label">${monthLabel(homeActiveMonth)}</div>
+              <div class="home-mom-amt">${fmt(thisSpent)}</div>
+            </div>
+          </div>`;
+      } else {
+        momCard.innerHTML = '';
+      }
+    }
+
+    // Budget vs Actual progress bar
+    if (budgetProgressEl) {
+      const budget = totalBudget(homeActiveMonth);
+      const spent  = totalExpenses(homeActiveMonth);
+      if (!budget) { budgetProgressEl.innerHTML = '<span class="home-dash-empty">No budget set for this month.</span>'; return; }
+      const pct  = Math.min((spent / budget) * 100, 100);
+      const over = spent > budget;
+      budgetProgressEl.innerHTML = `
+        <div class="loan-progress-header">
+          <span style="font-size:12px;color:#78909c">Actual <strong style="color:${over ? '#e57373' : '#6b9080'}">${fmt(spent)}</strong> of <strong>${fmt(budget)}</strong> budgeted</span>
+          <span class="loan-progress-pct" style="color:${over ? '#e57373' : '#6b9080'}">${pct.toFixed(1)}%</span>
+        </div>
+        <div class="loan-progress-track">
+          <div class="loan-progress-fill${over ? ' over' : ''}" style="width:${pct.toFixed(2)}%;background:${over ? '#e57373' : ''}"></div>
+        </div>
+        <div class="loan-progress-labels">
+          <span style="color:${over ? '#e57373' : '#6b9080'};font-weight:600">${fmt(spent)} spent</span>
+          <span style="color:#90a4ae;font-size:11px">${over ? fmt(spent - budget) + ' over' : fmt(budget - spent) + ' remaining'}</span>
+        </div>`;
+    }
+  }
+
+  function wireHomeMonthNav() {
+    const prevBtn = document.getElementById('homePrevMonthBtn');
+    const nextBtn = document.getElementById('homeNextMonthBtn');
+    if (prevBtn) prevBtn.addEventListener('click', () => {
+      homeActiveMonth = prevMonth(homeActiveMonth);
+      renderHomeWidgets();
+    });
+    if (nextBtn) nextBtn.addEventListener('click', () => {
+      const [y, m] = homeActiveMonth.split('-').map(Number);
+      const d = new Date(y, m, 1);
+      homeActiveMonth = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      renderHomeWidgets();
+    });
+    ['homeIncludeRentChk', 'homeIncludeCarLoanChk', 'homeIncludeIndiaChk'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', renderHomeWidgets);
+    });
+  }
+
   // ── Init ─────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('monthPicker').value = activeMonth;
     await load();
     wireEvents();
+    wireHomeMonthNav();
     render();
+    renderHomeWidgets();
   });
 
   // Expose for SPA: home FAB opens the quick-add expense modal in the budget tab
   window.budgetOpenExpense = openQuickExpenseModal;
+  // Expose for re-render when switching to home tab
+  window.budgetRenderHomeWidgets = renderHomeWidgets;
 })();

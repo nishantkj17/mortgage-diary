@@ -47,6 +47,18 @@
     {
       "id": "mokwc1n5y0cf5o",
       "name": "Coffee"
+    },
+    {
+      "id": "mol4f8wz7stfey",
+      "name": "Door Dash"
+    },
+    {
+      "id": "mono6afboq8mr2",
+      "name": "Misc"
+    },
+    {
+      "id": "moqcsuizhxz2y0",
+      "name": "Sports"
     }
   ],
   "months": {
@@ -62,7 +74,7 @@
         {
           "id": "moktowt6xys4l2",
           "category": "Car loan",
-          "description": "BMW car rent",
+          "description": "BMW car",
           "amount": 1128,
           "fixed": true
         },
@@ -98,7 +110,7 @@
           "id": "mokw0yyrxsrw6g",
           "category": "Gym",
           "description": "Jetts",
-          "amount": 74,
+          "amount": 148,
           "fixed": true
         },
         {
@@ -156,13 +168,224 @@
           "description": "",
           "amount": 150,
           "fixed": false
+        },
+        {
+          "id": "mol4f8wzj8qu7l",
+          "category": "Door Dash",
+          "description": "",
+          "amount": 200,
+          "fixed": true
         }
       ],
       "expenses": []
     },
     "2026-05": {
-      "budget": [],
-      "expenses": []
+      "budget": [
+        {
+          "id": "mol4mk0q7iuc4s",
+          "category": "Rent",
+          "description": "Home rent",
+          "amount": 3800,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0qsg8f13",
+          "category": "Car loan",
+          "description": "BMW car",
+          "amount": 1128,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0ql7vwzv",
+          "category": "Internet",
+          "description": "Internet",
+          "amount": 79,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0qes873f",
+          "category": "Mobile",
+          "description": "Optus",
+          "amount": 35,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0q1ucxjk",
+          "category": "Mobile",
+          "description": "Telstra",
+          "amount": 39,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0q393gan",
+          "category": "India",
+          "description": "Home loan",
+          "amount": 1500,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0q8r8q56",
+          "category": "Gym",
+          "description": "Jetts",
+          "amount": 148,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0qwnbhjq",
+          "category": "Grocery",
+          "description": "",
+          "amount": 1000,
+          "fixed": false
+        },
+        {
+          "id": "mol4mk0qk3m2ch",
+          "category": "Transport",
+          "description": "Petrol",
+          "amount": 100,
+          "fixed": false
+        },
+        {
+          "id": "mol4mk0qo2gkqg",
+          "category": "Transport",
+          "description": "NSW-Nishant",
+          "amount": 144,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0qlhgqox",
+          "category": "Transport",
+          "description": "NSW-Ranjana",
+          "amount": 100,
+          "fixed": true
+        },
+        {
+          "id": "mol4mk0q0ct6v6",
+          "category": "Eat out",
+          "description": "Restaurant",
+          "amount": 1000,
+          "fixed": false
+        },
+        {
+          "id": "mol4mk0qrb5x1w",
+          "category": "Beauty Parlor/Salon",
+          "description": "Hair/Nails/Beard",
+          "amount": 250,
+          "fixed": false
+        },
+        {
+          "id": "mol4mk0qz0mx5z",
+          "category": "Liquor",
+          "description": "Drinks",
+          "amount": 250,
+          "fixed": false
+        },
+        {
+          "id": "mol4mk0q7qv4mh",
+          "category": "Coffee",
+          "description": "",
+          "amount": 150,
+          "fixed": false
+        },
+        {
+          "id": "mol4mk0qtaaylb",
+          "category": "Door Dash",
+          "description": "",
+          "amount": 200,
+          "fixed": false
+        }
+      ],
+      "expenses": [
+        {
+          "id": "mome904scylpl3",
+          "category": "Eat out",
+          "description": "Lunch",
+          "amount": 17.5
+        },
+        {
+          "id": "momo1xcm9zamf8",
+          "category": "Liquor",
+          "description": "Wine Neeraja",
+          "amount": 25
+        },
+        {
+          "id": "momo2c6emcmf0k",
+          "category": "Beauty Parlor/Salon",
+          "description": "Nails",
+          "amount": 90
+        },
+        {
+          "id": "mono6afb3xd39l",
+          "category": "Misc",
+          "description": "Ciggerte",
+          "amount": 15
+        },
+        {
+          "id": "mony6svqbtxs9d",
+          "category": "Coffee",
+          "description": "Only Artarmon",
+          "amount": 10.67
+        },
+        {
+          "id": "mony7a4zbkjz7u",
+          "category": "Grocery",
+          "description": "Indian",
+          "amount": 82.93
+        },
+        {
+          "id": "mony7kstqw0w2d",
+          "category": "Grocery",
+          "description": "Breads",
+          "amount": 11
+        },
+        {
+          "id": "mopefaubz7l2wi",
+          "category": "Coffee",
+          "description": "Only",
+          "amount": 12.8
+        },
+        {
+          "id": "moqcsuizanali7",
+          "category": "Sports",
+          "description": "Paddle ball",
+          "amount": 127.36
+        },
+        {
+          "id": "moqfkohr8tomuq",
+          "category": "Coffee",
+          "description": "",
+          "amount": 2
+        },
+        {
+          "id": "mos40k99h8e1wf",
+          "category": "Coffee",
+          "description": "",
+          "amount": 2
+        },
+        {
+          "id": "motc5stgt8xzd6",
+          "category": "Coffee",
+          "description": "Coffee at work",
+          "amount": 5.35
+        },
+        {
+          "id": "motlm429r1bchh",
+          "category": "Eat out",
+          "description": "Lunch - subway",
+          "amount": 9.05
+        },
+        {
+          "id": "motyxv7te0cgk2",
+          "category": "Grocery",
+          "description": "Grace indian",
+          "amount": 65
+        },
+        {
+          "id": "mouri9265nhf1p",
+          "category": "Coffee",
+          "description": "7 eleven n Capp",
+          "amount": 6.5
+        }
+      ]
     }
   }
 }
