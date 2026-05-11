@@ -582,7 +582,7 @@
 
   // ── Tenant Management ────────────────────────────────────────────────────────────────────
   function categoryLabel(cat) {
-    const map = { rent:'Rent', maintenance:'Maintenance', electricity:'Electricity', water:'Water', society:'Society Charges', repairs:'Repairs', other:'Other' };
+    const map = { rent:'Rent', maintenance:'Society Maintenance Demand', electricity:'Electricity', water:'Water', society:'Agent Charges', repairs:'Repairs', other:'Other' };
     return map[cat] || cat;
   }
 
@@ -592,7 +592,7 @@
     const type = qs('#txnType').value;
     catSel.innerHTML = type === 'income'
       ? '<option value="rent">Rent</option><option value="other">Other Income</option>'
-      : '<option value="maintenance">Maintenance</option><option value="electricity">Electricity</option><option value="water">Water</option><option value="society">Society Charges</option><option value="repairs">Repairs</option><option value="other">Other Expense</option>';
+      : '<option value="maintenance">Society Maintenance Demand</option><option value="electricity">Electricity</option><option value="water">Water</option><option value="society">Agent Charges</option><option value="repairs">Repairs</option><option value="other">Other Expense</option>';
   }
 
   function renderTenants() {
