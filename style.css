@@ -576,6 +576,7 @@ html[data-theme="dark"] .b-progress-amounts.over{color:#f87171}
 .b-rent-toggle{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#78909c;cursor:pointer;user-select:none}
 .b-rent-toggle input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#607d8b;flex-shrink:0}
 .b-donut-wrap{max-width:190px;margin:0 auto}
+.b-line-wrap{width:100%;padding:4px 0;height:260px}
 .b-carousel-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
 .b-dot{width:8px;height:8px;border-radius:50%;border:none;background:#d6d7dc;cursor:pointer;padding:0;transition:background 0.2s}
 .b-dot.active{background:#607d8b}

@@ -59,6 +59,10 @@
     {
       "id": "moqcsuizhxz2y0",
       "name": "Sports"
+    },
+    {
+      "id": "moyb9htvnmcyw0",
+      "name": "Shopping"
     }
   ],
   "months": {
@@ -305,87 +309,228 @@
           "id": "momo1xcm9zamf8",
           "category": "Liquor",
           "description": "Wine Neeraja",
-          "amount": 25
+          "amount": 25,
+          "date": "2026-05-01"
         },
         {
           "id": "momo2c6emcmf0k",
           "category": "Beauty Parlor/Salon",
           "description": "Nails",
-          "amount": 90
+          "amount": 90,
+          "date": "2026-05-01"
         },
         {
           "id": "mono6afb3xd39l",
           "category": "Misc",
           "description": "Ciggerte",
-          "amount": 15
+          "amount": 15,
+          "date": "2026-05-01"
         },
         {
           "id": "mony6svqbtxs9d",
           "category": "Coffee",
           "description": "Only Artarmon",
-          "amount": 10.67
+          "amount": 10.67,
+          "date": "2026-05-02"
         },
         {
           "id": "mony7a4zbkjz7u",
           "category": "Grocery",
           "description": "Indian",
-          "amount": 82.93
+          "amount": 82.93,
+          "date": "2026-05-02"
         },
         {
           "id": "mony7kstqw0w2d",
           "category": "Grocery",
           "description": "Breads",
-          "amount": 11
+          "amount": 11,
+          "date": "2026-05-02"
         },
         {
           "id": "mopefaubz7l2wi",
           "category": "Coffee",
           "description": "Only",
-          "amount": 12.8
+          "amount": 12.8,
+          "date": "2026-05-03"
         },
         {
           "id": "moqcsuizanali7",
           "category": "Sports",
           "description": "Paddle ball",
-          "amount": 127.36
+          "amount": 127.36,
+          "date": "2026-05-04"
         },
         {
           "id": "moqfkohr8tomuq",
           "category": "Coffee",
           "description": "",
-          "amount": 2
+          "amount": 2,
+          "date": "2026-05-04"
         },
         {
           "id": "mos40k99h8e1wf",
           "category": "Coffee",
           "description": "",
-          "amount": 2
+          "amount": 2,
+          "date": "2026-05-05"
         },
         {
           "id": "motc5stgt8xzd6",
           "category": "Coffee",
           "description": "Coffee at work",
-          "amount": 5.35
+          "amount": 5.35,
+          "date": "2026-05-06"
         },
         {
           "id": "motlm429r1bchh",
           "category": "Eat out",
           "description": "Lunch - subway",
-          "amount": 9.05
+          "amount": 9.05,
+          "date": "2026-05-06"
         },
         {
           "id": "motyxv7te0cgk2",
           "category": "Grocery",
           "description": "Grace indian",
-          "amount": 65
+          "amount": 65,
+          "date": "2026-05-06"
         },
         {
           "id": "mouri9265nhf1p",
           "category": "Coffee",
           "description": "7 eleven n Capp",
-          "amount": 6.5
+          "amount": 6.5,
+          "date": "2026-05-07"
+        },
+        {
+          "id": "mov2e9kg6rr133",
+          "category": "India",
+          "description": "Home loan",
+          "amount": 1,
+          "fixedId": "mol4mk0q393gan"
+        },
+        {
+          "id": "movbt9bictk3yt",
+          "category": "Grocery",
+          "description": "Coles",
+          "amount": 22.76,
+          "date": "2026-05-08"
+        },
+        {
+          "id": "moyb8v9qs1yxxe",
+          "category": "Eat out",
+          "description": "Monkey king thai",
+          "amount": 51.56,
+          "date": "2026-05-09"
+        },
+        {
+          "id": "moyb9htvr2kc5x",
+          "category": "Shopping",
+          "description": "Sk4A candle",
+          "amount": 145,
+          "date": "2026-05-09"
+        },
+        {
+          "id": "moyba28i45r7dr",
+          "category": "Shopping",
+          "description": "Bansal kid gift",
+          "amount": 88,
+          "date": "2026-05-09"
+        },
+        {
+          "id": "moybk5isa9tyyg",
+          "category": "Eat out",
+          "description": "Pasta bowral",
+          "amount": 45.63,
+          "date": "2026-05-09"
+        },
+        {
+          "id": "moyblvlzk3hj6p",
+          "category": "Shopping",
+          "description": "Spatula and coaster",
+          "amount": 58,
+          "date": "2026-05-09"
+        },
+        {
+          "id": "moybmrd6366gag",
+          "category": "Coffee",
+          "description": "Coffee bowral",
+          "amount": 24,
+          "date": "2026-05-09"
+        },
+        {
+          "id": "moybouqur7y0vk",
+          "category": "Misc",
+          "description": "Panadol",
+          "amount": 7,
+          "date": "2026-05-09"
+        },
+        {
+          "id": "moz943oqdx8pio",
+          "category": "Coffee",
+          "description": "7 eleven",
+          "amount": 1.5,
+          "date": "2026-05-10"
+        },
+        {
+          "id": "moz94cy3mncu82",
+          "category": "Transport",
+          "description": "Petrol",
+          "amount": 78,
+          "date": "2026-05-10"
+        },
+        {
+          "id": "mozaiychfodibg",
+          "category": "Shopping",
+          "description": "Vat savitri",
+          "amount": 12,
+          "date": "2026-05-10"
+        },
+        {
+          "id": "mozb4b8cpd8pnb",
+          "category": "Beauty Parlor/Salon",
+          "description": "Threading",
+          "amount": 32,
+          "date": "2026-05-10"
+        },
+        {
+          "id": "mozb4qofz755lm",
+          "category": "Beauty Parlor/Salon",
+          "description": "Laser clinics",
+          "amount": 81,
+          "date": "2026-05-10"
+        },
+        {
+          "id": "mozb5a24l0tjv9",
+          "category": "Shopping",
+          "description": "Earrings",
+          "amount": 89,
+          "date": "2026-05-10"
+        },
+        {
+          "id": "mozb5j46e59yyz",
+          "category": "Grocery",
+          "description": "Ginger",
+          "amount": 8.4,
+          "date": "2026-05-10"
+        },
+        {
+          "id": "mp0iex22qk46x6",
+          "category": "Coffee",
+          "description": "",
+          "amount": 2,
+          "date": "2026-05-11"
         }
       ]
+    },
+    "2026-06": {
+      "budget": [],
+      "expenses": []
+    },
+    "2026-03": {
+      "budget": [],
+      "expenses": []
     }
   }
 }

@@ -153,6 +153,7 @@
 
   // ── Charts ───────────────────────────────────────────────────────────────────
   let donutInst = null;
+  let lineInst = null;
   const CHART_COLORS = ['#607d8b','#4db6ac','#ff8a65','#ba68c8','#4fc3f7','#aed581','#f06292','#ffd54f','#80cbc4','#ffb74d'];
 
   function renderCharts() {
@@ -194,6 +195,76 @@
         }
       }
     });
+
+    // ── Weekday-labeled daily stacked bar chart (manual expenses only) ──────────
+    const month = getMonth(activeMonth);
+    const [y, m] = activeMonth.split('-').map(Number);
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const today = new Date();
+    const lastDay = (today.getFullYear() === y && today.getMonth() + 1 === m)
+      ? today.getDate() : daysInMonth;
+
+    // Collect unique categories from manual expenses
+    const manualExps = month.expenses.filter(e => !e.fixedId && e.date);
+    const barCats = [...new Set(manualExps.map(e => e.category))].sort();
+
+    const barLabels = Array.from({ length: lastDay }, (_, i) => i + 1);
+
+    const barDatasets = barCats.map((cat, ci) => {
+      const data = barLabels.map((_, di) => {
+        const dayNum = di + 1;
+        return manualExps
+          .filter(e => e.category === cat && parseInt(e.date.split('-')[2], 10) === dayNum)
+          .reduce((s, e) => s + (Number(e.amount) || 0), 0) || null;
+      });
+      const color = CHART_COLORS[ci % CHART_COLORS.length];
+      return { label: cat, data, backgroundColor: color, borderWidth: 0, borderRadius: 2 };
+    });
+
+    if (lineInst) lineInst.destroy();
+    if (!barCats.length) {
+      // No manual expense data — leave canvas blank
+      lineInst = null;
+    } else {
+      lineInst = new Chart(document.getElementById('lineChart').getContext('2d'), {
+        type: 'bar',
+        data: { labels: barLabels, datasets: barDatasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: {
+              title: (items) => { const d = Number(items[0].label); return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); },
+              label: ctx => ctx.parsed.y ? ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` : null
+            } }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              ticks: {
+                color: tickColor,
+                font: { size: 10 },
+                autoSkip: false,
+                maxRotation: 0,
+                callback: (val) => {
+                  const d = Number(val) + 1;
+                  if (d !== 1 && d % 5 !== 0) return null;
+                  return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                }
+              },
+              grid: { color: gridColor }
+            },
+            y: {
+              stacked: true,
+              ticks: { color: tickColor, font: { size: 10 }, callback: v => fmt(v) },
+              grid: { color: gridColor },
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
 
   }
 
@@ -667,6 +738,17 @@
     if (includeCarLoanChk) includeCarLoanChk.addEventListener('change', renderCharts);
     const includeIndiaChk = document.getElementById('includeIndiaChk');
     if (includeIndiaChk) includeIndiaChk.addEventListener('change', renderCharts);
+
+    // Carousel dot navigation
+    document.querySelectorAll('.b-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        const targetId = dot.dataset.slide;
+        document.querySelectorAll('.b-carousel-slide').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.b-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById(targetId).classList.add('active');
+        dot.classList.add('active');
+      });
+    });
 
     // Settings modal
     document.getElementById('budgetSettingsBtn').addEventListener('click', () => document.getElementById('budgetSettingsModal').classList.add('active'));
