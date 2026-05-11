@@ -235,8 +235,18 @@
     const manualExpenses = month.expenses.filter(e => !e.fixedId);
     const hasAny = fixedEntries.length || manualExpenses.length;
     if (!hasAny) {
-      tbody.innerHTML = '<tr><td colspan="4" class="b-empty-row">No expenses recorded yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="b-empty-row">No expenses recorded yet.</td></tr>';
       return;
+    }
+    // Apply collapsed state
+    const expTable = document.getElementById('expenseListTable');
+    expTable.classList.toggle('b-fixed-hidden', fixedSectionCollapsed);
+    // Fixed entries section header
+    if (fixedEntries.length) {
+      const hdr = document.createElement('tr');
+      hdr.className = 'b-section-header-row';
+      hdr.innerHTML = `<td colspan="5"><button class="b-toggle-fixed">${fixedSectionCollapsed ? '\u25b8' : '\u25be'} Fixed entries (${fixedEntries.length})</button></td>`;
+      tbody.appendChild(hdr);
     }
     // Auto-rows from fixed budget entries (editable)
     fixedEntries.forEach(entry => {
@@ -246,6 +256,7 @@
       const tr = document.createElement('tr');
       tr.className = 'b-fixed-row';
       tr.innerHTML = `
+        <td></td>
         <td><span class="b-cat-chip">${esc(entry.category)}</span> <span class="b-fixed-badge">Fixed</span>${override ? ' <span class="b-override-badge" title="Amount overridden">Edited</span>' : ''}</td>
         <td class="b-muted-cell">${esc(displayDesc)}</td>
         <td class="b-amount-cell">${fmt(displayAmt)}</td>
@@ -255,10 +266,18 @@
         </td>`;
       tbody.appendChild(tr);
     });
-    // Manually entered expenses
-    manualExpenses.forEach(entry => {
+    // Manually entered expenses (newest first by date, fallback to insertion order reversed)
+    manualExpenses.slice().sort((a, b) => {
+      const da = a.date || '';
+      const db2 = b.date || '';
+      if (da > db2) return -1;
+      if (da < db2) return 1;
+      return 0;
+    }).forEach(entry => {
+      const dateLabel = entry.date ? new Date(entry.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
       const tr = document.createElement('tr');
       tr.innerHTML = `
+        <td class="b-muted-cell" style="white-space:nowrap">${dateLabel}</td>
         <td><span class="b-cat-chip">${esc(entry.category)}</span></td>
         <td class="b-muted-cell">${esc(entry.description || '')}</td>
         <td class="b-amount-cell">${fmt(entry.amount)}</td>
@@ -449,6 +468,7 @@
   // ── Quick-add Expense Modal ───────────────────────────────────────────────────
   let editingExpenseId = null;
   let editingFixedSourceId = null;
+  let fixedSectionCollapsed = true;
 
   function openQuickExpenseModal(entry, fixedSourceId) {
     editingExpenseId = entry ? entry.id : null;
@@ -482,9 +502,9 @@
       const entry = month.expenses.find(e => e.id === editingExpenseId);
       if (entry) { entry.category = cat; entry.description = desc; entry.amount = amt; }
     } else if (editingFixedSourceId) {
-      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, fixedId: editingFixedSourceId });
+      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, fixedId: editingFixedSourceId, date: new Date().toISOString().slice(0, 10) });
     } else {
-      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt });
+      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, date: new Date().toISOString().slice(0, 10) });
     }
     const wasEditing = editingExpenseId;
     closeQuickExpenseModal();
@@ -570,10 +590,17 @@
     document.getElementById('closeExpenseListModal').addEventListener('click', () => document.getElementById('expenseListModal').classList.remove('active'));
     document.getElementById('expenseListModal').addEventListener('click', e => { if (e.target === document.getElementById('expenseListModal')) document.getElementById('expenseListModal').classList.remove('active'); });
     document.getElementById('expenseListTable').addEventListener('click', async e => {
+      const toggleFixed = e.target.closest('.b-toggle-fixed');
       const editBtn = e.target.closest('.b-edit-expense');
       const delBtn = e.target.closest('.b-del-expense');
       const editFixed = e.target.closest('.b-edit-fixed');
       const delFixed = e.target.closest('.b-del-fixed');
+      if (toggleFixed) {
+        fixedSectionCollapsed = !fixedSectionCollapsed;
+        document.getElementById('expenseListTable').classList.toggle('b-fixed-hidden', fixedSectionCollapsed);
+        toggleFixed.textContent = (fixedSectionCollapsed ? '\u25b8' : '\u25be') + ` Fixed entries (${getMonth(activeMonth).budget.filter(x => x.fixed).length})`;
+        return;
+      }
       if (editFixed) {
         const budgetEntry = getMonth(activeMonth).budget.find(x => x.id === editFixed.dataset.id);
         if (budgetEntry) {
