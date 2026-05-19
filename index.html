@@ -406,7 +406,11 @@
             <div class="b-form-field">
               <label>Category</label>
               <div id="expenseCatTags" class="b-cat-tags"></div>
-              <input id="expenseCatText" class="b-input b-cat-new-input" placeholder="+ new category…" autocomplete="off" />
+              <div class="b-cat-input-row">
+                <input id="expenseCatText" class="b-input b-cat-new-input" placeholder="+ new category…" autocomplete="off" />
+                <button type="button" id="expenseDateBtn" class="b-date-icon-btn" title="Pick date (defaults to today)">&#128197;</button>
+                <input id="expenseDate" type="date" class="b-date-hidden-input" tabindex="-1" />
+              </div>
             </div>
             <!-- Description + Amount on same row -->
             <div class="b-qe-row">

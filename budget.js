@@ -548,6 +548,8 @@
     document.getElementById('expenseCatText').value = '';
     document.getElementById('expenseDesc').value = entry ? (entry.description || '') : '';
     document.getElementById('expenseAmt').value = entry ? entry.amount : '';
+    document.getElementById('expenseDate').value = entry ? (entry.date || '') : '';
+    document.getElementById('expenseDateBtn').classList.toggle('has-date', !!(entry && entry.date));
     document.getElementById('quickExpenseModal').classList.add('active');
     document.getElementById('expenseAmt').focus();
   }
@@ -559,23 +561,26 @@
     document.getElementById('expenseCatText').value = '';
     document.getElementById('expenseAmt').value = '';
     document.getElementById('expenseDesc').value = '';
+    document.getElementById('expenseDate').value = '';
+    document.getElementById('expenseDateBtn').classList.remove('has-date');
   }
   async function saveQuickExpense() {
     const textCat = document.getElementById('expenseCatText').value.trim();
     const cat = textCat || selectedExpenseCat;
     const desc = document.getElementById('expenseDesc').value.trim();
     const amt = parseFloat(document.getElementById('expenseAmt').value);
+    const dateVal = document.getElementById('expenseDate').value || new Date().toISOString().slice(0, 10);
     if (!cat) { toast('Category is required', 'error'); return; }
     if (!amt || amt <= 0) { toast('Enter a valid amount', 'error'); return; }
     ensureCategory(cat);
     const month = getMonth(activeMonth);
     if (editingExpenseId) {
       const entry = month.expenses.find(e => e.id === editingExpenseId);
-      if (entry) { entry.category = cat; entry.description = desc; entry.amount = amt; }
+      if (entry) { entry.category = cat; entry.description = desc; entry.amount = amt; entry.date = dateVal; }
     } else if (editingFixedSourceId) {
-      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, fixedId: editingFixedSourceId, date: new Date().toISOString().slice(0, 10) });
+      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, fixedId: editingFixedSourceId, date: dateVal });
     } else {
-      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, date: new Date().toISOString().slice(0, 10) });
+      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, date: dateVal });
     }
     const wasEditing = editingExpenseId;
     closeQuickExpenseModal();
@@ -640,6 +645,11 @@
     document.getElementById('cancelQuickExpense').addEventListener('click', closeQuickExpenseModal);
     document.getElementById('saveQuickExpense').addEventListener('click', saveQuickExpense);
     document.getElementById('quickExpenseModal').addEventListener('click', e => { if (e.target === document.getElementById('quickExpenseModal')) closeQuickExpenseModal(); });
+    // Calendar icon opens the hidden date picker
+    document.getElementById('expenseDateBtn').addEventListener('click', () => document.getElementById('expenseDate').showPicker());
+    document.getElementById('expenseDate').addEventListener('change', () => {
+      document.getElementById('expenseDateBtn').classList.toggle('has-date', !!document.getElementById('expenseDate').value);
+    });
     // Typing a new category in text box clears the tag selection
     document.getElementById('expenseCatText').addEventListener('input', () => {
       if (document.getElementById('expenseCatText').value.trim()) {

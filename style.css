@@ -539,6 +539,15 @@ html[data-theme="dark"] .coming-soon-back-btn:hover{background:#7eaab8;color:#1f
 .b-cat-tag:hover{border-color:#607d8b;color:#607d8b}
 .b-cat-tag.selected{background:#607d8b;border-color:#607d8b;color:#fff}
 .b-cat-new-input{margin-top:0}
+.b-cat-input-row{display:flex;align-items:center;gap:6px}
+.b-cat-input-row .b-cat-new-input{flex:1;min-width:0}
+.b-date-icon-btn{flex:0 0 auto;width:36px;height:36px;border:1.5px solid #d6d7dc;border-radius:8px;background:#f5f6fa;color:#607d8b;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color 0.15s,background 0.15s;padding:0;line-height:1}
+.b-date-icon-btn:hover{border-color:#607d8b;background:#e8edf0}
+.b-date-icon-btn.has-date{border-color:#607d8b;background:#607d8b;color:#fff}
+.b-date-hidden-input{position:absolute;opacity:0;pointer-events:none;width:0;height:0;border:none}
+html[data-theme="dark"] .b-date-icon-btn{background:#273344;border-color:#4b5563;color:#7eaab8}
+html[data-theme="dark"] .b-date-icon-btn:hover{border-color:#607d8b;background:#324255}
+html[data-theme="dark"] .b-date-icon-btn.has-date{border-color:#607d8b;background:#607d8b;color:#fff}
 html[data-theme="dark"] .b-cat-tag{background:#273344;border-color:#4b5563;color:#d1d5db}
 html[data-theme="dark"] .b-cat-tag:hover{border-color:#607d8b;color:#7eaab8}
 html[data-theme="dark"] .b-cat-tag.selected{background:#607d8b;border-color:#607d8b;color:#fff}
