@@ -118,8 +118,13 @@
   function renderCategoryProgress() {
     const section = document.getElementById('catProgressSection');
     const list = document.getElementById('catProgressList');
+    const ubSection = document.getElementById('unbudgetedProgressSection');
+    const ubList = document.getElementById('unbudgetedProgressList');
     const breakdown = catBreakdown(activeMonth);
     const month = getMonth(activeMonth);
+    const totalBudgeted = totalBudget(activeMonth);
+    const threshold = totalBudgeted * 0.04;
+
     // Build set of categories whose budget entries are ALL fixed (auto-logged — no alert needed)
     const fixedOnlyCats = new Set(
       db.categories.map(c => c.name).filter(name => {
@@ -127,28 +132,89 @@
         return entries.length > 0 && entries.every(e => e.fixed);
       })
     );
-    // Only non-fixed categories with a budget set AND actual >= 90%
+
+    // ── Nearing-limit alerts (has budget, >= 60% spent) ───────────────────────
     const alerts = Object.entries(breakdown)
       .filter(([cat, { budgeted, actual }]) => budgeted > 0 && !fixedOnlyCats.has(cat) && actual / budgeted >= 0.6)
       .sort((a, b) => (b[1].actual / b[1].budgeted) - (a[1].actual / a[1].budgeted));
-    if (!alerts.length) { section.style.display = 'none'; return; }
-    section.style.display = 'block';
-    list.innerHTML = '';
-    alerts.forEach(([cat, { budgeted, actual }]) => {
-      const pct = Math.min((actual / budgeted) * 100, 100);
-      const over = actual > budgeted;
-      const row = document.createElement('div');
-      row.className = 'b-progress-row';
-      row.innerHTML = `
-        <div class="b-progress-meta">
-          <span class="b-progress-cat">${esc(cat)}</span>
-          <span class="b-progress-amounts${over ? ' over' : ''}">${fmt(actual)} / ${fmt(budgeted)}</span>
-        </div>
-        <div class="b-progress-track">
-          <div class="b-progress-fill${over ? ' over' : ''}" style="width:${pct}%"></div>
-        </div>`;
-      list.appendChild(row);
+    if (!alerts.length) { section.style.display = 'none'; }
+    else {
+      section.style.display = 'block';
+      list.innerHTML = '';
+      alerts.forEach(([cat, { budgeted, actual }]) => {
+        const pct = Math.min((actual / budgeted) * 100, 100);
+        const over = actual > budgeted;
+        const row = document.createElement('div');
+        row.className = 'b-progress-row';
+        row.innerHTML = `
+          <div class="b-progress-meta">
+            <span class="b-progress-cat">${esc(cat)}</span>
+            <span class="b-progress-amounts${over ? ' over' : ''}">${fmt(actual)} / ${fmt(budgeted)}</span>
+          </div>
+          <div class="b-progress-track">
+            <div class="b-progress-fill${over ? ' over' : ''}" style="width:${pct}%"></div>
+          </div>`;
+        row.addEventListener('click', () => openCatTxnModal(cat));
+        list.appendChild(row);
+      });
+    }
+
+    // ── Unbudgeted categories (no budget entry, expense > 5% of total budget) ─
+    const budgetedCats = new Set(month.budget.map(e => e.category));
+    const unbudgeted = Object.entries(breakdown)
+      .filter(([cat, { budgeted, actual }]) => budgeted === 0 && !budgetedCats.has(cat) && actual > threshold)
+      .sort((a, b) => b[1].actual - a[1].actual);
+    if (!unbudgeted.length) { ubSection.style.display = 'none'; }
+    else {
+      ubSection.style.display = 'block';
+      ubList.innerHTML = '';
+      unbudgeted.forEach(([cat, { actual }]) => {
+        const row = document.createElement('div');
+        row.className = 'b-progress-row';
+        row.innerHTML = `
+          <div class="b-progress-meta">
+            <span class="b-progress-cat">${esc(cat)}</span>
+            <span class="b-progress-amounts over">${fmt(actual)} — not budgeted</span>
+          </div>
+          <div class="b-progress-track">
+            <div class="b-progress-fill over" style="width:100%"></div>
+          </div>`;
+        row.addEventListener('click', () => openCatTxnModal(cat));
+        ubList.appendChild(row);
+      });
+    }
+  }
+
+  // ── Category Transactions Popup ────────────────────────────────────────────
+  function openCatTxnModal(cat) {
+    const month = getMonth(activeMonth);
+    document.getElementById('catTxnTitle').textContent = cat + ' — Transactions';
+    const tbody = document.querySelector('#catTxnTable tbody');
+    tbody.innerHTML = '';
+    const rows = [];
+    // Fixed budget entries that apply (not overridden)
+    const overrideIds = new Set(month.expenses.filter(e => e.fixedId).map(e => e.fixedId));
+    month.budget.filter(e => e.category === cat && e.fixed && !overrideIds.has(e.id)).forEach(e => {
+      rows.push({ date: '', desc: e.description || '', amount: e.amount, note: 'Fixed (auto)' });
     });
+    // Override and manual expenses
+    month.expenses.filter(e => e.category === cat).forEach(e => {
+      const budgetEntry = e.fixedId ? month.budget.find(b => b.id === e.fixedId) : null;
+      rows.push({ date: e.date || '', desc: e.description || '', amount: e.amount, note: budgetEntry ? 'Fixed (edited)' : '' });
+    });
+    // Sort: dated newest first, undated at top
+    rows.sort((a, b) => { if (!a.date && !b.date) return 0; if (!a.date) return -1; if (!b.date) return 1; return b.date.localeCompare(a.date); });
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="b-empty-row">No transactions found.</td></tr>';
+    } else {
+      rows.forEach(({ date, desc, amount, note }) => {
+        const dateLabel = date ? new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="b-muted-cell" style="white-space:nowrap">${dateLabel}</td><td class="b-muted-cell">${esc(desc)}</td><td class="b-amount-cell">${fmt(amount)}</td><td class="b-muted-cell" style="font-size:11px">${esc(note)}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    document.getElementById('catTxnModal').classList.add('active');
   }
 
   // ── Charts ───────────────────────────────────────────────────────────────────
@@ -645,8 +711,11 @@
     document.getElementById('cancelQuickExpense').addEventListener('click', closeQuickExpenseModal);
     document.getElementById('saveQuickExpense').addEventListener('click', saveQuickExpense);
     document.getElementById('quickExpenseModal').addEventListener('click', e => { if (e.target === document.getElementById('quickExpenseModal')) closeQuickExpenseModal(); });
-    // Calendar icon opens the hidden date picker
-    document.getElementById('expenseDateBtn').addEventListener('click', () => document.getElementById('expenseDate').showPicker());
+    // Calendar icon opens date picker
+    document.getElementById('expenseDateBtn').addEventListener('click', () => {
+      const inp = document.getElementById('expenseDate');
+      try { inp.showPicker(); } catch(e) { inp.focus(); }
+    });
     document.getElementById('expenseDate').addEventListener('change', () => {
       document.getElementById('expenseDateBtn').classList.toggle('has-date', !!document.getElementById('expenseDate').value);
     });
@@ -759,6 +828,10 @@
         dot.classList.add('active');
       });
     });
+
+    // Category transactions modal
+    document.getElementById('closeCatTxnModal').addEventListener('click', () => document.getElementById('catTxnModal').classList.remove('active'));
+    document.getElementById('catTxnModal').addEventListener('click', e => { if (e.target === document.getElementById('catTxnModal')) document.getElementById('catTxnModal').classList.remove('active'); });
 
     // Settings modal
     document.getElementById('budgetSettingsBtn').addEventListener('click', () => document.getElementById('budgetSettingsModal').classList.add('active'));

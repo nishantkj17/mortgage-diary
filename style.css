@@ -544,7 +544,7 @@ html[data-theme="dark"] .coming-soon-back-btn:hover{background:#7eaab8;color:#1f
 .b-date-icon-btn{flex:0 0 auto;width:36px;height:36px;border:1.5px solid #d6d7dc;border-radius:8px;background:#f5f6fa;color:#607d8b;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color 0.15s,background 0.15s;padding:0;line-height:1}
 .b-date-icon-btn:hover{border-color:#607d8b;background:#e8edf0}
 .b-date-icon-btn.has-date{border-color:#607d8b;background:#607d8b;color:#fff}
-.b-date-hidden-input{position:absolute;opacity:0;pointer-events:none;width:0;height:0;border:none}
+.b-date-hidden-input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;border:none}
 html[data-theme="dark"] .b-date-icon-btn{background:#273344;border-color:#4b5563;color:#7eaab8}
 html[data-theme="dark"] .b-date-icon-btn:hover{border-color:#607d8b;background:#324255}
 html[data-theme="dark"] .b-date-icon-btn.has-date{border-color:#607d8b;background:#607d8b;color:#fff}
@@ -560,7 +560,8 @@ html[data-theme="dark"] .b-fab:hover{background:#546e7a}
 /* ── Category progress bars ──────────────────────────────────────────── */
 .b-progress-section{background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .b-section-header{font-size:11px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.b-progress-row{margin-bottom:12px}
+.b-progress-row{margin-bottom:12px;cursor:pointer;border-radius:6px;padding:4px 2px;transition:background 0.13s}
+.b-progress-row:hover{background:rgba(96,125,139,0.08)}
 .b-progress-row:last-child{margin-bottom:0}
 .b-progress-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
 .b-progress-cat{font-size:13px;font-weight:600;color:#2d3748}

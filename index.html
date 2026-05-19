@@ -409,7 +409,7 @@
               <div class="b-cat-input-row">
                 <input id="expenseCatText" class="b-input b-cat-new-input" placeholder="+ new category…" autocomplete="off" />
                 <button type="button" id="expenseDateBtn" class="b-date-icon-btn" title="Pick date (defaults to today)">&#128197;</button>
-                <input id="expenseDate" type="date" class="b-date-hidden-input" tabindex="-1" />
+                <input id="expenseDate" type="date" class="b-date-hidden-input" />
               </div>
             </div>
             <!-- Description + Amount on same row -->
@@ -441,6 +441,22 @@
           <div class="b-list-modal-body">
             <table id="budgetListTable" class="b-table">
               <thead><tr><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Transactions Modal -->
+      <div id="catTxnModal" class="modal">
+        <div class="modal-content b-list-modal-content">
+          <div class="modal-header">
+            <h2 id="catTxnTitle">Transactions</h2>
+            <button id="closeCatTxnModal" class="close-btn">&times;</button>
+          </div>
+          <div class="b-list-modal-body">
+            <table id="catTxnTable" class="b-table">
+              <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Note</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -594,6 +610,12 @@
         <div class="b-progress-section" id="catProgressSection" style="display:none">
           <div class="b-section-header">&#9888;&#65039; Nearing Limit</div>
           <div id="catProgressList"></div>
+        </div>
+
+        <!-- Unbudgeted expense categories -->
+        <div class="b-progress-section" id="unbudgetedProgressSection" style="display:none">
+          <div class="b-section-header">&#128683; Unbudgeted Spending</div>
+          <div id="unbudgetedProgressList"></div>
         </div>
 
       </main>

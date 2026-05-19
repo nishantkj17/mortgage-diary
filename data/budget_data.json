@@ -63,6 +63,22 @@
     {
       "id": "moyb9htvnmcyw0",
       "name": "Shopping"
+    },
+    {
+      "id": "mp1r6w0vwbir2p",
+      "name": "Utilities"
+    },
+    {
+      "id": "mpc4v8ezx4o5k8",
+      "name": "Vacation"
+    },
+    {
+      "id": "mpc7ez1yrrannn",
+      "name": "DoorDash"
+    },
+    {
+      "id": "mpc87v5kiojg9m",
+      "name": "Insurance"
     }
   ],
   "months": {
@@ -179,9 +195,836 @@
           "description": "",
           "amount": 200,
           "fixed": true
+        },
+        {
+          "id": "mpc87v5krzhu87",
+          "category": "Insurance",
+          "description": "",
+          "amount": 302,
+          "fixed": true
         }
       ],
-      "expenses": []
+      "expenses": [
+        {
+          "id": "m3713c506bc10d",
+          "category": "Shopping",
+          "description": "AMAZON MARKETPLACE AU   SYDNEY",
+          "amount": 59.99,
+          "date": "2026-04-07"
+        },
+        {
+          "id": "mce047ed63ff7c",
+          "category": "Shopping",
+          "description": "AMAZON RETA* AMAZON AU  SYDNEY",
+          "amount": 3.8,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "m4933eca1a34f7",
+          "category": "Vacation",
+          "description": "RHAPSODY RESORT         SURFERS PARADIS",
+          "amount": 249.68,
+          "date": "2026-04-25"
+        },
+        {
+          "id": "m385beac8b2f2f",
+          "category": "Vacation",
+          "description": "ELK ESPRESSO            Broadbeach",
+          "amount": 69.39,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "m77ec48ee5825d",
+          "category": "Shopping",
+          "description": "FOOT LOCKER AUSTALIA IN MURARRIE",
+          "amount": 109.95,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "mb33ae9e6d77f5",
+          "category": "Vacation",
+          "description": "Nude Amigos B           Broadbeach",
+          "amount": 136.68,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "mb1e8b0540ede4",
+          "category": "Vacation",
+          "description": "SHAM STORE PTY LTD      SURFERS PARADIS",
+          "amount": 5.99,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "m3070c70dbda5e",
+          "category": "Vacation",
+          "description": "MILAN RESTAURANT ON M 2 MAIN BEACH",
+          "amount": 58.87,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "m60b73399b7bf2",
+          "category": "Vacation",
+          "description": "PADDOCK BAKERY          BURLEIGH HEADS",
+          "amount": 65.28,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "m830dd97d444c4",
+          "category": "Vacation",
+          "description": "SIRROMET WINES PTY LTD  MOUNT COTTON",
+          "amount": 18,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "mbe733a62c0c1e",
+          "category": "Vacation",
+          "description": "INDEPENDENT* ME&U       HENDRA",
+          "amount": 19.27,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "m4b8fd2f3ffd9c",
+          "category": "Vacation",
+          "description": "RED ROOSTER BRISBANE 15 EAGLE FARM",
+          "amount": 16.63,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "m3b7596db7a80f",
+          "category": "Vacation",
+          "description": "REDDY EXPRESS 1896      BRISBANE AIRPOR",
+          "amount": 54.35,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "m7244d2e06c467",
+          "category": "Coffee",
+          "description": "7-ELEVEN 4333 ORMEAU HI BRISBANE",
+          "amount": 1.5,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "m3506e1431bd2b",
+          "category": "Vacation",
+          "description": "TFNSW OPAL FARE \\       SYDNEY",
+          "amount": 21.68,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "mb15a405306d1a",
+          "category": "Coffee",
+          "description": "CAPP ESPRESSO O'CONNELL Sydney",
+          "amount": 4.56,
+          "date": "2026-04-28"
+        },
+        {
+          "id": "maf89e1dc252a2",
+          "category": "Grocery",
+          "description": "COLES CROWS NEST 7577   CROWS NEST",
+          "amount": 144.33,
+          "date": "2026-04-29"
+        },
+        {
+          "id": "m9c4fe716a3a04",
+          "category": "Coffee",
+          "description": "CAPP ESPRESSO O'CONNELL Sydney",
+          "amount": 4.56,
+          "date": "2026-04-30"
+        },
+        {
+          "id": "mf7838ecc35a98",
+          "category": "Eat out",
+          "description": "Sammi's Circular Quay Ryde",
+          "amount": 17.04,
+          "date": "2026-04-01"
+        },
+        {
+          "id": "m7cc4320b0bf5c",
+          "category": "Eat out",
+          "description": "Camys Chargrill Chick Macquarie Par",
+          "amount": 3.96,
+          "date": "2026-04-01"
+        },
+        {
+          "id": "m45946335c39d1",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-01"
+        },
+        {
+          "id": "m66f7d42a457a0",
+          "category": "Eat out",
+          "description": "Zlr*C9 Chocolate & Gel North Ryde",
+          "amount": 6.08,
+          "date": "2026-04-01"
+        },
+        {
+          "id": "me7a49ea61ddb0",
+          "category": "Grocery",
+          "description": "V Happy Foods Pty Ltd Sydney",
+          "amount": 22.5,
+          "date": "2026-04-02"
+        },
+        {
+          "id": "m124db2a0604d9",
+          "category": "Liquor",
+          "description": "Dan Murphys Online Bella Vista",
+          "amount": 165.9,
+          "date": "2026-04-02"
+        },
+        {
+          "id": "m63a5de9427330",
+          "category": "Eat out",
+          "description": "Sq *Foreign Return Surry Hills",
+          "amount": 117,
+          "date": "2026-04-03"
+        },
+        {
+          "id": "mc23e7d40e30eb",
+          "category": "Misc",
+          "description": "Hubbl - Kayosports Artarmon",
+          "amount": 25,
+          "date": "2026-04-04"
+        },
+        {
+          "id": "m90a0986814192",
+          "category": "Eat out",
+          "description": "Sq *Ena Sydney St Leonards",
+          "amount": 15.17,
+          "date": "2026-04-04"
+        },
+        {
+          "id": "m442b7d38c1b58",
+          "category": "Liquor",
+          "description": "Terrigal Pavilion Terrigal",
+          "amount": 25,
+          "date": "2026-04-04"
+        },
+        {
+          "id": "m8f16cdc2f299f",
+          "category": "Eat out",
+          "description": "Terrigal Pavilion Terrigal",
+          "amount": 16.28,
+          "date": "2026-04-04"
+        },
+        {
+          "id": "mc22ecce387b53",
+          "category": "Liquor",
+          "description": "Bar Botanica Erina",
+          "amount": 50,
+          "date": "2026-04-04"
+        },
+        {
+          "id": "mfb0420cdc02be",
+          "category": "Grocery",
+          "description": "Manna Grace Australi Artarmon",
+          "amount": 64.54,
+          "date": "2026-04-04"
+        },
+        {
+          "id": "m4a7e2b9b67be7",
+          "category": "Transport",
+          "description": "7-Eleven 2286 Wahroonga",
+          "amount": 88.48,
+          "date": "2026-04-05"
+        },
+        {
+          "id": "m73f5449a85795",
+          "category": "Eat out",
+          "description": "Ls Haven Beach Kiosk Terrigal",
+          "amount": 65.17,
+          "date": "2026-04-05"
+        },
+        {
+          "id": "m2e2270f440ffb",
+          "category": "Eat out",
+          "description": "Yogurberry Te Terrigal",
+          "amount": 29.83,
+          "date": "2026-04-05"
+        },
+        {
+          "id": "m42998d454f369",
+          "category": "Eat out",
+          "description": "Kaiping Fantasy Pl Artarmon",
+          "amount": 9.68,
+          "date": "2026-04-05"
+        },
+        {
+          "id": "mf6675a84c8db9",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-07"
+        },
+        {
+          "id": "m5ed7969eefee0",
+          "category": "Vacation",
+          "description": "Virgin Au7954428816872 Brisbane",
+          "amount": 570,
+          "date": "2026-04-07"
+        },
+        {
+          "id": "m50d1d2bd8736e",
+          "category": "Grocery",
+          "description": "Romeos Foodhall St Leonards",
+          "amount": 8.29,
+          "date": "2026-04-08"
+        },
+        {
+          "id": "mb95bd706c5075",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-08"
+        },
+        {
+          "id": "m531e54cbdbf7d",
+          "category": "Vacation",
+          "description": "Avis Australia Mascot",
+          "amount": 387.35,
+          "date": "2026-04-08"
+        },
+        {
+          "id": "maa96d662370fd",
+          "category": "Liquor",
+          "description": "Munich Rocks The Rocks",
+          "amount": 15,
+          "date": "2026-04-09"
+        },
+        {
+          "id": "m426de5a996a8a",
+          "category": "Eat out",
+          "description": "Kpy*Gozleme King Sydney",
+          "amount": 21.26,
+          "date": "2026-04-09"
+        },
+        {
+          "id": "m17efebf08417d",
+          "category": "Liquor",
+          "description": "Munich Brauhaus The Ro The Rocks",
+          "amount": 14.97,
+          "date": "2026-04-09"
+        },
+        {
+          "id": "m4b50bed1c39ab",
+          "category": "Beauty Parlor/Salon",
+          "description": "Jopenny Australia Trad Frenchs Fores",
+          "amount": 126.5,
+          "date": "2026-04-09"
+        },
+        {
+          "id": "m3536abd696b2e",
+          "category": "Eat out",
+          "description": "Sq *Queen Ester Newport",
+          "amount": 11.18,
+          "date": "2026-04-12"
+        },
+        {
+          "id": "m6c125fc02a12f",
+          "category": "Eat out",
+          "description": "Sq *Queen Ester Newport",
+          "amount": 5.03,
+          "date": "2026-04-12"
+        },
+        {
+          "id": "mb2298ed6bc81b",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-13"
+        },
+        {
+          "id": "mb6dde38c29c5d",
+          "category": "Grocery",
+          "description": "Coles 7661 St Leonards",
+          "amount": 66.5,
+          "date": "2026-04-14"
+        },
+        {
+          "id": "m086795e19d8d7",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 5.07,
+          "date": "2026-04-14"
+        },
+        {
+          "id": "ma95ae2ce8042e",
+          "category": "Grocery",
+          "description": "Netoo Store Pty Ltd Sydney",
+          "amount": 9.19,
+          "date": "2026-04-15"
+        },
+        {
+          "id": "m946a1aa373821",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 5.07,
+          "date": "2026-04-16"
+        },
+        {
+          "id": "m8797ca8d8562f",
+          "category": "Eat out",
+          "description": "Sq *Mr & Mrs Pho Gatew Sydney",
+          "amount": 14.19,
+          "date": "2026-04-16"
+        },
+        {
+          "id": "maa5b27ff8c9ea",
+          "category": "Liquor",
+          "description": "The Flynn Sydney",
+          "amount": 30.29,
+          "date": "2026-04-16"
+        },
+        {
+          "id": "ma831dc5bb464c",
+          "category": "Eat out",
+          "description": "Sq *Ragazzi Sydney",
+          "amount": 243,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "mbf93a56badbe6",
+          "category": "Coffee",
+          "description": "Sq *Oliver Brown Crows Crows Nest",
+          "amount": 4.55,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "m000cf7ec06394",
+          "category": "Beauty Parlor/Salon",
+          "description": "Fresha Ace Of Fadez Ge Cabarita",
+          "amount": 95,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "m400ed2b125407",
+          "category": "Grocery",
+          "description": "Woolworths 1318 Crows Nest",
+          "amount": 20,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "m8761fcf73ebc3",
+          "category": "Eat out",
+          "description": "Sq *Moe's Marrickville",
+          "amount": 79.63,
+          "date": "2026-04-18"
+        },
+        {
+          "id": "me982c24bb1e06",
+          "category": "Utilities",
+          "description": "Optus Prepaid Melbourne",
+          "amount": 35,
+          "date": "2026-04-18"
+        },
+        {
+          "id": "m8a9c0e8abbf5b",
+          "category": "Grocery",
+          "description": "Coles 7661 St Leonards",
+          "amount": 49.91,
+          "date": "2026-04-19"
+        },
+        {
+          "id": "m6aae9701acd28",
+          "category": "Transport",
+          "description": "7-Eleven 2179 Artarmon",
+          "amount": 60.06,
+          "date": "2026-04-19"
+        },
+        {
+          "id": "m2b931aacb5849",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-20"
+        },
+        {
+          "id": "m2b931aacb5849",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-20"
+        },
+        {
+          "id": "m95f7d72085d92",
+          "category": "Coffee",
+          "description": "Starbucks Coffee B01 Chatswood",
+          "amount": 11.4,
+          "date": "2026-04-21"
+        },
+        {
+          "id": "mc4e88e1fe9cdd",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-22"
+        },
+        {
+          "id": "mf1f7c7569ebfb",
+          "category": "Vacation",
+          "description": "Rhapsody Resort Surfers Parad",
+          "amount": 354.09,
+          "date": "2026-04-22"
+        },
+        {
+          "id": "m5cf04f940a37f",
+          "category": "Grocery",
+          "description": "Romeos Foodhall St Leonards",
+          "amount": 11.5,
+          "date": "2026-04-23"
+        },
+        {
+          "id": "m66a971be41f30",
+          "category": "Shopping",
+          "description": "Ticketek Web Sydney",
+          "amount": 224,
+          "date": "2026-04-24"
+        },
+        {
+          "id": "maafdd16081f4f",
+          "category": "Coffee",
+          "description": "Sq *Capp Espresso O'co Sydney",
+          "amount": 4.56,
+          "date": "2026-04-24"
+        },
+        {
+          "id": "m7e49fd357bc4b",
+          "category": "Vacation",
+          "description": "Sq *Tango Gelato Kings Kingscliff",
+          "amount": 7.25,
+          "date": "2026-04-25"
+        },
+        {
+          "id": "mpc7ez1y91dkhq",
+          "category": "DoorDash",
+          "description": "",
+          "amount": 83.48,
+          "date": "2026-04-03"
+        },
+        {
+          "id": "mpc7gizpyp3dc7",
+          "category": "Liquor",
+          "description": "Terrigal",
+          "amount": 20,
+          "date": "2026-04-05"
+        },
+        {
+          "id": "mpc7h9lsd175he",
+          "category": "Vacation",
+          "description": "Cafe Nate",
+          "amount": 46.92,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "mpc7hxqpr7fq7n",
+          "category": "Beauty Parlor/Salon",
+          "description": "Jeevi brow studio",
+          "amount": 27.98,
+          "date": "2026-04-06"
+        },
+        {
+          "id": "mpc7in52104x71",
+          "category": "Beauty Parlor/Salon",
+          "description": "Priceline pharmacy",
+          "amount": 30,
+          "date": "2026-04-06"
+        },
+        {
+          "id": "mpc7jg7e2ay3a0",
+          "category": "Coffee",
+          "description": "LS Parammata",
+          "amount": 6.26,
+          "date": "2026-04-01"
+        },
+        {
+          "id": "mpc7jvdylzmxo2",
+          "category": "Eat out",
+          "description": "Subway",
+          "amount": 9,
+          "date": "2026-04-01"
+        },
+        {
+          "id": "mpc7lrhpm5orft",
+          "category": "Shopping",
+          "description": "Amazon",
+          "amount": 65,
+          "date": "2026-04-02"
+        },
+        {
+          "id": "mpc7mh2girihiq",
+          "category": "Transport",
+          "description": "Didi",
+          "amount": 27.62,
+          "date": "2026-04-12"
+        },
+        {
+          "id": "mpc7n929gd78ci",
+          "category": "Grocery",
+          "description": "Woolies",
+          "amount": 63.64,
+          "date": "2026-04-13"
+        },
+        {
+          "id": "mpc7nlecwqw889",
+          "category": "Coffee",
+          "description": "",
+          "amount": 4.56,
+          "date": "2026-04-13"
+        },
+        {
+          "id": "mpc7o4ast0trbi",
+          "category": "Misc",
+          "description": "Anniversary cake",
+          "amount": 90,
+          "date": "2026-04-13"
+        },
+        {
+          "id": "mpc7oof0g61cah",
+          "category": "Grocery",
+          "description": "Coles",
+          "amount": 8.2,
+          "date": "2026-04-14"
+        },
+        {
+          "id": "mpc7p0dz8ystrj",
+          "category": "Coffee",
+          "description": "LS coffee",
+          "amount": 5.35,
+          "date": "2026-04-13"
+        },
+        {
+          "id": "mpc7plbyb8quq5",
+          "category": "Beauty Parlor/Salon",
+          "description": "Kodi",
+          "amount": 151.5,
+          "date": "2026-04-11"
+        },
+        {
+          "id": "mpc7q7lv4lzgmx",
+          "category": "Eat out",
+          "description": "BigBite samosa",
+          "amount": 23.81,
+          "date": "2026-04-11"
+        },
+        {
+          "id": "mpc7qz9lhmwk49",
+          "category": "Eat out",
+          "description": "Falafel bar",
+          "amount": 48.06,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc7rckdn25y0r",
+          "category": "Coffee",
+          "description": "",
+          "amount": 6.29,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc7rnhyfusv6y",
+          "category": "Transport",
+          "description": "Parking",
+          "amount": 25,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc7s3lis3g7gw",
+          "category": "Transport",
+          "description": "Linkt Toll",
+          "amount": 20,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc7t2u3bqhc6z",
+          "category": "Vacation",
+          "description": "Broadbeach Con store",
+          "amount": 10.15,
+          "date": "2026-04-25"
+        },
+        {
+          "id": "mpc7tdp8e5nvtk",
+          "category": "Vacation",
+          "description": "Fricken",
+          "amount": 19.91,
+          "date": "2026-04-25"
+        },
+        {
+          "id": "mpc7vvn2h4vvor",
+          "category": "Vacation",
+          "description": "May be coffee",
+          "amount": 33,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "mpc7wkyi1i6n7l",
+          "category": "Vacation",
+          "description": "Wine and eating",
+          "amount": 76,
+          "date": "2026-04-27"
+        },
+        {
+          "id": "mpc7xeyh1mav46",
+          "category": "Vacation",
+          "description": "Didi",
+          "amount": 41.51,
+          "date": "2026-04-25"
+        },
+        {
+          "id": "mpc7y9c7dt9gl7",
+          "category": "Vacation",
+          "description": "Kings cliff breakfast",
+          "amount": 45.43,
+          "date": "2026-04-25"
+        },
+        {
+          "id": "mpc7yo002sfdck",
+          "category": "Vacation",
+          "description": "Train",
+          "amount": 17.24,
+          "date": "2026-04-25"
+        },
+        {
+          "id": "mpc80f2homktby",
+          "category": "Eat out",
+          "description": "Grace of India",
+          "amount": 107,
+          "date": "2026-04-24"
+        },
+        {
+          "id": "mpc82eshprza7h",
+          "category": "Vacation",
+          "description": "Nude amigos",
+          "amount": 103.02,
+          "date": "2026-04-26"
+        },
+        {
+          "id": "mpc83gss5u6n7b",
+          "category": "Eat out",
+          "description": "Gelato and coffee",
+          "amount": 14.6,
+          "date": "2026-04-07"
+        },
+        {
+          "id": "mpc845krynll5k",
+          "category": "Grocery",
+          "description": "Indian",
+          "amount": 55.6,
+          "date": "2026-04-19"
+        },
+        {
+          "id": "mpc84l1k790601",
+          "category": "Transport",
+          "description": "Cab",
+          "amount": 53,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "mpc85a6gjkgn3h",
+          "category": "Liquor",
+          "description": "Poetica",
+          "amount": 34,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc85owdkt5zmi",
+          "category": "Eat out",
+          "description": "Subway",
+          "amount": 9.05,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc86l98du3wkm",
+          "category": "Eat out",
+          "description": "Coffee",
+          "amount": 5.35,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc870d7yew3az",
+          "category": "Eat out",
+          "description": "Croissont",
+          "amount": 6.07,
+          "date": "2026-04-10"
+        },
+        {
+          "id": "mpc88ma5inr1kb",
+          "category": "DoorDash",
+          "description": "Decan flavour",
+          "amount": 36.21,
+          "date": "2026-04-29"
+        },
+        {
+          "id": "mpc8938efe8ced",
+          "category": "Coffee",
+          "description": "Ls",
+          "amount": 4.54,
+          "date": "2026-04-29"
+        },
+        {
+          "id": "mpc8a7h79wvgiy",
+          "category": "Shopping",
+          "description": "Royal rose gift",
+          "amount": 56.56,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "mpc8at1042io81",
+          "category": "Eat out",
+          "description": "Coffee and Betty",
+          "amount": 26,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "mpc8bbyixewp44",
+          "category": "Coffee",
+          "description": "Ls",
+          "amount": 5.35,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "mpc8br1wjz9mf2",
+          "category": "Eat out",
+          "description": "Pastry",
+          "amount": 6.5,
+          "date": "2026-04-17"
+        },
+        {
+          "id": "mpc8c7lo1b2axb",
+          "category": "Eat out",
+          "description": "Kebab Sibys Parramatta",
+          "amount": 15.24,
+          "date": "2026-04-15"
+        },
+        {
+          "id": "mpc8cpli9uv0yx",
+          "category": "Beauty Parlor/Salon",
+          "description": "Sea Nails",
+          "amount": 50.7,
+          "date": "2026-04-23"
+        },
+        {
+          "id": "mpc8d4f1qal5ya",
+          "category": "Beauty Parlor/Salon",
+          "description": "Jeevi brow",
+          "amount": 18.98,
+          "date": "2026-04-23"
+        },
+        {
+          "id": "mpc8do2pjlcdhs",
+          "category": "Eat out",
+          "description": "Geogrgia KItchen",
+          "amount": 12.84,
+          "date": "2026-04-23"
+        },
+        {
+          "id": "mpc8e2slbenvz9",
+          "category": "Coffee",
+          "description": "LS coffee",
+          "amount": 5.96,
+          "date": "2026-04-22"
+        }
+      ]
     },
     "2026-05": {
       "budget": [
@@ -201,21 +1044,21 @@
         },
         {
           "id": "mol4mk0ql7vwzv",
-          "category": "Internet",
+          "category": "Utilities",
           "description": "Internet",
           "amount": 79,
           "fixed": true
         },
         {
           "id": "mol4mk0qes873f",
-          "category": "Mobile",
+          "category": "Utilities",
           "description": "Optus",
           "amount": 35,
           "fixed": true
         },
         {
           "id": "mol4mk0q1ucxjk",
-          "category": "Mobile",
+          "category": "Utilities",
           "description": "Telstra",
           "amount": 39,
           "fixed": true
@@ -296,6 +1139,13 @@
           "description": "",
           "amount": 200,
           "fixed": false
+        },
+        {
+          "id": "mpc8g6zf4anja4",
+          "category": "Insurance",
+          "description": "Bupa",
+          "amount": 302,
+          "fixed": true
         }
       ],
       "expenses": [
@@ -407,7 +1257,7 @@
           "id": "mov2e9kg6rr133",
           "category": "India",
           "description": "Home loan",
-          "amount": 1,
+          "amount": 1000,
           "fixedId": "mol4mk0q393gan"
         },
         {
@@ -521,6 +1371,153 @@
           "description": "",
           "amount": 2,
           "date": "2026-05-11"
+        },
+        {
+          "id": "mp26tbg7z70kgo",
+          "category": "Coffee",
+          "description": "",
+          "amount": 2,
+          "date": "2026-05-12"
+        },
+        {
+          "id": "mp2k18nsxy9tav",
+          "category": "Liquor",
+          "description": "",
+          "amount": 11,
+          "date": "2026-05-12"
+        },
+        {
+          "id": "mp38rupuln552p",
+          "category": "Eat out",
+          "description": "Croissants",
+          "amount": 6.07,
+          "date": "2026-05-12"
+        },
+        {
+          "id": "mp427msm08ki3j",
+          "category": "Grocery",
+          "description": "Coles",
+          "amount": 252,
+          "date": "2026-05-13"
+        },
+        {
+          "id": "mp4280hsuw7139",
+          "category": "Shopping",
+          "description": "K mart",
+          "amount": 111,
+          "date": "2026-05-13"
+        },
+        {
+          "id": "mp4288zkpkw4h5",
+          "category": "Eat out",
+          "description": "Joomak",
+          "amount": 80,
+          "date": "2026-05-13"
+        },
+        {
+          "id": "mp429dfgnv2m7h",
+          "category": "Grocery",
+          "description": "Tanna sweets",
+          "amount": 154,
+          "date": "2026-05-13"
+        },
+        {
+          "id": "mp4u4rz5qbe8mn",
+          "category": "Coffee",
+          "description": "",
+          "amount": 5,
+          "date": "2026-05-14"
+        },
+        {
+          "id": "mp52cqpzzdxsz7",
+          "category": "Misc",
+          "description": "House cleaning",
+          "amount": 150,
+          "date": "2026-05-14"
+        },
+        {
+          "id": "mp59w0s4agq83n",
+          "category": "Beauty Parlor/Salon",
+          "description": "Laser upper lips",
+          "amount": 16,
+          "date": "2026-05-14"
+        },
+        {
+          "id": "mp59xlf0l5c0ye",
+          "category": "Coffee",
+          "description": "Coffee",
+          "amount": 14,
+          "date": "2026-05-14"
+        },
+        {
+          "id": "mp5i2cggacmwd1",
+          "category": "Liquor",
+          "description": "Republic hotel",
+          "amount": 33,
+          "date": "2026-05-14"
+        },
+        {
+          "id": "mp5i2t95gaza7b",
+          "category": "Door Dash",
+          "description": "Seven spice",
+          "amount": 39,
+          "date": "2026-05-14"
+        },
+        {
+          "id": "mp69rwsv5vgn3k",
+          "category": "Coffee",
+          "description": "",
+          "amount": 5.68,
+          "date": "2026-05-15"
+        },
+        {
+          "id": "mp6qo1ghnattv7",
+          "category": "Grocery",
+          "description": "Indian store",
+          "amount": 30.82,
+          "date": "2026-05-15"
+        },
+        {
+          "id": "mp6qonvzykyokx",
+          "category": "Coffee",
+          "description": "Coffee ofc",
+          "amount": 5,
+          "date": "2026-05-15"
+        },
+        {
+          "id": "mp7u95qxv3mlfn",
+          "category": "Grocery",
+          "description": "Coles",
+          "amount": 40,
+          "date": "2026-05-16"
+        },
+        {
+          "id": "mp9akt4ozjs1qq",
+          "category": "Grocery",
+          "description": "Indian",
+          "amount": 97,
+          "date": "2026-05-17"
+        },
+        {
+          "id": "mpaj5ggkjman66",
+          "category": "Coffee",
+          "description": "",
+          "amount": 2,
+          "date": "2026-05-18"
+        },
+        {
+          "id": "mpb2bhrjhtszbb",
+          "category": "Eat out",
+          "description": "Lebanese lunch office",
+          "amount": 17,
+          "date": "2026-05-18"
+        },
+        {
+          "id": "mpbvyge78o7nxs",
+          "category": "Coffee",
+          "description": "",
+          "amount": 2,
+          "date": "2026-05-19"
         }
       ]
     },
