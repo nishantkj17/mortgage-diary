@@ -689,7 +689,12 @@
       </div>
     `;
 
-    const sorted = transactions.slice().sort((a, b) => b.date > a.date ? 1 : b.date < a.date ? -1 : 0);
+    const sorted = transactions.slice().sort((a, b) => {
+      if (a.date < b.date) return 1;   // b is newer → show b first
+      if (a.date > b.date) return -1;  // a is newer → show a first
+      // Same date: most recently added (higher index) first
+      return transactions.indexOf(b) - transactions.indexOf(a);
+    });
     if (sorted.length === 0) {
       logEl.innerHTML = `<div class="tenant-empty">No transactions yet — tap <strong>+ Add</strong> to log rent or expenses.</div>`;
     } else {

@@ -366,6 +366,18 @@
   // ── Expense List Popup ────────────────────────────────────────────────────────
   function renderExpenseListPopup() {
     const month = getMonth(activeMonth);
+    // Render sortable thead
+    const thead = document.querySelector('#expenseListTable thead tr');
+    if (thead) {
+      const sortIndicator = (key) => {
+        if (expenseListSortKey !== key) return '<span class="b-sort-icon">⇅</span>';
+        return expenseListSortDir === 'asc' ? '<span class="b-sort-icon b-sort-active">↑</span>' : '<span class="b-sort-icon b-sort-active">↓</span>';
+      };
+      thead.innerHTML = `
+        <th class="b-sortable-th" data-sort="date">Date ${sortIndicator('date')}</th>
+        <th class="b-sortable-th" data-sort="category">Category ${sortIndicator('category')}</th>
+        <th>Description</th><th>Amount</th><th></th>`;
+    }
     const tbody = document.querySelector('#expenseListTable tbody');
     tbody.innerHTML = '';
     const fixedEntries = month.budget.filter(e => e.fixed);
@@ -403,12 +415,18 @@
         </td>`;
       tbody.appendChild(tr);
     });
-    // Manually entered expenses (newest first by date, fallback to insertion order reversed)
+    // Manually entered expenses — sort by active column/direction
     manualExpenses.slice().sort((a, b) => {
-      const da = a.date || '';
-      const db2 = b.date || '';
-      if (da > db2) return -1;
-      if (da < db2) return 1;
+      let valA, valB;
+      if (expenseListSortKey === 'category') {
+        valA = (a.category || '').toLowerCase();
+        valB = (b.category || '').toLowerCase();
+      } else {
+        valA = a.date || '';
+        valB = b.date || '';
+      }
+      if (valA < valB) return expenseListSortDir === 'asc' ? -1 : 1;
+      if (valA > valB) return expenseListSortDir === 'asc' ? 1 : -1;
       return 0;
     }).forEach(entry => {
       const dateLabel = entry.date ? new Date(entry.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
@@ -606,6 +624,8 @@
   let editingExpenseId = null;
   let editingFixedSourceId = null;
   let fixedSectionCollapsed = true;
+  let expenseListSortKey = 'date';   // 'date' | 'category'
+  let expenseListSortDir = 'desc';   // 'asc'  | 'desc'
 
   function openQuickExpenseModal(entry, fixedSourceId) {
     editingExpenseId = entry ? entry.id : null;
@@ -740,6 +760,19 @@
     document.getElementById('closeExpenseListModal').addEventListener('click', () => document.getElementById('expenseListModal').classList.remove('active'));
     document.getElementById('expenseListModal').addEventListener('click', e => { if (e.target === document.getElementById('expenseListModal')) document.getElementById('expenseListModal').classList.remove('active'); });
     document.getElementById('expenseListTable').addEventListener('click', async e => {
+      // Sort header click
+      const sortTh = e.target.closest('th[data-sort]');
+      if (sortTh) {
+        const key = sortTh.dataset.sort;
+        if (expenseListSortKey === key) {
+          expenseListSortDir = expenseListSortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          expenseListSortKey = key;
+          expenseListSortDir = key === 'date' ? 'desc' : 'asc';
+        }
+        renderExpenseListPopup();
+        return;
+      }
       const toggleFixed = e.target.closest('.b-toggle-fixed');
       const editBtn = e.target.closest('.b-edit-expense');
       const delBtn = e.target.closest('.b-del-expense');
