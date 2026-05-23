@@ -114,7 +114,7 @@
     if (arrowEl) { arrowEl.textContent = over ? '↑' : '↓'; arrowEl.className = 'b-arrow ' + (over ? 'over' : 'under'); }
   }
 
-  // ── Nearing-limit progress bars (≥ 90% spent) ───────────────────────────────
+  // ── Nearing-limit progress bars (≥ 40% spent) ───────────────────────────────
   function renderCategoryProgress() {
     const section = document.getElementById('catProgressSection');
     const list = document.getElementById('catProgressList');
@@ -123,7 +123,7 @@
     const breakdown = catBreakdown(activeMonth);
     const month = getMonth(activeMonth);
     const totalBudgeted = totalBudget(activeMonth);
-    const threshold = totalBudgeted * 0.04;
+    const threshold = totalBudgeted * 0.02;
 
     // Build set of categories whose budget entries are ALL fixed (auto-logged — no alert needed)
     const fixedOnlyCats = new Set(
@@ -133,9 +133,9 @@
       })
     );
 
-    // ── Nearing-limit alerts (has budget, >= 60% spent) ───────────────────────
+    // ── Nearing-limit alerts (has budget, >= 40% spent) ───────────────────────
     const alerts = Object.entries(breakdown)
-      .filter(([cat, { budgeted, actual }]) => budgeted > 0 && !fixedOnlyCats.has(cat) && actual / budgeted >= 0.6)
+      .filter(([cat, { budgeted, actual }]) => budgeted > 0 && !fixedOnlyCats.has(cat) && actual / budgeted >= 0.4)
       .sort((a, b) => (b[1].actual / b[1].budgeted) - (a[1].actual / a[1].budgeted));
     if (!alerts.length) { section.style.display = 'none'; }
     else {
@@ -174,7 +174,7 @@
         row.innerHTML = `
           <div class="b-progress-meta">
             <span class="b-progress-cat">${esc(cat)}</span>
-            <span class="b-progress-amounts over">${fmt(actual)} — not budgeted</span>
+            <span class="b-progress-amounts over">${fmt(actual)}</span>
           </div>
           <div class="b-progress-track">
             <div class="b-progress-fill over" style="width:100%"></div>

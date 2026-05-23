@@ -560,12 +560,12 @@ html[data-theme="dark"] .b-fab:hover{background:#546e7a}
 /* ── Category progress bars ──────────────────────────────────────────── */
 .b-progress-section{background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .b-section-header{font-size:11px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.b-progress-row{margin-bottom:12px;cursor:pointer;border-radius:6px;padding:4px 2px;transition:background 0.13s}
+#catProgressList,#unbudgetedProgressList{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 10px}
+.b-progress-row{cursor:pointer;border-radius:6px;padding:6px 4px;transition:background 0.13s;min-width:0}
 .b-progress-row:hover{background:rgba(96,125,139,0.08)}
-.b-progress-row:last-child{margin-bottom:0}
-.b-progress-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
-.b-progress-cat{font-size:13px;font-weight:600;color:#2d3748}
-.b-progress-amounts{font-size:12px;color:#78909c}
+.b-progress-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:4px;min-width:0}
+.b-progress-cat{font-size:12px;font-weight:600;color:#2d3748;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.b-progress-amounts{font-size:11px;color:#78909c;white-space:nowrap;flex-shrink:0}
 .b-progress-track{height:7px;background:#f0f1f4;border-radius:4px;overflow:hidden}
 .b-progress-fill{height:100%;border-radius:4px;background:#607d8b;transition:width 0.4s ease}
 .b-progress-fill.over{background:#e74c3c}
