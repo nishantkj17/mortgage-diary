@@ -482,7 +482,7 @@ html[data-theme="dark"] .coming-soon-back-btn:hover{background:#7eaab8;color:#1f
 .b-month-label{font-size:15px;font-weight:600;color:#374151;min-width:110px}
 .b-month-nav-btn{width:32px;height:32px;border:1px solid #d6d7dc;background:#fff;border-radius:6px;font-size:18px;cursor:pointer;color:#607d8b;display:flex;align-items:center;justify-content:center;padding:0}
 .b-month-nav-btn:hover{background:#f0f2f5}
-.b-carry-btn{padding:6px 10px;border:1px solid #607d8b;background:#fff;color:#607d8b;border-radius:6px;font-size:12px;cursor:pointer;font-weight:500;white-space:nowrap;flex-shrink:0}
+.b-carry-btn{}
 .b-carry-btn:hover{background:#607d8b;color:#fff}
 /* Summary cards */
 .b-summary-row{display:flex;gap:10px;flex-wrap:nowrap}
@@ -652,8 +652,8 @@ html[data-theme="dark"] .b-month-picker{background:#1f2937;border-color:#4b5563;
 html[data-theme="dark"] .b-month-label{color:#d1d5db}
 html[data-theme="dark"] .b-month-nav-btn{background:#1f2937;border-color:#4b5563;color:#9ca3af}
 html[data-theme="dark"] .b-month-nav-btn:hover{background:#273344}
-html[data-theme="dark"] .b-carry-btn{background:#1f2937;border-color:#607d8b;color:#7eaab8}
-html[data-theme="dark"] .b-carry-btn:hover{background:#607d8b;color:#fff}
+html[data-theme="dark"] .b-carry-btn{}
+html[data-theme="dark"] .b-carry-btn:hover{}
 html[data-theme="dark"] .b-summary-card,.b-diff-card,html[data-theme="dark"] .b-diff-card{background:#1f2937;border-color:#374151}
 html[data-theme="dark"] .b-summary-card:hover{border-color:#607d8b}
 html[data-theme="dark"] .b-summary-amount{color:#f3f4f6}
