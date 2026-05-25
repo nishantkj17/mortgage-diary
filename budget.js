@@ -1230,36 +1230,92 @@
 
   // ── Category share donut ─────────────────────────────────────────────────────
   function renderShareDonut(cats, cur) {
-    const canvas = document.getElementById('anDonutCanvas');
-    const legend = document.getElementById('anDonutLegend');
-    if (!canvas || !legend) return;
+    const el = document.getElementById('anDonutSection');
+    if (!el) return;
     const PALETTE = ['#3b82f6','#f59e0b','#10b981','#f87171','#a78bfa','#34d399','#fb923c','#e879f9','#38bdf8','#84cc16'];
-    const data   = cats.map(c => (cur[c] || {}).actual || 0);
-    const total  = data.reduce((s, v) => s + v, 0);
-    if (!total) { document.getElementById('anDonutSection').style.display = 'none'; return; }
-    document.getElementById('anDonutSection').style.display = '';
-    const colors = cats.map((_, i) => PALETTE[i % PALETTE.length]);
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    if (window._anDonutChart) { window._anDonutChart.destroy(); window._anDonutChart = null; }
-    window._anDonutChart = new Chart(canvas, {
-      type: 'doughnut',
-      data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '68%',
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/total)*100).toFixed(0)}%)` } }
-        }
+    const data  = cats.map(c => (cur[c] || {}).actual || 0);
+    const total = data.reduce((s, v) => s + v, 0);
+    if (!total) { el.style.display = 'none'; return; }
+    el.style.display = '';
+
+    // Sort items by value descending, keep original palette index for color
+    const items = cats.map((cat, i) => ({
+      cat, val: data[i], pct: Math.round(data[i] / total * 100), color: PALETTE[i % PALETTE.length]
+    })).sort((a, b) => b.val - a.val);
+
+    const W = 320, H = 112, GAP = 2;
+
+    // Binary-split treemap layout (recursive)
+    function layout(its, x, y, w, h) {
+      if (!its.length) return [];
+      if (its.length === 1) return [Object.assign({}, its[0], {rx:x, ry:y, rw:w, rh:h})];
+      const tot = its.reduce((s, i) => s + i.val, 0);
+      let sum = 0, split = 0;
+      for (let i = 0; i < its.length; i++) {
+        sum += its[i].val;
+        if (sum * 2 >= tot) { split = i + 1; break; }
       }
-    });
-    legend.innerHTML = cats.map((cat, i) => {
-      const pct = ((data[i] / total) * 100).toFixed(0);
-      return `<div class="an-donut-leg-item">
-        <span class="an-donut-leg-dot" style="background:${colors[i]}"></span>
-        <span class="an-donut-leg-cat">${esc(cat)}</span>
-        <span class="an-donut-leg-pct">${pct}%</span>
-      </div>`;
+      if (split >= its.length) split = its.length - 1;
+      if (split < 1) split = 1;
+      const g1 = its.slice(0, split), g2 = its.slice(split);
+      const s1 = g1.reduce((s, i) => s + i.val, 0);
+      if (w >= h) {
+        const w1 = Math.max(1, Math.round(w * s1 / tot) - GAP);
+        const x2 = x + w1 + GAP;
+        return layout(g1, x, y, w1, h).concat(layout(g2, x2, y, Math.max(1, w - w1 - GAP), h));
+      } else {
+        const h1 = Math.max(1, Math.round(h * s1 / tot) - GAP);
+        const y2 = y + h1 + GAP;
+        return layout(g1, x, y, w, h1).concat(layout(g2, x, y2, w, Math.max(1, h - h1 - GAP)));
+      }
+    }
+
+    const rects = layout(items, 0, 0, W, H);
+    const svgContent = rects.map(r => {
+      const showName = r.rw > 38 && r.rh > 22;
+      const showPct  = r.rw > 26 && r.rh > 12;
+      const label    = r.cat.length > 11 ? r.cat.slice(0, 10) + '\u2026' : r.cat;
+      const tipAttr  = `data-tip="${esc(r.cat + ' \u00b7 ' + fmt(r.val) + ' \u00b7 ' + r.pct + '%')}"`;
+      return `<g>
+        <rect x="${r.rx}" y="${r.ry}" width="${r.rw}" height="${r.rh}" rx="4" fill="${r.color}" ${tipAttr} style="cursor:default"/>
+        ${showName ? `<text x="${r.rx + 5}" y="${r.ry + 13}" font-size="9" fill="rgba(255,255,255,0.9)" font-weight="600" font-family="system-ui,sans-serif" pointer-events="none">${esc(label)}</text>` : ''}
+        ${showPct  ? `<text x="${r.rx + 5}" y="${r.ry + r.rh - 5}" font-size="10" fill="white" font-weight="700" font-family="system-ui,sans-serif" pointer-events="none">${r.pct}%</text>` : ''}
+      </g>`;
     }).join('');
+
+    el.innerHTML = `<svg class="an-treemap-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${svgContent}</svg>`;
+
+    // Tooltip
+    let tip = document.getElementById('anTreemapTip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'anTreemapTip';
+      tip.className = 'an-treemap-tip';
+      document.body.appendChild(tip);
+    }
+    const svg = el.querySelector('.an-treemap-svg');
+    function _tipShow(e) {
+      const rect = e.target.closest('rect[data-tip]');
+      if (!rect) { tip.style.display = 'none'; return; }
+      tip.textContent = rect.dataset.tip;
+      tip.style.display = 'block';
+      _tipMove(e);
+    }
+    function _tipMove(e) {
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      const vw = window.innerWidth;
+      let left = cx + 12;
+      if (left + 150 > vw) left = cx - 155;
+      tip.style.left = left + 'px';
+      tip.style.top  = (cy - 38) + 'px';
+    }
+    svg.addEventListener('mousemove',  _tipShow);
+    svg.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+    svg.addEventListener('touchstart', e => {
+      const rect = e.target.closest('rect[data-tip]');
+      if (rect) { _tipShow(e); setTimeout(() => { tip.style.display = 'none'; }, 2000); }
+    }, { passive: true });
   }
 
   // Returns Set of fixed-only category names for a given month string
@@ -1310,47 +1366,103 @@
   }
 
   function renderFixedCosts(baseline, baseLbl) {
-    const el = document.getElementById('anFixedSection');
+    const el       = document.getElementById('anFixedSection');
+    const splitEl  = document.getElementById('anSplitBarSection');
     if (!el) return;
     const fixedCats = getFixedOnlyCats(analyticsMonth);
-    if (!fixedCats.size) { el.style.display = 'none'; return; }
+    if (!fixedCats.size) { el.style.display = 'none'; if (splitEl) splitEl.style.display = 'none'; return; }
     const cur = catBreakdown(analyticsMonth);
-    const rows = [...fixedCats]
-      .map(cat => ({
-        cat,
-        curAmt: (cur[cat] || {}).actual || 0,
-        bAmt:   (baseline[cat] || {}).actual || 0
-      }))
+
+    // All fixed rows with data
+    const allRows = [...fixedCats]
+      .map(cat => ({ cat, curAmt: (cur[cat] || {}).actual || 0, bAmt: (baseline[cat] || {}).actual || 0 }))
       .filter(r => r.curAmt > 0)
       .sort((a, b) => b.curAmt - a.curAmt);
-    if (!rows.length) { el.style.display = 'none'; return; }
+    if (!allRows.length) { el.style.display = 'none'; if (splitEl) splitEl.style.display = 'none'; return; }
+
+    const fixedTotal = allRows.reduce((s, r) => s + r.curAmt, 0);
+    const bFixedTotal = allRows.reduce((s, r) => s + r.bAmt, 0);
+    const fixedTotalPct = bFixedTotal > 0 ? ((fixedTotal - bFixedTotal) / bFixedTotal) * 100 : null;
+
+    // Only rows that changed (≥1% difference)
+    const changedRows = allRows.filter(r => {
+      if (!r.bAmt) return true; // new
+      return Math.abs(((r.curAmt - r.bAmt) / r.bAmt) * 100) >= 1;
+    });
+
+    // ── Fixed section (tappable) ─────────────────────────────────────────────
     el.style.display = '';
-    const total    = rows.reduce((s, r) => s + r.curAmt, 0);
-    const bTotal   = rows.reduce((s, r) => s + r.bAmt, 0);
-    const totalPct = bTotal > 0 ? ((total - bTotal) / bTotal) * 100 : null;
-    const totalBadge = totalPct !== null
-      ? `<span class="an-badge ${totalPct > 0 ? 'an-badge-up' : 'an-badge-down'}">${totalPct > 0 ? '▲' : '▼'} ${Math.abs(totalPct).toFixed(0)}%</span>`
+    const totalBadge = fixedTotalPct !== null
+      ? `<span class="an-badge ${fixedTotalPct > 0 ? 'an-badge-up' : 'an-badge-down'}">${fixedTotalPct > 0 ? '▲' : '▼'} ${Math.abs(fixedTotalPct).toFixed(0)}%</span>`
       : '';
     el.innerHTML = `
-      <div class="an-fixed-header">
-        <span class="an-fixed-title">🔒 Fixed Costs</span>
-        <span class="an-fixed-total">${fmt(total)} ${totalBadge}</span>
+      <div class="an-fixed-header" id="anFixedTapTarget" style="cursor:pointer">
+        <span class="an-fixed-title">🔒 Fixed Costs <span class="an-fixed-tap-hint">(tap for details)</span></span>
+        <span class="an-fixed-total">${fmt(fixedTotal)} ${totalBadge}</span>
       </div>
+      ${ changedRows.length ? `
       <div class="an-fixed-list">
-        ${rows.map(r => {
+        ${changedRows.map(r => {
           let badge = '';
           if (r.bAmt > 0) {
             const pct = ((r.curAmt - r.bAmt) / r.bAmt) * 100;
-            if (Math.abs(pct) >= 1)
-              badge = `<span class="an-badge ${pct > 0 ? 'an-badge-up' : 'an-badge-down'}">${pct > 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}%</span>`;
+            badge = `<span class="an-badge ${pct > 0 ? 'an-badge-up' : 'an-badge-down'}">${pct > 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}%</span>`;
+          } else {
+            badge = `<span class="an-badge an-badge-new">New</span>`;
           }
-          return `<div class="an-fixed-row">
-            <span class="an-fixed-cat">${esc(r.cat)}</span>
-            <span class="an-fixed-amt">${fmt(r.curAmt)}</span>
-            ${badge}
-          </div>`;
+          return `<div class="an-fixed-row"><span class="an-fixed-cat">${esc(r.cat)}</span><span class="an-fixed-amt">${fmt(r.curAmt)}</span>${badge}</div>`;
         }).join('')}
-      </div>`;
+      </div>` : '<div class="an-fixed-nochange">No changes vs ' + baseLbl + '</div>' }`;
+
+    // tap → modal
+    document.getElementById('anFixedTapTarget').addEventListener('click', () => {
+      const modal     = document.getElementById('anFixedModal');
+      const monthSpan = document.getElementById('anFixedModalMonth');
+      const body      = document.getElementById('anFixedModalBody');
+      monthSpan.textContent = monthLabel(analyticsMonth);
+      body.innerHTML = `<table class="an-fixed-modal-table">
+        <thead><tr><th>Category</th><th>Amount</th><th>vs ${baseLbl}</th></tr></thead>
+        <tbody>${allRows.map(r => {
+          let cell = '—';
+          if (r.bAmt > 0) {
+            const pct = ((r.curAmt - r.bAmt) / r.bAmt) * 100;
+            cell = `<span class="an-badge ${pct > 0 ? 'an-badge-up' : 'an-badge-down'}">${pct > 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}%</span><br><small>${fmt(r.bAmt)}</small>`;
+          } else { cell = `<span class="an-badge an-badge-new">New</span>`; }
+          return `<tr><td>${esc(r.cat)}</td><td><strong>${fmt(r.curAmt)}</strong></td><td>${cell}</td></tr>`;
+        }).join('')}
+        <tr class="an-fixed-modal-total"><td><strong>Total</strong></td><td><strong>${fmt(fixedTotal)}</strong></td><td>${totalBadge || '—'}</td></tr>
+        </tbody></table>`;
+      modal.style.display = 'flex';
+    });
+
+    // ── Split progress bar ───────────────────────────────────────────────────
+    if (splitEl) {
+      const varCats  = Object.keys(cur).filter(c => !fixedCats.has(c) && (cur[c] || {}).actual > 0);
+      const varTotal = varCats.reduce((s, c) => s + ((cur[c] || {}).actual || 0), 0);
+      const grandTotal = fixedTotal + varTotal;
+      if (!grandTotal) { splitEl.style.display = 'none'; return; }
+      const fixedPct = (fixedTotal / grandTotal * 100).toFixed(1);
+      const varPct   = (100 - fixedPct).toFixed(1);
+
+      const bVarTotal = varCats.reduce((s, c) => s + ((baseline[c] || {}).actual || 0), 0);
+      const bGrand    = bFixedTotal + bVarTotal;
+      const grandPct  = bGrand > 0 ? ((grandTotal - bGrand) / bGrand) * 100 : null;
+      const grandBadge = grandPct !== null
+        ? `<span class="an-badge ${grandPct > 0 ? 'an-badge-up' : 'an-badge-down'}">${grandPct > 0 ? '▲' : '▼'} ${Math.abs(grandPct).toFixed(0)}%</span>`
+        : '';
+
+      splitEl.style.display = '';
+      splitEl.innerHTML = `
+        <div class="an-splitbar-track">
+          <div class="an-splitbar-fixed" style="width:${fixedPct}%" title="Fixed: ${fmt(fixedTotal)}"></div>
+          <div class="an-splitbar-var"   style="width:${varPct}%"   title="Variable: ${fmt(varTotal)}"></div>
+        </div>
+        <div class="an-splitbar-footer">
+          <span class="an-splitbar-label"><span class="an-splitbar-dot an-splitbar-dot-fixed"></span>Fixed ${fmt(fixedTotal)}</span>
+          <span class="an-splitbar-label"><span class="an-splitbar-dot an-splitbar-dot-var"></span>Variable ${fmt(varTotal)}</span>
+          <span class="an-splitbar-total">${fmt(grandTotal)} ${grandBadge}</span>
+        </div>`;
+    }
   }
 
   function renderMovers(cats, cur, baseline) {
@@ -1466,6 +1578,12 @@
     const nextBtn = document.getElementById('anNextMonthBtn');
     if (prevBtn) prevBtn.addEventListener('click', () => { analyticsMonth = prevMonth(analyticsMonth); renderAnalytics(); });
     if (nextBtn) nextBtn.addEventListener('click', () => { analyticsMonth = nextMonth(analyticsMonth); renderAnalytics(); });
+    // Fixed modal close
+    const fixedModal = document.getElementById('anFixedModal');
+    if (fixedModal) {
+      document.getElementById('anFixedModalClose').addEventListener('click', () => { fixedModal.style.display = 'none'; });
+      fixedModal.addEventListener('click', e => { if (e.target === fixedModal) fixedModal.style.display = 'none'; });
+    }
     document.querySelectorAll('.an-baseline-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.an-baseline-btn').forEach(b => b.classList.remove('active'));

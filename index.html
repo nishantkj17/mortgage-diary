@@ -689,13 +689,22 @@
         <div class="an-trend-section" id="anTrendSection">
           <div style="position:relative;height:88px"><canvas id="anTrendCanvas"></canvas></div>
         </div>
-        <!-- Category share donut -->
-        <div id="anDonutSection" class="an-donut-section">
-          <div style="position:relative;height:180px;width:180px;flex-shrink:0"><canvas id="anDonutCanvas"></canvas></div>
-          <div id="anDonutLegend" class="an-donut-legend"></div>
-        </div>
         <!-- Fixed costs summary -->
         <div id="anFixedSection" class="an-fixed-section"></div>
+        <!-- Split total progress bar -->
+        <div id="anSplitBarSection" class="an-splitbar-section"></div>
+        <!-- Category share treemap -->
+        <div id="anDonutSection" class="an-share-section"></div>
+        <!-- Fixed costs detail popup -->
+        <div id="anFixedModal" class="an-modal-overlay" style="display:none">
+          <div class="an-modal-box">
+            <div class="an-modal-header">
+              <span class="an-modal-title">🔒 Fixed Costs — <span id="anFixedModalMonth"></span></span>
+              <button id="anFixedModalClose" class="close-btn">×</button>
+            </div>
+            <div id="anFixedModalBody" class="an-modal-body"></div>
+          </div>
+        </div>
         <!-- Top movers -->
         <div id="anMoversSection" class="an-movers-section"></div>
         <!-- Category bars -->
