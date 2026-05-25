@@ -667,7 +667,7 @@
   }
 
   const VACATION_CAT = 'Vacation';
-  const VACATION_SUB_CATS = ['Coffee', 'Eat out', 'Grocery', 'Liquor', 'Misc', 'Shopping', 'Transport'];
+  const VACATION_SUB_CATS = ['Coffee', 'Eat out', 'Grocery', 'Liquor', 'Misc', 'Shopping', 'Transport', 'Stay'];
   let selectedExpenseSubCat = '';
 
   function renderExpenseSubCatTags() {
@@ -1169,12 +1169,316 @@
     await load();
     wireEvents();
     wireHomeMonthNav();
+    wireAnalytics();
     render();
     renderHomeWidgets();
+    renderAnalytics();
   });
 
   // Expose for SPA: home FAB opens the quick-add expense modal in the budget tab
   window.budgetOpenExpense = openQuickExpenseModal;
   // Expose for re-render when switching to home tab
   window.budgetRenderHomeWidgets = renderHomeWidgets;
+
+  // ── Analytics Page ───────────────────────────────────────────────────────────
+  let analyticsMonth   = currentMonth();
+  let analyticsBaseline = 1; // 1 = prev month, 3 = 3-month avg, 6 = 6-month avg
+
+  function nextMonth(ym) {
+    const [y, m] = ym.split('-').map(Number);
+    const d = new Date(y, m, 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+
+  // Returns averaged catBreakdown over the n months prior to ym,
+  // only counting months that actually had spend for each category.
+  function getBaselineBreakdown(ym, n) {
+    if (n === 1) return catBreakdown(prevMonth(ym));
+    const totals = {};  // { cat: { sum, count } }
+    let m = ym;
+    for (let i = 0; i < n; i++) {
+      m = prevMonth(m);
+      Object.entries(catBreakdown(m)).forEach(([cat, { actual }]) => {
+        if (actual > 0) {
+          if (!totals[cat]) totals[cat] = { sum: 0, count: 0 };
+          totals[cat].sum   += actual;
+          totals[cat].count += 1;
+        }
+      });
+    }
+    const avg = {};
+    Object.entries(totals).forEach(([cat, { sum, count }]) => {
+      avg[cat] = { actual: sum / count, budgeted: 0 };
+    });
+    return avg;
+  }
+
+  // ── Sparkline helper (inline SVG, no Chart.js) ─────────────────────────────
+  function sparklineSVG(values, color) {
+    const W = 52, H = 20, pad = 1;
+    const max = Math.max(...values, 1);
+    const bw  = (W - pad * (values.length - 1)) / values.length;
+    const bars = values.map((v, i) => {
+      const bh = Math.max(2, (v / max) * (H - 2));
+      const x  = i * (bw + pad);
+      const y  = H - bh;
+      const op = v > 0 ? 1 : 0.18;
+      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="1" fill="${color}" opacity="${op}"/>`;
+    }).join('');
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">${bars}</svg>`;
+  }
+
+  // ── Category share donut ─────────────────────────────────────────────────────
+  function renderShareDonut(cats, cur) {
+    const canvas = document.getElementById('anDonutCanvas');
+    const legend = document.getElementById('anDonutLegend');
+    if (!canvas || !legend) return;
+    const PALETTE = ['#3b82f6','#f59e0b','#10b981','#f87171','#a78bfa','#34d399','#fb923c','#e879f9','#38bdf8','#84cc16'];
+    const data   = cats.map(c => (cur[c] || {}).actual || 0);
+    const total  = data.reduce((s, v) => s + v, 0);
+    if (!total) { document.getElementById('anDonutSection').style.display = 'none'; return; }
+    document.getElementById('anDonutSection').style.display = '';
+    const colors = cats.map((_, i) => PALETTE[i % PALETTE.length]);
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (window._anDonutChart) { window._anDonutChart.destroy(); window._anDonutChart = null; }
+    window._anDonutChart = new Chart(canvas, {
+      type: 'doughnut',
+      data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/total)*100).toFixed(0)}%)` } }
+        }
+      }
+    });
+    legend.innerHTML = cats.map((cat, i) => {
+      const pct = ((data[i] / total) * 100).toFixed(0);
+      return `<div class="an-donut-leg-item">
+        <span class="an-donut-leg-dot" style="background:${colors[i]}"></span>
+        <span class="an-donut-leg-cat">${esc(cat)}</span>
+        <span class="an-donut-leg-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Returns Set of fixed-only category names for a given month string
+  function getFixedOnlyCats(ym) {
+    const monthData = getMonth(ym);
+    return new Set(
+      db.categories.map(c => c.name).filter(name => {
+        const entries = monthData.budget.filter(e => e.category === name);
+        return entries.length > 0 && entries.every(e => e.fixed);
+      })
+    );
+  }
+
+  function renderTotalTrend(fixedOnlyCats) {
+    const canvas = document.getElementById('anTrendCanvas');
+    if (!canvas) return;
+    // Build last 6 months ending at analyticsMonth
+    const months = [];
+    let m = analyticsMonth;
+    for (let i = 0; i < 6; i++) { months.unshift(m); m = prevMonth(m); }
+    const totals = months.map(mo => {
+      const bd = catBreakdown(mo);
+      return Object.entries(bd)
+        .filter(([cat]) => !fixedOnlyCats.has(cat))
+        .reduce((sum, [, { actual }]) => sum + actual, 0);
+    });
+    const labels = months.map(mo => monthLabel(mo).split(' ')[0]);
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const bgColors = months.map(mo =>
+      mo === analyticsMonth ? (isDark ? '#60a5fa' : '#3b82f6') : (isDark ? '#374151' : '#e5e7eb')
+    );
+    if (window._anTrendChart) { window._anTrendChart.destroy(); window._anTrendChart = null; }
+    window._anTrendChart = new Chart(canvas, {
+      type: 'bar',
+      data: { labels, datasets: [{ data: totals, backgroundColor: bgColors, borderRadius: 5, borderSkipped: false }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: isDark ? '#9ca3af' : '#6b7280', font: { size: 11 } } },
+          y: { display: false }
+        }
+      }
+    });
+  }
+
+  function renderFixedCosts(baseline, baseLbl) {
+    const el = document.getElementById('anFixedSection');
+    if (!el) return;
+    const fixedCats = getFixedOnlyCats(analyticsMonth);
+    if (!fixedCats.size) { el.style.display = 'none'; return; }
+    const cur = catBreakdown(analyticsMonth);
+    const rows = [...fixedCats]
+      .map(cat => ({
+        cat,
+        curAmt: (cur[cat] || {}).actual || 0,
+        bAmt:   (baseline[cat] || {}).actual || 0
+      }))
+      .filter(r => r.curAmt > 0)
+      .sort((a, b) => b.curAmt - a.curAmt);
+    if (!rows.length) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    const total    = rows.reduce((s, r) => s + r.curAmt, 0);
+    const bTotal   = rows.reduce((s, r) => s + r.bAmt, 0);
+    const totalPct = bTotal > 0 ? ((total - bTotal) / bTotal) * 100 : null;
+    const totalBadge = totalPct !== null
+      ? `<span class="an-badge ${totalPct > 0 ? 'an-badge-up' : 'an-badge-down'}">${totalPct > 0 ? '▲' : '▼'} ${Math.abs(totalPct).toFixed(0)}%</span>`
+      : '';
+    el.innerHTML = `
+      <div class="an-fixed-header">
+        <span class="an-fixed-title">🔒 Fixed Costs</span>
+        <span class="an-fixed-total">${fmt(total)} ${totalBadge}</span>
+      </div>
+      <div class="an-fixed-list">
+        ${rows.map(r => {
+          let badge = '';
+          if (r.bAmt > 0) {
+            const pct = ((r.curAmt - r.bAmt) / r.bAmt) * 100;
+            if (Math.abs(pct) >= 1)
+              badge = `<span class="an-badge ${pct > 0 ? 'an-badge-up' : 'an-badge-down'}">${pct > 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}%</span>`;
+          }
+          return `<div class="an-fixed-row">
+            <span class="an-fixed-cat">${esc(r.cat)}</span>
+            <span class="an-fixed-amt">${fmt(r.curAmt)}</span>
+            ${badge}
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  function renderMovers(cats, cur, baseline) {
+    const el = document.getElementById('anMoversSection');
+    if (!el) return;
+    const movers = cats.map(cat => {
+      const curAmt = (cur[cat] || {}).actual || 0;
+      const bAmt   = (baseline[cat] || {}).actual || 0;
+      if (!bAmt) return null;
+      return { cat, pct: ((curAmt - bAmt) / bAmt) * 100 };
+    }).filter(Boolean);
+    const ups   = movers.filter(m => m.pct > 0).sort((a, b) => b.pct - a.pct).slice(0, 2);
+    const downs = movers.filter(m => m.pct < 0).sort((a, b) => a.pct - b.pct).slice(0, 2);
+    if (!ups.length && !downs.length) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    const itemHtml = (items, isUp) => items.map(m =>
+      `<div class="an-mover-item ${isUp ? 'an-mover-up' : 'an-mover-down'}">
+        <span class="an-mover-cat">${esc(m.cat)}</span>
+        <span class="an-mover-pct">${isUp ? '▲' : '▼'} ${Math.abs(m.pct).toFixed(0)}%</span>
+      </div>`
+    ).join('');
+    el.innerHTML = `
+      <div class="an-movers-row">
+        <div class="an-movers-col">
+          <span class="an-movers-title">📈 Jumps</span>
+          ${ups.length ? itemHtml(ups, true) : '<div class="an-mover-none">—</div>'}
+        </div>
+        <div class="an-movers-col">
+          <span class="an-movers-title">📉 Drops</span>
+          ${downs.length ? itemHtml(downs, false) : '<div class="an-mover-none">—</div>'}
+        </div>
+      </div>`;
+  }
+
+  function renderAnalytics() {
+    const grid  = document.getElementById('anCardsGrid');
+    const label = document.getElementById('anMonthLabel');
+    if (!grid) return;
+
+    label.textContent = monthLabel(analyticsMonth);
+
+    const cur      = catBreakdown(analyticsMonth);
+    const baseline = getBaselineBreakdown(analyticsMonth, analyticsBaseline);
+    const baseLbl  = analyticsBaseline === 1 ? 'prev' : `${analyticsBaseline}M avg`;
+    const fixedOnly = getFixedOnlyCats(analyticsMonth);
+
+    const cats = Object.keys(cur)
+      .filter(c => cur[c].actual > 0 && !fixedOnly.has(c))
+      .sort((a, b) => cur[b].actual - cur[a].actual);
+
+    renderTotalTrend(fixedOnly);
+    renderShareDonut(cats, cur);
+    renderFixedCosts(baseline, baseLbl);
+    renderMovers(cats, cur, baseline);
+
+    if (!cats.length) {
+      grid.innerHTML = '<div class="an-empty">No variable expense data for this month.</div>';
+      return;
+    }
+
+    grid.innerHTML = cats.map(cat => {
+      const curAmt = (cur[cat] || {}).actual || 0;
+      const bAmt   = (baseline[cat] || {}).actual || 0;
+      const maxAmt = Math.max(curAmt, bAmt, 1);
+      const curPct = (curAmt / maxAmt * 100).toFixed(1);
+      const bPct   = (bAmt   / maxAmt * 100).toFixed(1);
+
+      // 6-month sparkline for this category
+      const sparkMonths = [];
+      let sm = analyticsMonth;
+      for (let i = 0; i < 6; i++) { sparkMonths.unshift(sm); sm = prevMonth(sm); }
+      const sparkVals = sparkMonths.map(mo => (catBreakdown(mo)[cat] || {}).actual || 0);
+      const sparkColor = curAmt > bAmt && bAmt > 0 ? '#f87171' : curAmt < bAmt && bAmt > 0 ? '#34d399' : '#60a5fa';
+      const spark = sparklineSVG(sparkVals, sparkColor);
+
+      let badgeHtml = '';
+      let curBarClass = 'an-bar-curr-neutral';
+      if (bAmt > 0) {
+        const pct = ((curAmt - bAmt) / bAmt) * 100;
+        const up  = pct > 0;
+        badgeHtml = `<span class="an-badge ${up ? 'an-badge-up' : 'an-badge-down'}">${up ? '▲' : '▼'} ${up ? '+' : ''}${pct.toFixed(0)}%</span>`;
+        curBarClass = up ? 'an-bar-curr-up' : 'an-bar-curr-down';
+      } else {
+        badgeHtml = `<span class="an-badge an-badge-new">New</span>`;
+      }
+
+      const prevGhost = bAmt > 0 ? `<div class="an-bar-fill an-bar-prev" style="width:${bPct}%"></div>` : '';
+      const prevLabel = bAmt > 0
+        ? `<span class="an-bar-prev-amt">${fmt(bAmt)} ${baseLbl}</span>`
+        : `<span class="an-bar-prev-amt an-bar-prev-none">No prev</span>`;
+
+      return `
+        <div class="an-row">
+          <div class="an-row-header">
+            <span class="an-row-cat">${esc(cat)}</span>
+            <div class="an-spark">${spark}</div>
+            ${badgeHtml}
+          </div>
+          <div class="an-bar-track">
+            ${prevGhost}
+            <div class="an-bar-fill ${curBarClass}" style="width:${curPct}%"></div>
+          </div>
+          <div class="an-bar-footer">
+            <span class="an-bar-curr-amt">${fmt(curAmt)}</span>
+            ${prevLabel}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function wireAnalytics() {
+    const prevBtn = document.getElementById('anPrevMonthBtn');
+    const nextBtn = document.getElementById('anNextMonthBtn');
+    if (prevBtn) prevBtn.addEventListener('click', () => { analyticsMonth = prevMonth(analyticsMonth); renderAnalytics(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { analyticsMonth = nextMonth(analyticsMonth); renderAnalytics(); });
+    document.querySelectorAll('.an-baseline-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.an-baseline-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        analyticsBaseline = parseInt(btn.dataset.baseline, 10);
+        renderAnalytics();
+      });
+    });
+    // Re-render when tab becomes visible
+    document.querySelectorAll('#appTabBar .app-tab').forEach(btn => {
+      if (btn.dataset.page === 'analytics') {
+        btn.addEventListener('click', () => renderAnalytics());
+      }
+    });
+  }
 })();

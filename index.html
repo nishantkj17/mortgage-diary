@@ -353,9 +353,15 @@
 
       <header class="landing-header">
         <div class="landing-brand">
-          <h1>Budget Tracker</h1>
+          <h1>Ledger</h1>
         </div>
-        <button id="budgetSettingsBtn" class="settings-btn" title="Settings">⚙</button>
+        <div class="home-month-nav">
+          <button id="prevMonthBtn" class="b-month-nav-btn" title="Previous month">&#8249;</button>
+          <input type="month" id="monthPicker" class="b-month-picker b-month-picker-header" />
+          <button id="nextMonthBtn" class="b-month-nav-btn" title="Next month">&#8250;</button>
+        </div>
+        <button id="carryForwardBtn" class="b-carry-btn" title="Copy last month's budget entries">&#10227; Carry</button>
+        <button id="budgetSettingsBtn" class="settings-btn" title="Settings">&#9881;</button>
       </header>
 
       <div id="bToast" class="b-toast" aria-live="polite"></div>
@@ -489,14 +495,6 @@
       </div>
 
       <main class="b-main">
-
-        <!-- Month nav row -->
-        <div class="b-month-row">
-          <button id="prevMonthBtn" class="b-month-nav-btn" title="Previous month">&#8249;</button>
-          <input type="month" id="monthPicker" class="b-month-picker" />
-          <button id="nextMonthBtn" class="b-month-nav-btn" title="Next month">&#8250;</button>
-          <button id="carryForwardBtn" class="b-carry-btn" title="Copy last month's budget entries">&#10227; Carry forward</button>
-        </div>
 
         <!-- Summary cards -->
         <div class="b-summary-row">
@@ -659,7 +657,55 @@
       </svg>
       <span>Budget</span>
     </button>
+    <button class="app-tab" data-page="analytics" aria-label="Analytics">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      <span>Analytics</span>
+    </button>
   </nav>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       ANALYTICS PAGE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section id="page-analytics" class="app-page">
+    <div class="an-page">
+      <header class="landing-header">
+        <div class="landing-brand"><h1>Analytics</h1></div>
+        <div class="home-month-nav">
+          <button id="anPrevMonthBtn" class="b-month-nav-btn">&#8249;</button>
+          <span id="anMonthLabel" class="home-month-label"></span>
+          <button id="anNextMonthBtn" class="b-month-nav-btn">&#8250;</button>
+        </div>
+        <div class="an-baseline-toggle">
+          <button class="an-baseline-btn active" data-baseline="1">1M</button>
+          <button class="an-baseline-btn" data-baseline="3">3M</button>
+          <button class="an-baseline-btn" data-baseline="6">6M</button>
+        </div>
+        <button class="theme-toggle-btn" title="Toggle theme"></button>
+      </header>
+
+      <main class="an-main">
+        <!-- 6-month total variable spend trend -->
+        <div class="an-trend-section" id="anTrendSection">
+          <div style="position:relative;height:88px"><canvas id="anTrendCanvas"></canvas></div>
+        </div>
+        <!-- Category share donut -->
+        <div id="anDonutSection" class="an-donut-section">
+          <div style="position:relative;height:180px;width:180px;flex-shrink:0"><canvas id="anDonutCanvas"></canvas></div>
+          <div id="anDonutLegend" class="an-donut-legend"></div>
+        </div>
+        <!-- Fixed costs summary -->
+        <div id="anFixedSection" class="an-fixed-section"></div>
+        <!-- Top movers -->
+        <div id="anMoversSection" class="an-movers-section"></div>
+        <!-- Category bars -->
+        <div class="an-cards-grid" id="anCardsGrid">
+          <div class="an-empty">No expense data for this month.</div>
+        </div>
+      </main>
+    </div>
+  </section>
 
   <!-- SPA tab switching -->
   <script>
