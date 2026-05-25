@@ -412,6 +412,11 @@
                 <input id="expenseDate" type="date" class="b-date-hidden-input" />
               </div>
             </div>
+            <!-- Sub-category (Vacation only) -->
+            <div class="b-form-field" id="expenseSubCatRow" style="display:none">
+              <label>Type <span class="b-optional">(optional)</span></label>
+              <div id="expenseSubCatTags" class="b-cat-tags"></div>
+            </div>
             <!-- Description + Amount on same row -->
             <div class="b-qe-row">
               <div class="b-form-field b-qe-desc">
@@ -455,6 +460,10 @@
             <button id="closeCatTxnModal" class="close-btn">&times;</button>
           </div>
           <div class="b-list-modal-body">
+            <div id="catTxnDonutWrap" style="display:none" class="cat-txn-donut-wrap">
+              <canvas id="catTxnDonut"></canvas>
+              <div id="catTxnDonutLegend" class="cat-txn-donut-legend"></div>
+            </div>
             <table id="catTxnTable" class="b-table">
               <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Note</th></tr></thead>
               <tbody></tbody>

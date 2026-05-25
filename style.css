@@ -623,6 +623,18 @@ html[data-theme="dark"] .b-fixed-checkbox-row{color:#d1d5db}
 .b-table tr:last-child td{border-bottom:none}
 .b-table tr:hover td{background:#fafbfc}
 .b-cat-chip{display:inline-block;padding:2px 10px;border-radius:20px;background:#eef0f7;color:#374151;font-size:13px;font-weight:500}
+.b-subcat-chip{display:inline-block;padding:2px 8px;border-radius:20px;background:#fef9c3;color:#854d0e;font-size:12px;font-weight:500;vertical-align:middle}
+/* ── Vacation sub-cat donut inside catTxnModal ───────────────────────── */
+.cat-txn-donut-wrap{display:flex;align-items:center;gap:14px;padding:14px 16px 10px;border-bottom:1px solid #f0f1f4}
+#catTxnDonut{width:110px!important;height:110px!important;flex-shrink:0}
+.cat-txn-donut-legend{flex:1;display:flex;flex-direction:column;gap:5px;overflow-y:auto;max-height:110px}
+.cat-txn-legend-item{display:flex;align-items:center;gap:6px;font-size:12px}
+.cat-txn-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cat-txn-legend-label{flex:1;color:#374151;font-weight:500}
+.cat-txn-legend-val{color:#78909c;white-space:nowrap}
+html[data-theme="dark"] .cat-txn-donut-wrap{border-bottom-color:#374151}
+html[data-theme="dark"] .cat-txn-legend-label{color:#d1d5db}
+html[data-theme="dark"] .cat-txn-legend-val{color:#9ca3af}
 .b-muted-cell{color:#78909c;font-size:13px}
 .b-amount-cell{font-weight:600;color:#111;white-space:nowrap}
 .b-actions-cell{white-space:nowrap;display:flex;flex-direction:column;gap:2px;align-items:center}
@@ -659,6 +671,7 @@ html[data-theme="dark"] .b-sort-icon.b-sort-active{color:#93c5fd}
 html[data-theme="dark"] .b-table td{border-bottom-color:#1f2937;color:#f3f4f6}
 html[data-theme="dark"] .b-table tr:hover td{background:#273344}
 html[data-theme="dark"] .b-cat-chip{background:#374151;color:#d1d5db}
+html[data-theme="dark"] .b-subcat-chip{background:#3b2f00;color:#fde047}
 html[data-theme="dark"] .b-amount-cell{color:#f3f4f6}
 html[data-theme="dark"] .b-btn-icon{background:#1f2937;border-color:#4b5563;color:#9ca3af}
 html[data-theme="dark"] .b-btn-icon:hover{background:#607d8b;color:#fff;border-color:#607d8b}

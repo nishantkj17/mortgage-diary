@@ -186,6 +186,8 @@
   }
 
   // ── Category Transactions Popup ────────────────────────────────────────────
+  let catTxnDonutInst = null;
+
   function openCatTxnModal(cat) {
     const month = getMonth(activeMonth);
     document.getElementById('catTxnTitle').textContent = cat + ' — Transactions';
@@ -195,25 +197,65 @@
     // Fixed budget entries that apply (not overridden)
     const overrideIds = new Set(month.expenses.filter(e => e.fixedId).map(e => e.fixedId));
     month.budget.filter(e => e.category === cat && e.fixed && !overrideIds.has(e.id)).forEach(e => {
-      rows.push({ date: '', desc: e.description || '', amount: e.amount, note: 'Fixed (auto)' });
+      rows.push({ date: '', desc: e.description || '', amount: e.amount, note: 'Fixed (auto)', subCategory: '' });
     });
     // Override and manual expenses
     month.expenses.filter(e => e.category === cat).forEach(e => {
       const budgetEntry = e.fixedId ? month.budget.find(b => b.id === e.fixedId) : null;
-      rows.push({ date: e.date || '', desc: e.description || '', amount: e.amount, note: budgetEntry ? 'Fixed (edited)' : '' });
+      rows.push({ date: e.date || '', desc: e.description || '', amount: e.amount, note: budgetEntry ? 'Fixed (edited)' : '', subCategory: e.subCategory || '' });
     });
     // Sort: dated newest first, undated at top
     rows.sort((a, b) => { if (!a.date && !b.date) return 0; if (!a.date) return -1; if (!b.date) return 1; return b.date.localeCompare(a.date); });
     if (!rows.length) {
       tbody.innerHTML = '<tr><td colspan="4" class="b-empty-row">No transactions found.</td></tr>';
     } else {
-      rows.forEach(({ date, desc, amount, note }) => {
+      rows.forEach(({ date, desc, amount, note, subCategory }) => {
         const dateLabel = date ? new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+        const descCell = subCategory ? `<span class="b-subcat-chip">› ${esc(subCategory)}</span> ${esc(desc)}` : esc(desc);
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="b-muted-cell" style="white-space:nowrap">${dateLabel}</td><td class="b-muted-cell">${esc(desc)}</td><td class="b-amount-cell">${fmt(amount)}</td><td class="b-muted-cell" style="font-size:11px">${esc(note)}</td>`;
+        tr.innerHTML = `<td class="b-muted-cell" style="white-space:nowrap">${dateLabel}</td><td class="b-muted-cell">${descCell}</td><td class="b-amount-cell">${fmt(amount)}</td><td class="b-muted-cell" style="font-size:11px">${esc(note)}</td>`;
         tbody.appendChild(tr);
       });
     }
+
+    // ── Vacation sub-category donut ──────────────────────────────────────────
+    const donutWrap = document.getElementById('catTxnDonutWrap');
+    const legendEl  = document.getElementById('catTxnDonutLegend');
+    if (catTxnDonutInst) { catTxnDonutInst.destroy(); catTxnDonutInst = null; }
+    if (cat === VACATION_CAT) {
+      const tally = {};
+      month.expenses.filter(e => e.category === VACATION_CAT).forEach(e => {
+        const key = e.subCategory || 'Other';
+        tally[key] = (tally[key] || 0) + (Number(e.amount) || 0);
+      });
+      const labels = Object.keys(tally);
+      if (labels.length >= 1) {
+        const values = labels.map(l => tally[l]);
+        const SUB_COLORS = ['#4db6ac','#ff8a65','#ba68c8','#4fc3f7','#aed581','#f06292','#ffd54f','#80cbc4'];
+        const colors = labels.map((_, i) => SUB_COLORS[i % SUB_COLORS.length]);
+        donutWrap.style.display = 'flex';
+        catTxnDonutInst = new Chart(document.getElementById('catTxnDonut').getContext('2d'), {
+          type: 'doughnut',
+          data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
+          options: {
+            responsive: false,
+            cutout: '60%',
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.parsed)}` } }
+            }
+          }
+        });
+        legendEl.innerHTML = labels.map((l, i) =>
+          `<div class="cat-txn-legend-item"><span class="cat-txn-legend-dot" style="background:${colors[i]}"></span><span class="cat-txn-legend-label">${esc(l)}</span><span class="cat-txn-legend-val">${fmt(tally[l])}</span></div>`
+        ).join('');
+      } else {
+        donutWrap.style.display = 'none';
+      }
+    } else {
+      donutWrap.style.display = 'none';
+    }
+
     document.getElementById('catTxnModal').classList.add('active');
   }
 
@@ -430,10 +472,13 @@
       return 0;
     }).forEach(entry => {
       const dateLabel = entry.date ? new Date(entry.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+      const catCell = entry.subCategory
+        ? `<span class="b-cat-chip">${esc(entry.category)}</span> <span class="b-subcat-chip">› ${esc(entry.subCategory)}</span>`
+        : `<span class="b-cat-chip">${esc(entry.category)}</span>`;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="b-muted-cell" style="white-space:nowrap">${dateLabel}</td>
-        <td><span class="b-cat-chip">${esc(entry.category)}</span></td>
+        <td>${catCell}</td>
         <td class="b-muted-cell">${esc(entry.description || '')}</td>
         <td class="b-amount-cell">${fmt(entry.amount)}</td>
         <td class="b-actions-cell">
@@ -615,9 +660,35 @@
         selectedExpenseCat = selectedExpenseCat === c.name ? '' : c.name;
         document.getElementById('expenseCatText').value = '';
         renderExpenseCatTags();
+        renderExpenseSubCatTags();
       });
       container.appendChild(btn);
     });
+  }
+
+  const VACATION_CAT = 'Vacation';
+  const VACATION_SUB_CATS = ['Coffee', 'Eat out', 'Grocery', 'Liquor', 'Misc', 'Shopping', 'Transport'];
+  let selectedExpenseSubCat = '';
+
+  function renderExpenseSubCatTags() {
+    const row = document.getElementById('expenseSubCatRow');
+    if (!row) return;
+    const isVacation = selectedExpenseCat === VACATION_CAT;
+    row.style.display = isVacation ? 'block' : 'none';
+    if (!isVacation) { selectedExpenseSubCat = ''; return; }
+    const container = document.getElementById('expenseSubCatTags');
+    container.innerHTML = '';
+    VACATION_SUB_CATS.forEach(name => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'b-cat-tag' + (name === selectedExpenseSubCat ? ' selected' : '');
+        btn.textContent = name;
+        btn.addEventListener('click', () => {
+          selectedExpenseSubCat = selectedExpenseSubCat === name ? '' : name;
+          renderExpenseSubCatTags();
+        });
+        container.appendChild(btn);
+      });
   }
 
   // ── Quick-add Expense Modal ───────────────────────────────────────────────────
@@ -631,6 +702,8 @@
     editingExpenseId = entry ? entry.id : null;
     editingFixedSourceId = fixedSourceId || null;
     renderExpenseCatTags(entry ? entry.category : '');
+    selectedExpenseSubCat = entry ? (entry.subCategory || '') : '';
+    renderExpenseSubCatTags();
     document.getElementById('expenseCatText').value = '';
     document.getElementById('expenseDesc').value = entry ? (entry.description || '') : '';
     document.getElementById('expenseAmt').value = entry ? entry.amount : '';
@@ -643,6 +716,9 @@
     editingExpenseId = null;
     editingFixedSourceId = null;
     selectedExpenseCat = '';
+    selectedExpenseSubCat = '';
+    const subCatRow = document.getElementById('expenseSubCatRow');
+    if (subCatRow) subCatRow.style.display = 'none';
     document.getElementById('quickExpenseModal').classList.remove('active');
     document.getElementById('expenseCatText').value = '';
     document.getElementById('expenseAmt').value = '';
@@ -660,13 +736,14 @@
     if (!amt || amt <= 0) { toast('Enter a valid amount', 'error'); return; }
     ensureCategory(cat);
     const month = getMonth(activeMonth);
+    const subCat = (cat === VACATION_CAT && selectedExpenseSubCat) ? selectedExpenseSubCat : undefined;
     if (editingExpenseId) {
       const entry = month.expenses.find(e => e.id === editingExpenseId);
-      if (entry) { entry.category = cat; entry.description = desc; entry.amount = amt; entry.date = dateVal; }
+      if (entry) { entry.category = cat; entry.description = desc; entry.amount = amt; entry.date = dateVal; entry.subCategory = subCat; }
     } else if (editingFixedSourceId) {
-      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, fixedId: editingFixedSourceId, date: dateVal });
+      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, fixedId: editingFixedSourceId, date: dateVal, subCategory: subCat });
     } else {
-      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, date: dateVal });
+      month.expenses.push({ id: uid(), category: cat, description: desc, amount: amt, date: dateVal, subCategory: subCat });
     }
     const wasEditing = editingExpenseId;
     closeQuickExpenseModal();

@@ -73,10 +73,6 @@
       "name": "Vacation"
     },
     {
-      "id": "mpc7ez1yrrannn",
-      "name": "DoorDash"
-    },
-    {
       "id": "mpc87v5kiojg9m",
       "name": "Insurance"
     }
@@ -697,7 +693,7 @@
         },
         {
           "id": "mpc7ez1y91dkhq",
-          "category": "DoorDash",
+          "category": "Door Dash",
           "description": "",
           "amount": 83.48,
           "date": "2026-04-03"
@@ -743,13 +739,6 @@
           "description": "Subway",
           "amount": 9,
           "date": "2026-04-01"
-        },
-        {
-          "id": "mpc7lrhpm5orft",
-          "category": "Shopping",
-          "description": "Amazon",
-          "amount": 65,
-          "date": "2026-04-02"
         },
         {
           "id": "mpc7mh2girihiq",
@@ -949,7 +938,7 @@
         },
         {
           "id": "mpc88ma5inr1kb",
-          "category": "DoorDash",
+          "category": "Door Dash",
           "description": "Decan flavour",
           "amount": 36.21,
           "date": "2026-04-29"
@@ -1518,6 +1507,146 @@
           "description": "",
           "amount": 2,
           "date": "2026-05-19"
+        },
+        {
+          "id": "mpdaps8ct7jbh3",
+          "category": "Eat out",
+          "description": "Subway lunch",
+          "amount": 13,
+          "date": "2026-05-18"
+        },
+        {
+          "id": "mpdau1834bp3du",
+          "category": "Coffee",
+          "description": "",
+          "amount": 2,
+          "date": "2026-05-20"
+        },
+        {
+          "id": "mpdb9wp6qblosw",
+          "category": "Grocery",
+          "description": "Milk",
+          "amount": 5.9,
+          "date": "2026-05-19"
+        },
+        {
+          "id": "mpdbyuofgg9int",
+          "category": "Eat out",
+          "description": "Deccan Biryani, to be shared",
+          "amount": 138,
+          "date": "2026-05-19"
+        },
+        {
+          "id": "mpengsorrngc4s",
+          "category": "Coffee",
+          "description": "Office",
+          "amount": 15,
+          "date": "2026-05-20"
+        },
+        {
+          "id": "mpetj8axitiaw9",
+          "category": "Coffee",
+          "description": "",
+          "amount": 5,
+          "date": "2026-05-21"
+        },
+        {
+          "id": "mpf52f45i2x6oy",
+          "category": "Shopping",
+          "description": "Temu: Mouse etc",
+          "amount": 30,
+          "date": "2026-05-20"
+        },
+        {
+          "id": "mpg5w5489vifvz",
+          "category": "Coffee",
+          "description": "Coffee croissant",
+          "amount": 12.7,
+          "date": "2026-05-22"
+        },
+        {
+          "id": "mpg9ws6x0r1sb6",
+          "category": "Sports",
+          "description": "Padel",
+          "amount": 10,
+          "date": "2026-05-22"
+        },
+        {
+          "id": "mpgnm0ziszwfii",
+          "category": "Liquor",
+          "description": "Friday ofc drinks",
+          "amount": 12.68,
+          "date": "2026-05-22"
+        },
+        {
+          "id": "mpi4a7ie941dri",
+          "category": "Coffee",
+          "description": "Only",
+          "amount": 6,
+          "date": "2026-05-23"
+        },
+        {
+          "id": "mpi4am9sngvxrh",
+          "category": "Eat out",
+          "description": "Sydney library",
+          "amount": 28,
+          "date": "2026-05-23"
+        },
+        {
+          "id": "mpi4au7gggpn1t",
+          "category": "Eat out",
+          "description": "Knaffe",
+          "amount": 45,
+          "date": "2026-05-23"
+        },
+        {
+          "id": "mpi78qbuu0gn2y",
+          "category": "Grocery",
+          "description": "Coles",
+          "amount": 88,
+          "date": "2026-05-23"
+        },
+        {
+          "id": "mpia1ffq7aka4y",
+          "category": "Transport",
+          "description": "Didi to library",
+          "amount": 24.82,
+          "date": "2026-05-23"
+        },
+        {
+          "id": "mpji33xif5s5ud",
+          "category": "Coffee",
+          "description": "Only",
+          "amount": 23.4,
+          "date": "2026-05-24"
+        },
+        {
+          "id": "mpji3gfy64wf95",
+          "category": "Eat out",
+          "description": "Sandos",
+          "amount": 19.79,
+          "date": "2026-05-24"
+        },
+        {
+          "id": "mpji4p7cch4tu1",
+          "category": "Beauty Parlor/Salon",
+          "description": "Jeevi brows",
+          "amount": 13.98,
+          "date": "2026-05-24"
+        },
+        {
+          "id": "mpji59v9y9xuc2",
+          "category": "Eat out",
+          "description": "Thai chase",
+          "amount": 20.32,
+          "date": "2026-05-24"
+        },
+        {
+          "id": "mpji5oapyr49o2",
+          "category": "Eat out",
+          "description": "Doughnut",
+          "amount": 24.38,
+          "date": "2026-05-24"
         }
       ]
     },
