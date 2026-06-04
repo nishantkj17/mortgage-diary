@@ -1275,45 +1275,54 @@
       }
     });
 
-    // CSV Export
-    qs('#exportCsv').addEventListener('click', async ()=>{
+    // JSON Export
+    qs('#exportJson').addEventListener('click', async () => {
       try {
-        const response = await fetch(`${API_BASE}/export/csv`);
+        const response = await fetch(`${API_BASE}/data`);
         if (!response.ok) throw new Error('Export failed');
-        const blob = await response.blob();
+        const json = await response.json();
+        const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `mortgage_diary_${new Date().toISOString().split('T')[0]}.csv`;
+        a.download = `mortgage_diary_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         window.URL.revokeObjectURL(url);
+        showToast('Export successful ✓', 'success');
       } catch(e) {
         showToast('Export failed: ' + e.message, 'error');
       }
     });
 
-    // CSV Import
-    qs('#importCsv').addEventListener('click', ()=>{
-      qs('#csvFileInput').click();
+    // JSON Import
+    qs('#importJson').addEventListener('click', () => {
+      qs('#jsonFileInput').click();
     });
 
-    qs('#csvFileInput').addEventListener('change', async (e)=>{
+    qs('#jsonFileInput').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      
       try {
-        const csvData = await file.text();
-        const response = await fetch(`${API_BASE}/import/csv`, {
+        const text = await file.text();
+        const imported = JSON.parse(text);
+        if (!imported.accounts || !Array.isArray(imported.accounts)) {
+          return showToast('Invalid file: missing accounts array', 'error');
+        }
+        // Merge: preserve existing accounts not in file, upsert imported ones
+        const existing = data.accounts || [];
+        const importedMap = new Map(imported.accounts.map(a => [a.id, a]));
+        const existingMap = new Map(existing.map(a => [a.id, a]));
+        // Merge by id — imported wins, unknown existing accounts kept
+        importedMap.forEach((acc, id) => existingMap.set(id, acc));
+        const merged = { accounts: Array.from(existingMap.values()) };
+        const response = await fetch(`${API_BASE}/data`, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({csvData})
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(merged)
         });
-        
         if (!response.ok) throw new Error('Import failed');
-        const result = await response.json();
-        showToast(result.message || 'Import successful!', 'success');
-        
-        // Reload data
+        const added = imported.accounts.length;
+        showToast(`Import successful — ${added} account(s) restored ✓`, 'success');
         data = await load();
         renderAll();
         e.target.value = '';
