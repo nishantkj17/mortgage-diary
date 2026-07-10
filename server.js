@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 5001;
 
 // ── Storage mode ─────────────────────────────────────────────────────────────
 // Priority: MongoDB (MONGODB_URI) > Azure Blob (AZURE_STORAGE_CONNECTION_STRING) > local JSON
-const MONGODB_URI  = process.env.MONGODB_URI;
-const USE_MONGO    = !!MONGODB_URI;
+const MONGODB_URI  = 'mongodb+srv://nishantkj_db_user:TFdiyNUN2cwEdvOS@mortgagediary.bk5uscu.mongodb.net/';
+const USE_MONGO    = true;
 const USE_BLOB     = !USE_MONGO && !!process.env.AZURE_STORAGE_CONNECTION_STRING;
 const DATA_FILE    = path.join(__dirname, 'data', 'mortgage_data.json');
 const BUDGET_FILE  = path.join(__dirname, 'data', 'budget_data.json');
@@ -230,7 +230,11 @@ app.post('/api/budget', async (req, res) => {
 
 async function startServer() {
   if (USE_MONGO) {
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URI, {
+  dbName: 'mortgagediary',
+  retryWrites: true,
+  serverSelectionTimeoutMS: 10000,
+});
     console.log('Storage: MongoDB connected');
   } else if (USE_BLOB) {
     console.log('Storage: Azure Blob Storage');
