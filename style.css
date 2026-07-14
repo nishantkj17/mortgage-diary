@@ -94,6 +94,9 @@ main{display:flex;margin-top:12px}
 .modal-body{padding:20px}
 .modal-body h3{font-size:14px;margin:0 0 12px 0;color:#444;font-weight:600}
 .modal-body .account-create input{width:100%;padding:8px;margin-bottom:8px;border:1px solid #d6d7dc;border-radius:4px;font-size:14px}
+.account-currency-flag{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#607d8b;margin:0 0 10px;cursor:pointer;user-select:none}
+.account-currency-flag input[type="checkbox"]{width:14px;height:14px;cursor:pointer;accent-color:#607d8b}
+.account-currency-flag span{font-weight:600}
 .modal-body .account-create button{width:100%;padding:10px;border:none;background:#607d8b;color:#fff;border-radius:4px;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:12px}
 .modal-body .account-create button:hover{background:#546e7a}
 .delete-section{margin-top:20px;padding-top:16px;border-top:1px solid #e6e8ee}
@@ -386,6 +389,7 @@ html[data-theme="dark"] .account-selector-row label{color:#d1d5db}
 html[data-theme="dark"] .withdrawal-checkbox{background:#273344;color:#e07a5f}
 html[data-theme="dark"] .type-payment{color:#86efac}
 html[data-theme="dark"] .type-withdrawal{color:#fca5a5}
+html[data-theme="dark"] .account-currency-flag{color:#9ca3af}
 
 /* ── Landing Page ── */
 .landing-page{min-height:100vh;display:flex;flex-direction:column}

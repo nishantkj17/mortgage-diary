@@ -123,6 +123,10 @@
             <section class="account-create">
               <h3>Manage Accounts</h3>
               <input id="accountName" placeholder="New account name" />
+              <label class="account-currency-flag" title="Leave unchecked for default AUD">
+                <input type="checkbox" id="accountCurrencyInr" />
+                <span>INR</span>
+              </label>
               <button id="createAccount">Create Account</button>
               <div id="accountsList"></div>
             </section>
@@ -169,11 +173,11 @@
             </div>
             <div class="tenant-modal-row">
               <div class="form-field">
-                <label>Monthly Rent (&#8377;)</label>
+                  <label id="tenantRentLabel">Monthly Rent (A$)</label>
                 <input type="number" id="tRent" placeholder="e.g. 35000" min="0" />
               </div>
               <div class="form-field">
-                <label>Security Deposit (&#8377;)</label>
+                  <label id="tenantDepositLabel">Security Deposit (A$)</label>
                 <input type="number" id="tDeposit" placeholder="e.g. 70000" min="0" />
               </div>
             </div>
@@ -289,7 +293,7 @@
                       </select>
                     </div>
                     <div class="form-field">
-                      <label>Amount (&#8377;)</label>
+                      <label id="txnAmountLabel">Amount (A$)</label>
                       <input type="number" id="txnAmount" step="0.01" min="0" placeholder="e.g. 35000" required />
                     </div>
                     <div class="form-field txn-notes-field">

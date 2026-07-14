@@ -5,7 +5,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 5001;
 
 // ── Storage mode ─────────────────────────────────────────────────────────────
 // Priority: MongoDB (MONGODB_URI) > Azure Blob (AZURE_STORAGE_CONNECTION_STRING) > local JSON

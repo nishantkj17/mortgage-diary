@@ -65,6 +65,76 @@
   const qs = sel => document.querySelector(sel);
   const qsa = sel => Array.from(document.querySelectorAll(sel));
 
+  const ACCOUNT_CURRENCY_OVERRIDES = {
+    'bmw': 'AUD',
+    'kunal iconia': 'INR',
+    'lodha bellavita': 'INR'
+  };
+
+  function accountCurrencyOverride(name) {
+    if (!name) return null;
+    const key = String(name).trim().toLowerCase();
+    return ACCOUNT_CURRENCY_OVERRIDES[key] || null;
+  }
+
+  function getAccountCurrency(account) {
+    const forced = accountCurrencyOverride(account && account.name);
+    if (forced) return forced;
+    return account && account.currency === 'INR' ? 'INR' : 'AUD';
+  }
+
+  function currencyLocale(code) {
+    return code === 'INR' ? 'en-IN' : 'en-AU';
+  }
+
+  function currencySymbol(code) {
+    return code === 'INR' ? '₹' : 'A$';
+  }
+
+  function formatCurrency(value, code, opts = {}) {
+    const n = Number(value);
+    if (!isFinite(n)) return '—';
+    if (opts.compact) {
+      return new Intl.NumberFormat(currencyLocale(code), {
+        style: 'currency',
+        currency: code,
+        maximumFractionDigits: opts.maximumFractionDigits ?? 1,
+        notation: 'compact'
+      }).format(n);
+    }
+    return currencySymbol(code) + n.toLocaleString(currencyLocale(code), {
+      maximumFractionDigits: opts.maximumFractionDigits ?? 0
+    });
+  }
+
+  function formatLoanValue(value, code) {
+    const n = Number(value);
+    if (!isFinite(n)) return '—';
+    if (code === 'INR' && n >= 100000) {
+      return '₹' + (n / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
+    }
+    return formatCurrency(n, code, { compact: true, maximumFractionDigits: 2 });
+  }
+
+  function updateCurrencyLabels() {
+    const acc = getCurrentAccount();
+    const code = getAccountCurrency(acc);
+    const entryCode = code === 'INR' ? '₹' : 'A$';
+    const interestHeader = qs('#entriesTable th[data-sort="interest"]');
+    const balanceHeader = qs('#entriesTable th[data-sort="balance"]');
+    const paymentHeader = qs('#entriesTable th[data-sort="payment"]');
+    if (interestHeader) interestHeader.dataset.label = `Interest (${entryCode})`;
+    if (balanceHeader) balanceHeader.dataset.label = `Balance (${entryCode})`;
+    if (paymentHeader) paymentHeader.dataset.label = `Payment (${entryCode})`;
+
+    const rentLabel = qs('#tenantRentLabel');
+    const depositLabel = qs('#tenantDepositLabel');
+    const txnAmountLabel = qs('#txnAmountLabel');
+    if (rentLabel) rentLabel.textContent = `Monthly Rent (${entryCode})`;
+    if (depositLabel) depositLabel.textContent = `Security Deposit (${entryCode})`;
+    if (txnAmountLabel) txnAmountLabel.textContent = `Amount (${entryCode})`;
+  }
+
   let data = {accounts:[]};
   let currentAccountId = null;
   let chart = null;
@@ -102,6 +172,7 @@
 
   function renderAll() {
     renderAccountsList();
+    updateCurrencyLabels();
     renderEntries();
     renderSummaryCards();
     renderLoanProgress();
@@ -112,6 +183,18 @@
 
   async function init(){
     data = await load();
+
+    // Keep known accounts on required currencies even for older saved datasets.
+    let changed = false;
+    (data.accounts || []).forEach(acc => {
+      const expected = getAccountCurrency(acc);
+      if (acc.currency !== expected) {
+        acc.currency = expected;
+        changed = true;
+      }
+    });
+    if (changed) await save(data);
+
     renderAll();
   }
 
@@ -125,7 +208,9 @@
     const list = qs('#accountsList'); list.innerHTML='';
     data.accounts.forEach(acc=>{
       const div = document.createElement('div'); div.className='acc';
-      const title = document.createElement('div'); title.textContent = acc.name;
+      const title = document.createElement('div');
+      const code = getAccountCurrency(acc);
+      title.textContent = `${acc.name} (${code})`;
       const count = document.createElement('div'); count.textContent = (acc.entries||[]).length + ' entries';
       div.appendChild(title); div.appendChild(count);
       list.appendChild(div);
@@ -141,9 +226,11 @@
     if(mobSel) { mobSel.innerHTML = sel.innerHTML; mobSel.value = currentAccountId || ''; }
   }
 
-  async function createAccount(name){
+  async function createAccount(name, currency = 'AUD'){
     if(!name) return;
-    const acc = {id:uid(), name:name, entries:[], tenant:{}, transactions:[]};
+    const forced = accountCurrencyOverride(name);
+    const finalCurrency = forced || (currency === 'INR' ? 'INR' : 'AUD');
+    const acc = {id:uid(), name:name, currency: finalCurrency, entries:[], tenant:{}, transactions:[]};
     data.accounts.push(acc); 
     await save(data); 
     currentAccountId = acc.id; 
@@ -382,11 +469,8 @@
     if (!el) return;
     if (!data.accounts || !data.accounts.length) { el.innerHTML = '<p class="home-dash-empty">No property data yet.</p>'; return; }
 
-    function fmtL(v) {
-      return '₹' + (v / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
-    }
-
     el.innerHTML = data.accounts.map(acc => {
+      const curr = getAccountCurrency(acc);
       const rows = (acc.entries || []).filter(e => e.balance !== null && e.balance !== undefined);
       if (!rows.length) return '';
       const latest = rows.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
@@ -408,9 +492,9 @@
             <div class="loan-progress-fill" style="width:${pct.toFixed(2)}%"></div>
           </div>
           <div class="loan-progress-labels">
-            <span class="lp-repaid">↓ ${fmtL(repaid)} repaid</span>
-            <span style="color:#90a4ae;font-size:11px">of ${fmtL(TOTAL_LOAN)}</span>
-            <span class="lp-remaining">${fmtL(currentBalance)} remaining ↑</span>
+            <span class="lp-repaid">↓ ${formatLoanValue(repaid, curr)} repaid</span>
+            <span style="color:#90a4ae;font-size:11px">of ${formatLoanValue(TOTAL_LOAN, curr)}</span>
+            <span class="lp-remaining">${formatLoanValue(currentBalance, curr)} remaining ↑</span>
           </div>
         </div>`;
     }).join('');
@@ -433,10 +517,7 @@
     const TOTAL_LOAN = balanceValues.length > 0 ? Math.max(...balanceValues) : currentBalance;
     const repaid = Math.max(0, TOTAL_LOAN - currentBalance);
     const pct = Math.min(100, (repaid / TOTAL_LOAN) * 100);
-
-    function fmtL(v) {
-      return '₹' + (v / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
-    }
+    const curr = getAccountCurrency(acc);
 
     el.innerHTML = `
       <div class="loan-progress-header">
@@ -450,9 +531,9 @@
         <div class="loan-progress-fill" style="width:${pct.toFixed(2)}%"></div>
       </div>
       <div class="loan-progress-labels">
-        <span class="lp-repaid">↓ ${fmtL(repaid)} repaid</span>
-        <span style="color:#90a4ae;font-size:11px">of ${fmtL(TOTAL_LOAN)}</span>
-        <span class="lp-remaining">${fmtL(currentBalance)} remaining ↑</span>
+        <span class="lp-repaid">↓ ${formatLoanValue(repaid, curr)} repaid</span>
+        <span style="color:#90a4ae;font-size:11px">of ${formatLoanValue(TOTAL_LOAN, curr)}</span>
+        <span class="lp-remaining">${formatLoanValue(currentBalance, curr)} remaining ↑</span>
       </div>
     `;
   }
@@ -493,12 +574,13 @@
     const prevBalance    = prev   ? prev.balance    : null;
     const latestInterest = latest ? latest.interest : null;
     const prevInterest   = prev   ? prev.interest   : null;
+    const curr = getAccountCurrency(acc);
 
     function fmt(val) {
       if (val === null || val === undefined) return '—';
       const n = Number(val);
-      if (n >= 100000) return '₹' + (n / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
-      return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+      if (curr === 'INR' && n >= 100000) return '₹' + (n / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
+      return formatCurrency(n, curr, { maximumFractionDigits: 0 });
     }
 
     function trendHtml(cur, prv) {
@@ -529,7 +611,7 @@
     const interestIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#607d8b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`;
     const sumIcon        = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5l8 7-8 7"/><line x1="13" y1="12" x2="20" y2="12"/></svg>`;
     const depositIcon    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b9080" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
-    const PROPERTY_VALUES  = { 'Kunal Iconia': 5700000, 'Lodha Bellavita': 12084000 };
+    const PROPERTY_VALUES  = { 'Kunal Iconia': 5700000, 'Lodha Bellavita': 12084000, 'BMW': 80000 };
     const propertyValue    = PROPERTY_VALUES[acc.name] || 0;
     const effectiveCost    = totalInterest + propertyValue;
     const withdrawIcon   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c09a6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
@@ -610,6 +692,7 @@
     const tenant      = acc.tenant || {};
     const transactions = acc.transactions || [];
     const isOccupied  = !!(tenant.name && tenant.name.trim());
+    const curr = getAccountCurrency(acc);
 
     let leaseWarning = '';
     if (tenant.leaseEnd) {
@@ -629,8 +712,8 @@
               ${tenant.moveIn ? `<span>Since ${formatMonthYear(tenant.moveIn)}</span>` : ''}
               ${tenant.leaseEnd ? `<span>Lease end: ${formatMonthYear(tenant.leaseEnd)} ${leaseWarning}</span>` : ''}
             </div>
-            ${tenant.rentAmount ? `<div class="tenant-rent">₹${Number(tenant.rentAmount).toLocaleString('en-IN')}<span class="tenant-rent-period">/month</span></div>` : ''}
-            ${tenant.deposit ? `<div class="tenant-meta">Deposit: ₹${Number(tenant.deposit).toLocaleString('en-IN')}</div>` : ''}
+            ${tenant.rentAmount ? `<div class="tenant-rent">${formatCurrency(Number(tenant.rentAmount), curr)}<span class="tenant-rent-period">/month</span></div>` : ''}
+            ${tenant.deposit ? `<div class="tenant-meta">Deposit: ${formatCurrency(Number(tenant.deposit), curr)}</div>` : ''}
           ` : '<div class="tenant-vacant-hint">No tenant — tap Edit to add details</div>'}
         </div>
         <button class="tenant-edit-btn" id="editTenantBtn">
@@ -643,8 +726,8 @@
 
     function fmtT(v) {
       const n = Math.abs(Number(v));
-      if (n >= 100000) return '₹' + (n / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
-      return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+      if (curr === 'INR' && n >= 100000) return '₹' + (n / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + 'L';
+      return formatCurrency(n, curr, { maximumFractionDigits: 0 });
     }
     const totalIncome   = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
     const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
@@ -777,6 +860,7 @@
     if(!acc || !acc.entries || acc.entries.length === 0){ 
       return;
     }
+    const curr = getAccountCurrency(acc);
     
     const rows = acc.entries.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
     
@@ -1005,22 +1089,22 @@
             y:{
               type:'linear',
               position:'left',
-              title:{display:true,text: useYearly ? 'Avg Monthly Interest (₹)' : useQuarterly ? 'Avg Monthly Interest (₹)' : 'Interest (₹)'},
+              title:{display:true,text: useYearly ? `Avg Monthly Interest (${currencySymbol(curr)})` : useQuarterly ? `Avg Monthly Interest (${currencySymbol(curr)})` : `Interest (${currencySymbol(curr)})`},
               beginAtZero: true,
-              max: 80000,
+              
               grid:{color:'rgba(0,0,0,0.05)'},
               ticks:{
-                callback: v => v >= 1000 ? (v/1000) + 'K' : v
+                callback: v => formatCurrency(v, curr, { compact: true, maximumFractionDigits: 1 })
               }
             },
             y1:{
               type:'linear',
               position:'right',
-              title:{display:true,text:'Balance (₹)'},
+              title:{display:true,text:`Balance (${currencySymbol(curr)})`},
               grid:{drawOnChartArea:false},
-              beginAtZero: false,
+              beginAtZero: true,
               ticks:{
-                callback: v => (v/100000).toLocaleString('en-IN',{maximumFractionDigits:1}) + 'L'
+                callback: v => formatCurrency(v, curr, { compact: true, maximumFractionDigits: 1 })
               }
             }
           }
@@ -1088,13 +1172,19 @@
 
     // wire up create account
     qs('#createAccount').addEventListener('click',()=>{
-      const name = qs('#accountName').value.trim(); if(!name) return showToast('Enter an account name', 'error'); createAccount(name); qs('#accountName').value='';
+      const name = qs('#accountName').value.trim();
+      if(!name) return showToast('Enter an account name', 'error');
+      const useInr = !!qs('#accountCurrencyInr')?.checked;
+      createAccount(name, useInr ? 'INR' : 'AUD');
+      qs('#accountName').value='';
+      if(qs('#accountCurrencyInr')) qs('#accountCurrencyInr').checked = false;
     });
 
     qs('#selectAccount').addEventListener('change',(e)=>{ 
       currentAccountId = e.target.value;
       const mobSel = qs('#mobileSelectAccount');
       if(mobSel) mobSel.value = e.target.value;
+      updateCurrencyLabels();
       renderEntries(); renderSummaryCards(); renderLoanProgress(); updateChart();
     });
     
@@ -1401,6 +1491,7 @@
       mobAccountSel.addEventListener('change', (e) => {
         currentAccountId = e.target.value;
         qs('#selectAccount').value = e.target.value;
+        updateCurrencyLabels();
         renderEntries(); renderSummaryCards(); renderLoanProgress(); updateChart(); renderTenants();
       });
     }
